@@ -1,0 +1,19 @@
+{
+    "name": "idcore/core-starter",
+    "description": "Core Starter Kit - RBAC, Menu Dinamis, DataTable, Export",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "IdCore\\CoreStarter\\": "src/",
+            "IdCore\\CoreStarter\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "IdCore\\CoreStarter\\Providers\\CoreServiceProvider"
+            ]
+        }
+    }
+}
