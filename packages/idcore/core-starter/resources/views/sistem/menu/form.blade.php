@@ -83,7 +83,7 @@
                     window.location.href = '{{ route('sistem.menu.index') }}';
                 }
             ">Batal</x-idcore::button>
-            <x-idcore::button type="submit" variant="primary">Simpan</x-idcore::button>
+            <x-idcore::button type="submit" variant="{{ $menu->exists ? 'warning' : 'success' }}">Simpan</x-idcore::button>
         </div>
     </form>
 </x-idcore::card>

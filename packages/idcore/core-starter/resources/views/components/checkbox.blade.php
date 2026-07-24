@@ -25,5 +25,5 @@
             </svg>
         </div>
     </div>
-    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $label }}</span>
+    <span class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ $label }}</span>
 </label>

@@ -27,20 +27,61 @@ composer require spatie/laravel-permission
 
 ```bash
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+```
+
+### Enable UUID support in Spatie config
+
+Set `'uuid' => true` in `config/permission.php` so that pivot tables use UUID for the morph key:
+
+```php
+// config/permission.php
+'uuid' => true,
+```
+
+### Modify Spatie migration for UUID
+
+Edit `database/migrations/*_create_permission_tables.php` — change the morph key column type from `unsignedBigInteger` to `uuid`:
+
+```php
+// Cari baris ini:
+$table->unsignedBigInteger($columnNames['model_morph_key']);
+
+// Ubah menjadi:
+$table->uuid($columnNames['model_morph_key']);
+```
+
+Then run migration:
+
+```bash
 php artisan migrate
 ```
 
-### Add `HasRoles` trait to `User` model
+### Update User model with HasUuids + HasRoles
 
 ```php
 // app/Models/User.php
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasRoles;
-    // ...
+    use HasUuids, HasRoles;
+
+    protected $fillable = ['name', 'email', 'password', 'default_role_id'];
 }
+```
+
+### Update Users migration for UUID primary key
+
+Edit `database/migrations/0001_01_01_000000_create_users_table.php`:
+
+```php
+// Ubah $table->id() menjadi:
+$table->uuid('id')->primary();
+
+// Tambahkan kolom berikut:
+$table->unsignedBigInteger('default_role_id')->nullable();
+$table->uuid('user_id')->nullable()->index();
 ```
 
 ## Step 3: Install Additional Backend Dependencies
@@ -263,13 +304,14 @@ php artisan tinker
 ```
 
 ```php
+$role = \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first();
 $user = \App\Models\User::create([
     'name' => 'Admin',
     'email' => 'admin@example.com',
     'password' => bcrypt('password'),
+    'default_role_id' => $role->id,
 ]);
-$user->assignRole('Super Admin');
-$user->update(['default_role_id' => \Spatie\Permission\Models\Role::where('name', 'Super Admin')->first()->id]);
+$user->assignRole($role);
 ```
 
 ## Step 11: Build Assets & Serve

@@ -10,7 +10,7 @@
     </div>
 
     <div x-show="open" x-cloak @click.outside="open = false" x-transition.origin.top.right
-         class="absolute {{ $alignClass }} z-40 mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl shadow-gray-900/10 dark:border-gray-700 dark:bg-gray-900 dark:shadow-black/30">
+         class="absolute {{ $alignClass }} z-40 mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white p-1.5 shadow-theme-lg dark:border-gray-700 dark:bg-gray-900">
         {{ $slot }}
     </div>
 </div>

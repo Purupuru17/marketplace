@@ -16,14 +16,14 @@
 
 <div>
     @if($label)
-        <label for="{{ $inputId }}" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
+        <label for="{{ $inputId }}" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
             {{ $label }} @if($required)<span class="text-danger-500">*</span>@endif
         </label>
     @endif
 
     <div class="relative z-20 bg-transparent dark:bg-gray-900">
         <select id="{{ $inputId }}" name="{{ $name }}" @if($required) required @endif
-            {{ $attributes->merge(['class' => 'relative z-20 w-full appearance-none rounded-lg border bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:bg-gray-900 ' . ($hasError ? 'border-danger-500 focus:border-danger-500' : 'border-gray-200 focus:border-primary dark:border-gray-700 dark:focus:border-primary')]) }}>
+            {{ $attributes->merge(['class' => 'relative z-20 w-full appearance-none rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-none transition focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-800 dark:disabled:text-gray-400 ' . ($hasError ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-500/10 dark:border-danger-700' : 'border-gray-200 focus:border-brand-500 focus:ring-brand-500/10 dark:border-gray-700')]) }}>
             @if($placeholder)
                 <option value="" class="text-gray-500 dark:text-gray-400">{{ $placeholder }}</option>
             @endif

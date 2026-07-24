@@ -16,6 +16,6 @@
         <span :class="on ? 'translate-x-6' : 'translate-x-1'" class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform"></span>
     </button>
     @if($label)
-        <label for="{{ $inputId }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $label }}</label>
+        <label for="{{ $inputId }}" class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ $label }}</label>
     @endif
 </div>

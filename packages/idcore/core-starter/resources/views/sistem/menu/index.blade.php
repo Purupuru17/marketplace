@@ -12,28 +12,23 @@
     @endcan
 </div>
 
-<x-idcore::card title="Datatable Menu" subtitle="Struktur menu sidebar dan action permission yang digenerate" :padding="false">
-    <div class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
+    <x-idcore::card title="Datatable Menu" subtitle="Struktur menu sidebar dan action permission yang digenerate" :padding="false">
+    <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
-            <select class="h-9 rounded-lg border-gray-200 bg-white text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                <option>All</option>
-                <option>10</option>
-                <option>8</option>
-                <option>5</option>
-            </select>
+            <x-idcore::select name="per_page" :options="['All' => 'All', '10' => '10', '8' => '8', '5' => '5']" :selected="request('per_page', 'All')" placeholder="" onchange="this.form.submit()" />
             <span>entries</span>
         </div>
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div class="relative w-full sm:w-72">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</span>
-                <input type="search" placeholder="Search..." class="h-10 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-3 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</span>
+                <x-idcore::input name="search" type="search" value="{{ request('search') }}" placeholder="Search..." />
             </div>
-            <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">
-                @svg('heroicon-o-arrow-down-tray', 'h-4 w-4 text-gray-500') Download
-            </button>
+            <x-idcore::button variant="outline" size="sm">
+                @svg('heroicon-o-arrow-down-tray', 'h-4 w-4') Download
+            </x-idcore::button>
         </div>
-    </div>
+    </form>
 
     <x-idcore::table>
         <thead class="bg-gray-50 dark:bg-gray-800/50">
@@ -42,7 +37,7 @@
                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 hidden md:table-cell">URL</th>
                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 hidden lg:table-cell">Actions</th>
                 <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Action</th>
+                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Aksi</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">

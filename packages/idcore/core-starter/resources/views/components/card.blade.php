@@ -4,13 +4,13 @@
     'padding' => true,
 ])
 
-<div {{ $attributes->merge(['class' => 'rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900']) }}>
+<div {{ $attributes->merge(['class' => 'rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-700 dark:bg-white/[0.03]']) }}>
     @if($title || $subtitle || isset($actions))
-        <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-700 sm:px-6">
+        <div class="border-b border-gray-200 px-6 py-5 dark:border-gray-700 sm:px-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div class="min-w-0">
                     @if($title)
-                        <h4 class="font-semibold text-gray-900 dark:text-white text-base">{{ $title }}</h4>
+                        <h4 class="font-medium text-gray-900 dark:text-white text-base">{{ $title }}</h4>
                     @endif
                     @if($subtitle)
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $subtitle }}</p>

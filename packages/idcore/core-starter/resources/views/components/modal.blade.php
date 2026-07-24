@@ -25,10 +25,10 @@
 
             <div class="flex min-h-full items-center justify-center p-4">
                 <div x-show="open" x-transition @click.outside="open = false"
-                     class="relative w-full {{ $widthClass }} rounded-lg bg-white shadow-xl dark:bg-gray-900 dark:border dark:border-gray-700">
+                     class="relative w-full {{ $widthClass }} rounded-2xl bg-white shadow-theme-lg dark:bg-gray-900 dark:border dark:border-gray-700">
 
-                    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-700">
-                        <h5 class="font-semibold text-gray-800 dark:text-white">{{ $title ?? '' }}</h5>
+                    <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+                        <h5 class="font-medium text-gray-900 dark:text-white">{{ $title ?? '' }}</h5>
                         <button @click="open = false" type="button"
                                 class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

@@ -59,7 +59,7 @@
                     window.location.href = '{{ route('sistem.user.index') }}';
                 }
             ">Batal</x-idcore::button>
-            <x-idcore::button type="submit" variant="primary">Simpan</x-idcore::button>
+            <x-idcore::button type="submit" variant="{{ $user ? 'warning' : 'success' }}">Simpan</x-idcore::button>
         </div>
     </form>
 </x-idcore::card>

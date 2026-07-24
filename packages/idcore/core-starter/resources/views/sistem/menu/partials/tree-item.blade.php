@@ -55,24 +55,23 @@
         <td class="px-6 py-4 text-right">
             <div class="flex items-center justify-end gap-1">
                 @can('menu.edit')
-                    <a href="{{ route('sistem.menu.edit', $item['id']) }}"
-                       class="inline-flex h-7 w-7 items-center justify-center rounded-full text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10">
+                    <x-idcore::button variant="outline-warning" size="xs" circle tooltip="Edit" :href="route('sistem.menu.edit', $item['id'])">
                         @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
-                    </a>
+                    </x-idcore::button>
                 @endcan
                 @can('menu.delete')
-                    <button type="button" x-data
-                            @click.prevent="
-                                $confirm({
-                                    title: 'Hapus Menu?',
-                                    message: 'Menu {{ $item['name'] }} akan dihapus permanen.',
-                                    confirmText: 'Ya, Hapus',
-                                    variant: 'danger'
-                                }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
-                            "
-                            class="inline-flex h-7 w-7 items-center justify-center rounded-full text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10">
+                    <x-idcore::button variant="outline-danger" size="xs" circle tooltip="Hapus"
+                        x-data
+                        @click.prevent="
+                            $confirm({
+                                title: 'Hapus Menu?',
+                                message: 'Menu {{ $item['name'] }} akan dihapus permanen.',
+                                confirmText: 'Ya, Hapus',
+                                variant: 'danger'
+                            }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
+                        ">
                         @svg('heroicon-o-trash', 'h-3.5 w-3.5')
-                    </button>
+                    </x-idcore::button>
                     <form action="{{ route('sistem.menu.destroy', $item['id']) }}" method="POST" class="hidden">
                         @csrf @method('DELETE')
                     </form>
