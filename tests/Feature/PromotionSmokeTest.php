@@ -10,7 +10,7 @@ use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Models\Store;
 use App\Models\User;
-use App\Services\Pricing\PromotionService;
+use App\Services\Pricing\PromotionPricingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
@@ -204,7 +204,7 @@ class PromotionSmokeTest extends TestCase
             'status' => 'active',
         ])->products()->attach($product->id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(25000.0, $pricing['original']);
         $this->assertSame(22500.0, $pricing['effective']);
@@ -239,7 +239,7 @@ class PromotionSmokeTest extends TestCase
             'status' => 'active',
         ])->products()->attach($product->id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(25000.0, $pricing['effective']);
         $this->assertNull($pricing['promotion']);

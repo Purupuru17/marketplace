@@ -12,7 +12,7 @@ use App\Models\OrderStatusHistory;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\Store;
-use App\Services\Pricing\PromotionService;
+use App\Services\Pricing\PromotionPricingService;
 use App\Services\Shipping\ShippingService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +25,7 @@ class CheckoutService
         protected CartService $cartService,
         protected ShippingService $shippingService,
         protected PaymentService $paymentService,
-        protected PromotionService $promotionService,
+        protected PromotionPricingService $promotionPricingService,
         protected LoyaltyService $loyaltyService
     ) {}
 
@@ -41,7 +41,7 @@ class CheckoutService
                 $discount = 0.0;
 
                 foreach ($group as $item) {
-                    $pricing = $this->promotionService->pricing($item->variant);
+                    $pricing = $this->promotionPricingService->pricing($item->variant);
                     $item->setAttribute('unit_price', $pricing['effective']);
                     $item->setAttribute('unit_original_price', $pricing['original']);
                     $item->setAttribute('unit_discount', $pricing['discount']);
@@ -172,7 +172,7 @@ class CheckoutService
     }
 
     /**
-     * @param  array<string, string>  $errors
+     * @param  array<string, array<int, string>>  $errors
      * @return array{store: Store, items: Collection<int, CartItem>, subtotal: float, discount: float, shipping_cost: float, total: float, distance_km: float|null, origin_node: string|null, destination_node: string|null, rate_per_km: float|null, free_distance: float|null, pricing: array<string, array{original: float, effective: float, discount: float}>}
      */
     protected function buildOrderPayload(Store $store, $group, CustomerAddress $address, array &$errors): array
@@ -186,16 +186,16 @@ class CheckoutService
             $variant->loadMissing(['product', 'store']);
 
             if ($variant->status !== 'active' || $variant->product->status !== 'active' || $variant->store->status !== 'active') {
-                $errors['items'] = "Produk {$variant->product->name} tidak tersedia.";
+                $errors['items'][] = "Produk {$variant->product->name} tidak tersedia.";
             }
 
             $freshVariant = ProductVariant::whereKey($variant->id)->lockForUpdate()->first();
 
             if ((int) $freshVariant->stock < $item->qty) {
-                $errors['items'] = "Stok {$variant->product->name} ({$variant->sku}) tidak mencukupi.";
+                $errors['items'][] = "Stok {$variant->product->name} ({$variant->sku}) tidak mencukupi.";
             }
 
-            $itemPricing = $this->promotionService->pricing($variant);
+            $itemPricing = $this->promotionPricingService->pricing($variant);
             $pricing[$item->id] = $itemPricing;
             $subtotal += $itemPricing['effective'] * $item->qty;
             $discount += $itemPricing['discount'] * $item->qty;
@@ -204,7 +204,7 @@ class CheckoutService
         $estimate = $this->shippingService->estimate($store, $address->locationNode);
 
         if (! $estimate['within_radius']) {
-            $errors['items'] = "Toko {$store->store_name} di luar jangkauan pengiriman.";
+            $errors['items'][] = "Toko {$store->store_name} di luar jangkauan pengiriman.";
         }
 
         $shippingCost = $estimate['cost'];
@@ -288,14 +288,25 @@ class CheckoutService
         return $this->nextNumbered('orders', 'ORD');
     }
 
-    protected function nextNumbered(string $table, string $prefix): string
+     protected function nextNumbered(string $table, string $prefix): string
     {
         $today = now()->format('Ymd');
-        $count = DB::table($table)
-            ->where('created_at', '>=', now()->startOfDay())
-            ->where('created_at', '<=', now()->endOfDay())
-            ->count();
+        $key = "{$table}:{$today}";
 
-        return "{$prefix}-{$today}-".Str::padLeft((string) ($count + 1), 4, '0');
+        $number = DB::transaction(function () use ($key) {
+            $row = DB::table('number_sequences')->where('key', $key)->lockForUpdate()->first();
+
+            if ($row) {
+                $next = $row->last_number + 1;
+                DB::table('number_sequences')->where('key', $key)->update(['last_number' => $next]);
+            } else {
+                $next = 1;
+                DB::table('number_sequences')->insert(['key' => $key, 'last_number' => $next]);
+            }
+
+            return $next;
+        });
+
+        return "{$prefix}-{$today}-".Str::padLeft((string) $number, 4, '0');
     }
 }

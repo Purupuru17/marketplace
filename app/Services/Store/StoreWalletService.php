@@ -96,8 +96,10 @@ class StoreWalletService
 
     public function withdrawable(Wallet $wallet): float
     {
+        // Withdrawal berstatus 'approved' sudah memotong available_balance secara langsung
+        // di process() — jadi jangan dihitung lagi di sini, cukup yang masih 'pending'.
         $reserved = (float) $wallet->withdrawalRequests()
-            ->whereIn('status', ['pending', 'approved'])
+            ->where('status', 'pending')
             ->sum('amount');
 
         return max(0, (float) $wallet->available_balance - $reserved);

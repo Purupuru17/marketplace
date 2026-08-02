@@ -7,7 +7,7 @@ use App\Models\ProductVariant;
 use App\Models\Promotion;
 use Illuminate\Support\Collection;
 
-class PromotionService
+class PromotionPricingService
 {
     /**
      * @return array{original: float, effective: float, discount: float, promotion: Promotion|null}

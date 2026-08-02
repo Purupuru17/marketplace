@@ -8,7 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Models\Store;
 use App\Models\User;
-use App\Services\Pricing\PromotionService;
+use App\Services\Pricing\PromotionPricingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
@@ -81,7 +81,7 @@ class PromotionServiceTest extends TestCase
         $store = $this->makeStore('STR-P1');
         $variant = $this->makeVariant($store, 100000);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(100000.0, $pricing['original']);
         $this->assertSame(100000.0, $pricing['effective']);
@@ -96,7 +96,7 @@ class PromotionServiceTest extends TestCase
         $promo = $this->makePromotion($store, 'percentage', 20);
         $promo->products()->attach($variant->product_id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(80000.0, $pricing['effective']);
         $this->assertSame(20000.0, $pricing['discount']);
@@ -110,7 +110,7 @@ class PromotionServiceTest extends TestCase
         $promo = $this->makePromotion($store, 'fixed', 30000);
         $promo->products()->attach($variant->product_id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(70000.0, $pricing['effective']);
         $this->assertSame(30000.0, $pricing['discount']);
@@ -125,7 +125,7 @@ class PromotionServiceTest extends TestCase
         $percentage->products()->attach($variant->product_id);
         $fixed->products()->attach($variant->product_id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(80000.0, $pricing['effective']);
         $this->assertSame(20000.0, $pricing['discount']);
@@ -145,7 +145,7 @@ class PromotionServiceTest extends TestCase
             $promo->products()->attach($variant->product_id);
         }
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(100000.0, $pricing['effective']);
         $this->assertSame(0.0, $pricing['discount']);
@@ -161,7 +161,7 @@ class PromotionServiceTest extends TestCase
         $promoA = $this->makePromotion($storeA, 'fixed', 50000);
         $promoA->products()->attach($variantB->product_id);
 
-        $pricing = app(PromotionService::class)->pricing($variantB);
+        $pricing = app(PromotionPricingService::class)->pricing($variantB);
 
         $this->assertSame(100000.0, $pricing['effective']);
         $this->assertSame(0.0, $pricing['discount']);
@@ -177,7 +177,7 @@ class PromotionServiceTest extends TestCase
         ]);
         $promo->products()->attach($variant->product_id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(90000.0, $pricing['effective']);
     }
@@ -189,7 +189,7 @@ class PromotionServiceTest extends TestCase
         $promo = $this->makePromotion($store, 'fixed', 999999);
         $promo->products()->attach($variant->product_id);
 
-        $pricing = app(PromotionService::class)->pricing($variant);
+        $pricing = app(PromotionPricingService::class)->pricing($variant);
 
         $this->assertSame(0.0, $pricing['effective']);
         $this->assertSame(10000.0, $pricing['discount']);

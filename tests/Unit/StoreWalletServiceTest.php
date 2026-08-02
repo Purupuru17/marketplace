@@ -188,14 +188,30 @@ class StoreWalletServiceTest extends TestCase
         $this->assertSame($order->id, $transaction->reference_id);
     }
 
-    public function test_withdrawable_reserves_pending_and_approved_requests(): void
+    public function test_withdrawable_only_reserves_pending_requests(): void
     {
         $service = app(StoreWalletService::class);
         $store = $this->makeStore('STR-W9');
         $wallet = $service->walletFor($store);
         $wallet->update(['available_balance' => 100000]);
 
-        foreach (['pending' => 40000, 'approved' => 10000, 'rejected' => 20000, 'completed' => 5000] as $status => $amount) {
+        // Approved lewat process() -> ini memotong available_balance secara langsung,
+        // jadi TIDAK boleh direserve lagi oleh withdrawable().
+        $toApprove = WithdrawalRequest::create([
+            'wallet_id' => $wallet->id,
+            'store_id' => $store->id,
+            'amount' => 10000,
+            'bank_name' => 'BCA',
+            'account_number' => '12345',
+            'account_name' => 'Pemilik',
+            'status' => 'pending',
+        ]);
+
+        $admin = User::factory()->create();
+        $admin->assignRole('Administrator');
+        $service->process($toApprove, 'approve', $admin);
+
+        foreach (['pending' => 40000, 'rejected' => 20000, 'completed' => 5000] as $status => $amount) {
             WithdrawalRequest::create([
                 'wallet_id' => $wallet->id,
                 'store_id' => $store->id,
@@ -207,7 +223,10 @@ class StoreWalletServiceTest extends TestCase
             ]);
         }
 
-        $this->assertSame(50000.0, $service->withdrawable($wallet));
+        // available_balance: 100000 - 10000 (sudah dipotong saat approve) = 90000
+        // reserved: hanya yang pending (40000)
+        // withdrawable: 90000 - 40000 = 50000
+        $this->assertSame(50000.0, $service->withdrawable($wallet->refresh()));
     }
 
     public function test_request_withdrawal_creates_pending_request(): void

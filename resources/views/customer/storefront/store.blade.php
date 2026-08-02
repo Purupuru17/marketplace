@@ -49,7 +49,7 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         @foreach($products as $product)
             @php
-                $pricingService = app(\App\Services\Pricing\PromotionService::class);
+                $pricingService = app(\App\Services\Pricing\PromotionPricingService::class);
                 $effectivePrices = $product->variants->map(fn ($v) => $pricingService->pricing($v)['effective']);
                 $minPrice = $effectivePrices->min();
                 $hasPromo = $product->variants->contains(fn ($v) => $pricingService->pricing($v)['promotion'] !== null);

@@ -6,12 +6,12 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\ProductVariant;
-use App\Services\Pricing\PromotionService;
+use App\Services\Pricing\PromotionPricingService;
 use Illuminate\Validation\ValidationException;
 
 class CartService
 {
-    public function __construct(protected PromotionService $promotionService) {}
+    public function __construct(protected PromotionPricingService $promotionPricingService) {}
 
     public function getActiveCart(Customer $customer): Cart
     {
@@ -93,7 +93,7 @@ class CartService
                 $store = $group->first()->variant->product->store;
 
                 foreach ($group as $item) {
-                    $pricing = $this->promotionService->pricing($item->variant);
+                    $pricing = $this->promotionPricingService->pricing($item->variant);
                     $item->setAttribute('unit_price', $pricing['effective']);
                     $item->setAttribute('unit_original_price', $pricing['original']);
                     $item->setAttribute('unit_discount', $pricing['discount']);

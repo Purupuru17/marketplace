@@ -3,7 +3,7 @@
 
 @section('content')
 @php
-    $pricingService = app(\App\Services\Pricing\PromotionService::class);
+    $pricingService = app(\App\Services\Pricing\PromotionPricingService::class);
     $variantPricing = $product->variants->mapWithKeys(
         fn ($v) => [$v->id => $pricingService->pricing($v)]
     );

@@ -8,6 +8,7 @@ Sistem mendukung Admin, Toko dan Customer dengan autentikasi terpisah. Marketpla
 mendukung checkout multi-toko, perhitungan ongkir menggunakan graph Dijkstra, pembayaran
 (COD, Transfer Manual, Midtrans), wallet toko, subscription SaaS, promo, rating, favorit,
 chat, serta arsitektur service yang modular.
+
 2. Teknologi
 - Laravel 13
 - Blade + Tailwind + Alpine.js
@@ -17,6 +18,7 @@ chat, serta arsitektur service yang modular.
 - RBAC dari idcore/core-starter
 - Heroicons
 - Service Layer
+
 3. Roadmap
     1. 1. Foundation (Auth, RBAC, Guard, Policy, Store Context)
     2. 2. Master Data
@@ -32,6 +34,7 @@ chat, serta arsitektur service yang modular.
     12. 12. Rating & Favorit
     13. 13. Chat
     14. 14. Hardening, Testing & Deployment
+
 4. Ringkasan 27 Arsitektur Inti
     15. 1. Identity & Access (users dan customers dipisah).
     16. 2. Toko sebagai tenant marketplace.
@@ -70,6 +73,7 @@ chat, serta arsitektur service yang modular.
 - Pengembangan dilakukan bertahap sesuai sprint.
 6. Catatan
 Dokumen ini merupakan ringkasan diskusi dan akan digunakan sebagai konteks awal pada chat baru. Dokumen ini menjadi acuan utama sebelum implementasi migration maupun coding dimulai.
+
 7. Progress
 - Step 1-13 Selesai: Foundation sampai Chat real-time (Reverb/Pusher). Chat: ChatConversation/ChatMessage, ChatService (start unik per [customer,store,product], send transaction + broadcast resilient), MessageSent ke channel private `chat.{id}`, ChatChannel::join() multi-guard, controller + view customer & store, permission `chat.*`, menu Toko.
 - Step 14 (Hardening & Testing) Selesai:

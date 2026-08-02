@@ -10,6 +10,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductVariantService
 {
+    public function __construct(protected StockService $stockService) {}
+
     public function paginate(array $filters = [], ?array $storeIds = null, int $perPage = 10): LengthAwarePaginator
     {
         return ProductVariant::query()
@@ -31,17 +33,30 @@ class ProductVariantService
         $product = Product::findOrFail($data['product_id']);
         $data['store_id'] = $product->store_id;
 
-        $variant = ProductVariant::create($data);
+        $initialStock = (int) ($data['stock'] ?? 0);
+        unset($data['stock']);
+
+        $variant = ProductVariant::create([...$data, 'stock' => 0]);
+
+        if ($initialStock > 0) {
+            $this->stockService->adjustTo($variant, $initialStock, 'Stok awal saat varian dibuat.');
+        }
 
         $this->syncAttributeValues($variant, $data['attribute_value_ids'] ?? []);
 
-        return $variant;
+        return $variant->fresh();
     }
 
     public function update(ProductVariant $variant, array $data): bool
     {
         if (isset($data['product_id']) && $data['product_id'] !== $variant->product_id) {
             $data['store_id'] = Product::findOrFail($data['product_id'])->store_id;
+        }
+
+        if (array_key_exists('stock', $data)) {
+            $newStock = (int) $data['stock'];
+            unset($data['stock']);
+            $this->stockService->adjustTo($variant, $newStock, 'Koreksi stok manual oleh admin/toko.');
         }
 
         $updated = $variant->update($data);
