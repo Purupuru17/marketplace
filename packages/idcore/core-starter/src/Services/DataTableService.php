@@ -2,9 +2,9 @@
 
 namespace IdCore\CoreStarter\Services;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
 
 class DataTableService
 {
@@ -23,10 +23,10 @@ class DataTableService
 
         // 3. Global Search (Aman dari SQL Injection via Parameter Binding)
         $searchValue = $request->input('search.value');
-        if (!empty($searchValue)) {
+        if (! empty($searchValue)) {
             $query->where(function ($q) use ($searchableColumns, $searchValue) {
                 foreach ($searchableColumns as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $searchValue . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$searchValue.'%');
                 }
             });
         }
@@ -37,8 +37,8 @@ class DataTableService
             $columnName = $columnDto['data'] ?? '';
             $columnSearch = $columnDto['search']['value'] ?? '';
 
-            if (!empty($columnSearch) && in_array($columnName, $searchableColumns)) {
-                $query->where($columnName, 'LIKE', '%' . $columnSearch . '%');
+            if (! empty($columnSearch) && in_array($columnName, $searchableColumns)) {
+                $query->where($columnName, 'LIKE', '%'.$columnSearch.'%');
             }
         }
 
@@ -47,7 +47,7 @@ class DataTableService
 
         // 6. Multi-Column Sorting Dinamis
         $orders = $request->input('order', []);
-        if (!empty($orders)) {
+        if (! empty($orders)) {
             foreach ($orders as $order) {
                 $columnIndex = $order['column'];
                 $columnName = $columns[$columnIndex]['data'] ?? null;
@@ -75,7 +75,7 @@ class DataTableService
             'draw' => (int) $request->input('draw', 1),
             'recordsTotal' => $recordsTotal,
             'recordsFiltered' => $recordsFiltered,
-            'data' => $data
+            'data' => $data,
         ]);
     }
 }

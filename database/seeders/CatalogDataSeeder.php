@@ -58,7 +58,12 @@ class CatalogDataSeeder extends Seeder
             ))
             ->all();
 
-        $ownerRole->syncPermissions($catalogPermissions);
+        $storeOrderPermissions = array_filter(array_map(
+            fn (string $action) => Permission::findByName("orders.{$action}", 'web'),
+            ['index', 'detail', 'edit']
+        ));
+
+        $ownerRole->syncPermissions(array_merge($catalogPermissions, $storeOrderPermissions));
 
         $owner = User::where('email', 'toko@gmail.com')->first();
 

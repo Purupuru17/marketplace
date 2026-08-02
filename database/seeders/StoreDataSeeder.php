@@ -23,6 +23,7 @@ class StoreDataSeeder extends Seeder
         'store' => ['index', 'create', 'edit', 'delete'],
         'subscription' => ['index', 'create', 'edit', 'delete'],
         'subscription-invoice' => ['index', 'create', 'edit', 'delete'],
+        'orders' => ['index', 'detail', 'edit'],
     ];
 
     public function run(): void
@@ -119,6 +120,7 @@ class StoreDataSeeder extends Seeder
             ['name' => 'Toko', 'url' => '/toko/store', 'sort_by' => 1, 'icon' => 'heroicon-o-building-storefront', 'actions' => $this->permissions['store']],
             ['name' => 'Subscription', 'url' => '/toko/subscription', 'sort_by' => 2, 'icon' => 'heroicon-o-credit-card', 'actions' => $this->permissions['subscription']],
             ['name' => 'Invoice Subscription', 'url' => '/toko/subscription-invoice', 'sort_by' => 3, 'icon' => 'heroicon-o-document-text', 'actions' => $this->permissions['subscription-invoice']],
+            ['name' => 'Pesanan', 'url' => '/toko/orders', 'sort_by' => 4, 'icon' => 'heroicon-o-truck', 'actions' => $this->permissions['orders']],
         ];
 
         foreach ($childMenus as $menu) {

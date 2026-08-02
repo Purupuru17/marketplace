@@ -22,7 +22,8 @@ class CheckoutService
 {
     public function __construct(
         protected CartService $cartService,
-        protected ShippingService $shippingService
+        protected ShippingService $shippingService,
+        protected PaymentService $paymentService
     ) {}
 
     public function getSummary(Customer $customer, ?string $addressId = null): array
@@ -56,9 +57,9 @@ class CheckoutService
         ];
     }
 
-    public function placeOrder(Customer $customer, string $addressId): Invoice
+    public function placeOrder(Customer $customer, string $addressId, string $paymentMethod): Invoice
     {
-        return DB::transaction(function () use ($customer, $addressId) {
+        return DB::transaction(function () use ($customer, $addressId, $paymentMethod) {
             $address = $this->addressOf($customer, $addressId);
             $items = $this->cartService->items($customer);
 
@@ -126,6 +127,8 @@ class CheckoutService
             }
 
             $this->cartService->getActiveCart($customer)->update(['status' => 'converted']);
+
+            $this->paymentService->createPayment($invoice, $paymentMethod);
 
             return $invoice->load('orders.items');
         });

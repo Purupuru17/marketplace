@@ -17,6 +17,50 @@
     </span>
 </div>
 
+@php
+    $payment = $invoice->payments->first();
+@endphp
+@if($payment)
+    <div class="mb-6 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-900">
+        <div>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ \App\Services\Customer\PaymentService::METHODS[$payment->payment_method] ?? $payment->payment_method }}</p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                @if($payment->status === 'paid')
+                    Lunas pada {{ $payment->paid_at?->format('d M Y H:i') }}
+                @elseif($payment->payment_method === 'cod')
+                    Pembayaran tunai dilakukan saat barang diterima.
+                @elseif($payment->status === 'pending' && $payment->expired_at && now()->gt($payment->expired_at))
+                    Pembayaran kedaluwarsa — buat pembayaran baru.
+                @else
+                    Menunggu pembayaran, batas {{ $payment->expired_at?->format('d M Y H:i') }}
+                @endif
+            </p>
+        </div>
+        <div>
+            @if($payment->status === 'paid')
+                <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-600 dark:bg-green-500/10 dark:text-green-400">
+                    @svg('heroicon-o-check-circle', 'h-4 w-4') Lunas
+                </span>
+            @elseif($payment->payment_method === 'cod')
+                <span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">COD</span>
+            @elseif($payment->status === 'pending' && $payment->expired_at && now()->gt($payment->expired_at))
+                <form method="POST" action="{{ route('customer.payment.store', $invoice->id) }}">
+                    @csrf
+                    <button type="submit"
+                            class="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                        Bayar Ulang
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('customer.payment.show', $invoice->id) }}"
+                   class="inline-block rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500">
+                    Bayar Sekarang
+                </a>
+            @endif
+        </div>
+    </div>
+@endif
+
 @if($invoice->orders->isEmpty())
     <div class="rounded-2xl border border-dashed border-gray-300 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
         Invoice ini belum memiliki order.

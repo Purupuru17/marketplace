@@ -17,7 +17,7 @@ Route::middleware(['web', 'guest'])->group(function () {
 
 // Area privat: cukup 'auth', TIDAK ada core_permission di sini
 // (karena LoginController/RoleSwitcherController bukan extends BaseCoreController)
-Route::middleware(['web','auth','active'])->group(function () {
+Route::middleware(['web', 'auth', 'active'])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('dashboard', [LoginController::class, 'dashboard'])->name('dashboard');
     Route::post('switch-role', [LoginController::class, 'switch'])->name('switch-role');
@@ -25,7 +25,7 @@ Route::middleware(['web','auth','active'])->group(function () {
 
 // Area admin RBAC: 'auth' DI SINI JUGA, core_permission MUNCUL OTOMATIS
 // dari BaseCoreController::middleware() milik tiap controller
-Route::middleware(['web','auth','active'])->prefix('sistem')->name('sistem.')->group(function () {
+Route::middleware(['web', 'auth', 'active'])->prefix('sistem')->name('sistem.')->group(function () {
     Route::get('group/ajax', [GroupController::class, 'ajax'])->name('group.ajax');
     Route::resource('group', GroupController::class);
 

@@ -10,8 +10,8 @@ class MenuTreeBuilder
     public static function forUser($user): array
     {
         $menus = Menu::where('is_active', true)->orderBy('sort_by')->get();
-        $tree  = static::build($menus, null);
-        $tree  = static::filterByPermission($tree, $user);
+        $tree = static::build($menus, null);
+        $tree = static::filterByPermission($tree, $user);
 
         return static::markActive($tree);   // ← baris ini yang menambahkan is_current & has_active_child
     }
@@ -22,7 +22,7 @@ class MenuTreeBuilder
 
         foreach ($menus->where('parent_id', $parentId) as $menu) {
             $node = $menu->toArray();
-            $node['module']   = Str::slug(basename($menu->url ?? $menu->name));
+            $node['module'] = Str::slug(basename($menu->url ?? $menu->name));
             $node['children'] = static::build($menus, $menu->id);
             $result[] = $node;
         }
@@ -44,7 +44,10 @@ class MenuTreeBuilder
             $isGroup = empty($node['url']) || $node['url'] === '#';
 
             if ($isGroup) {
-                if (count($node['children']) > 0) $visible[] = $node;
+                if (count($node['children']) > 0) {
+                    $visible[] = $node;
+                }
+
                 continue;
             }
 
@@ -61,12 +64,12 @@ class MenuTreeBuilder
         foreach ($nodes as &$node) {
             $node['children'] = static::markActive($node['children']);
 
-            $node['is_current'] = !empty($node['url'])
+            $node['is_current'] = ! empty($node['url'])
                 && $node['url'] !== '#'
-                && request()->is(ltrim($node['url'], '/') . '*');
+                && request()->is(ltrim($node['url'], '/').'*');
 
             $node['has_active_child'] = collect($node['children'])
-                ->contains(fn($c) => $c['is_current'] || $c['has_active_child']);
+                ->contains(fn ($c) => $c['is_current'] || $c['has_active_child']);
         }
 
         return $nodes;

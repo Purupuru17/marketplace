@@ -23,7 +23,7 @@ class UserController extends BaseCoreController
         $perPage = $request->input('per_page', 10);
 
         $users = User::with('roles')
-            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
+            ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
             ->orderBy('name')
             ->paginate($perPage)
             ->appends($request->only(['search', 'per_page']));
@@ -41,15 +41,15 @@ class UserController extends BaseCoreController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email',
-            'password'     => ['required', Password::min(8)],
-            'roles'        => 'required|array|min:1',
-            'roles.*'      => 'exists:roles,name',
-            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))]
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', Password::min(8)],
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'exists:roles,name',
+            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))],
         ], [
             'default_role.required' => 'Silakan pilih salah satu role sebagai default.',
-            'default_role.in'       => 'Role default harus salah satu dari role yang dicentang.',
+            'default_role.in' => 'Role default harus salah satu dari role yang dicentang.',
         ]);
 
         $user = User::create([
@@ -79,15 +79,15 @@ class UserController extends BaseCoreController
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|max:255',
-            'email'        => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'password'     => ['nullable', Password::min(8)],
-            'roles'        => 'required|array|min:1',
-            'roles.*'      => 'exists:roles,name',
-            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))]
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', Password::min(8)],
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'exists:roles,name',
+            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))],
         ], [
             'default_role.required' => 'Silakan pilih salah satu role sebagai default.',
-            'default_role.in'       => 'Role default harus salah satu dari role yang dicentang.',
+            'default_role.in' => 'Role default harus salah satu dari role yang dicentang.',
         ]);
 
         $user->update([

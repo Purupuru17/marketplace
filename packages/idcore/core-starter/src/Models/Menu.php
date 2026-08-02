@@ -23,7 +23,7 @@ class Menu extends Model
         'is_active' => 'boolean',
     ];
 
-     /**
+    /**
      * Relasi ke Anak Menu (Submenus) - Terurut otomatis
      */
     public function children(): HasMany

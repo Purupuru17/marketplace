@@ -160,7 +160,7 @@ class CheckoutSmokeTest extends TestCase
         $this->assertSame(50, (int) $variant->stock);
 
         $response = $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id]);
+            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer']);
 
         $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
 
@@ -242,7 +242,7 @@ class CheckoutSmokeTest extends TestCase
         $this->addToCart('AB-REG', 1);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id])
+            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
             ->assertRedirect();
 
         $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
@@ -258,7 +258,7 @@ class CheckoutSmokeTest extends TestCase
         $this->addToCart('NGS-REG', 1);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id])
+            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
             ->assertSessionHasErrors('items');
 
         $this->assertSame(0, Invoice::where('customer_id', $customer->id)->count());
@@ -275,7 +275,7 @@ class CheckoutSmokeTest extends TestCase
         ProductVariant::where('sku', 'NGS-REG')->update(['stock' => 1]);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id])
+            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
             ->assertSessionHasErrors('items');
 
         $this->assertSame(0, Invoice::where('customer_id', $customer->id)->count());
@@ -295,7 +295,7 @@ class CheckoutSmokeTest extends TestCase
         ]);
 
         $this->actingAs($budi, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id])
+            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
             ->assertForbidden();
     }
 
@@ -306,7 +306,7 @@ class CheckoutSmokeTest extends TestCase
         $this->addToCart('NGS-REG', 1);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id]);
+            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer']);
 
         $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
         $order = $invoice->orders()->firstOrFail();

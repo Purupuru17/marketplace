@@ -90,6 +90,29 @@
             @endforeach
         </div>
 
+        <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Metode Pembayaran</h2>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                @foreach($payment_methods as $key => $label)
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/50 dark:border-gray-700 dark:has-[:checked]:bg-indigo-500/10">
+                        <input type="radio" name="payment_method" value="{{ $key }}"
+                               @checked(old('payment_method', 'bank_transfer') === $key)
+                               class="mt-0.5 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $label }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                                {{ $key === 'cod' ? 'Bayar tunai saat barang diterima' : 'Pembayaran daring simulasi' }}
+                            </p>
+                        </div>
+                    </label>
+                @endforeach
+            </div>
+            @error('payment_method')
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
+
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="flex items-center justify-between">
                 <p class="text-lg font-bold text-gray-900 dark:text-white">Grand Total</p>
@@ -100,7 +123,7 @@
                     class="mt-4 w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 Buat Pesanan
             </button>
-            <p class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">Pembayaran akan dibuka setelah pesanan dibuat (fitur menyusul).</p>
+            <p class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">Pembayaran daring dibuka setelah pesanan dibuat.</p>
         </div>
     </form>
 @endif

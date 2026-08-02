@@ -30,7 +30,7 @@ class MenuController extends BaseCoreController
         $parentTree = $this->flattenTreeForSelect($this->buildTree($parents));
 
         return view('idcore::sistem.menu.form', [
-            'menu'       => new Menu(),
+            'menu' => new Menu,
             'parentTree' => $parentTree,
         ]);
     }
@@ -58,11 +58,11 @@ class MenuController extends BaseCoreController
         return view('idcore::sistem.menu.form', compact('menu', 'parentTree'));
     }
 
-     public function update(Request $request, Menu $menu)
+    public function update(Request $request, Menu $menu)
     {
         $validated = $this->validateMenu($request, $menu->id);
 
-        if (!empty($validated['parent_id'])) {
+        if (! empty($validated['parent_id'])) {
             $forbidden = $this->getDescendantIds($menu);
             $forbidden[] = $menu->id;
 
@@ -99,17 +99,16 @@ class MenuController extends BaseCoreController
     private function validateMenu(Request $request, ?int $ignoreId = null): array
     {
         return $request->validate([
-            'name'            => 'required|string|max:100',
-            'url'             => 'nullable|string|max:150',
-            'icon'            => 'nullable|string|max:100',
-            'actions'         => 'nullable|array',
-            'actions.*'       => 'in:' . implode(',', array_keys(config('idcore.menu_actions'))),
-            'parent_id'       => 'nullable|exists:menus,id',
-            'sort_by'         => 'nullable|integer|min:0',
-            'is_active'       => 'boolean',
+            'name' => 'required|string|max:100',
+            'url' => 'nullable|string|max:150',
+            'icon' => 'nullable|string|max:100',
+            'actions' => 'nullable|array',
+            'actions.*' => 'in:'.implode(',', array_keys(config('idcore.menu_actions'))),
+            'parent_id' => 'nullable|exists:menus,id',
+            'sort_by' => 'nullable|integer|min:0',
+            'is_active' => 'boolean',
         ]);
     }
-
 
     /**
      * Susun collection flat jadi struktur tree bersarang (children di dalam parent).
@@ -137,8 +136,8 @@ class MenuController extends BaseCoreController
 
         foreach ($tree as $node) {
             $result[] = [
-                'id'    => $node['id'],
-                'label' => str_repeat('— ', $depth) . $node['name'],
+                'id' => $node['id'],
+                'label' => str_repeat('— ', $depth).$node['name'],
             ];
             $result = array_merge($result, $this->flattenTreeForSelect($node['children'], $depth + 1));
         }
@@ -181,7 +180,7 @@ class MenuController extends BaseCoreController
 
         foreach ($checkedActions as $action) {
             Permission::firstOrCreate([
-                'name'       => "{$module}.{$action}",
+                'name' => "{$module}.{$action}",
                 'guard_name' => 'web',
             ]);
         }
@@ -196,5 +195,4 @@ class MenuController extends BaseCoreController
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
-
 }

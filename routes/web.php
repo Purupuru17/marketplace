@@ -7,6 +7,7 @@ use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\OrderController;
+use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\StorefrontController;
 use App\Http\Controllers\Master\AttributeController;
 use App\Http\Controllers\Master\CategoryController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Master\CustomerLevelController;
 use App\Http\Controllers\Master\LocationDistanceController;
 use App\Http\Controllers\Master\LocationNodeController;
 use App\Http\Controllers\Master\StoreLevelController;
+use App\Http\Controllers\Store\OrdersController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\Store\SubscriptionController;
 use App\Http\Controllers\Store\SubscriptionInvoiceController;
@@ -51,6 +53,9 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
 
     Route::get('orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('orders/{invoice}', [OrderController::class, 'show'])->name('order.show');
+
+    Route::get('payment/{invoice}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::post('payment/{invoice}', [PaymentController::class, 'store'])->name('payment.store');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('master')->name('master.')->group(function () {
@@ -66,6 +71,10 @@ Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->gro
     Route::resource('store', StoreController::class)->except(['show']);
     Route::resource('subscription', SubscriptionController::class)->except(['show']);
     Route::resource('subscription-invoice', SubscriptionInvoiceController::class)->except(['show']);
+
+    Route::get('orders', [OrdersController::class, 'index'])->name('order.index');
+    Route::get('orders/{order}', [OrdersController::class, 'show'])->name('order.show');
+    Route::post('orders/{order}/status', [OrdersController::class, 'update'])->name('order.update');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('katalog')->name('katalog.')->group(function () {

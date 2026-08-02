@@ -4,8 +4,8 @@ namespace IdCore\CoreStarter\Http\Controllers\Sistem;
 
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class HakAksesController extends BaseCoreController
 {
@@ -19,7 +19,7 @@ class HakAksesController extends BaseCoreController
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $roles = Role::when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+        $roles = Role::when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
             ->orderBy('name')
             ->withCount('permissions')
             ->paginate($perPage)

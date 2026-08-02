@@ -29,6 +29,27 @@
             @endforeach
         </div>
 
+        @php
+            $payment = $invoice->payments->first();
+            $payNow = $payment
+                && $payment->status === 'pending'
+                && $payment->payment_method !== 'cod'
+                && $payment->expired_at !== null
+                && now()->lt($payment->expired_at);
+        @endphp
+        @if($payNow)
+            <div class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-left dark:border-amber-500/30 dark:bg-amber-500/10">
+                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Menunggu Pembayaran</p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                    Selesaikan pembayaran sebelum <span class="font-semibold">{{ $payment->expired_at->format('d M Y H:i') }}</span>.
+                </p>
+                <a href="{{ route('customer.payment.show', $invoice->id) }}"
+                   class="mt-3 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+                    Bayar Sekarang
+                </a>
+            </div>
+        @endif
+
         <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <a href="{{ route('customer.order.index') }}"
                class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">

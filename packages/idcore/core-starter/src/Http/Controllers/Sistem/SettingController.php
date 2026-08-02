@@ -8,9 +8,5 @@ class SettingController extends BaseCoreController
 {
     protected string $resourceName = 'setting';
 
-    public function index()
-    {
-
-    }
-
+    public function index() {}
 }

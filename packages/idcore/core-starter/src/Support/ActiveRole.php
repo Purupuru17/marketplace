@@ -13,7 +13,9 @@ class ActiveRole
      */
     public static function get($user): ?Role
     {
-        if (!$user) return null;
+        if (! $user) {
+            return null;
+        }
 
         $roleName = session('active_role');
 
@@ -26,6 +28,7 @@ class ActiveRole
 
         if ($fallback) {
             session(['active_role' => $fallback->name]);
+
             return $fallback;
         }
 
@@ -34,11 +37,12 @@ class ActiveRole
 
     public static function set($user, string $roleName): bool
     {
-        if (!$user->hasRole($roleName)) {
+        if (! $user->hasRole($roleName)) {
             return false; // cegah user pindah ke role yang bukan miliknya
         }
 
         session(['active_role' => $roleName]);
+
         return true;
     }
 }

@@ -30,7 +30,7 @@ class OrderController extends Controller
         abort_unless($invoice->customer_id === $customer->id, 403);
 
         return view('customer.order.show', [
-            'invoice' => $invoice->load(['orders.items', 'orders.store']),
+            'invoice' => $invoice->load(['orders.items', 'orders.store', 'payments']),
         ]);
     }
 }

@@ -6,6 +6,7 @@ use IdCore\CoreStarter\Support\ActiveRole;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class LoginController extends Controller
 {
@@ -20,16 +21,17 @@ class LoginController extends Controller
 
     public function dashboard()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
+
         return view('idcore::auth.dashboard');
     }
 
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -42,7 +44,7 @@ class LoginController extends Controller
 
         $user = Auth::user();
         $defaultRole = $user->default_role_id
-            ? \Spatie\Permission\Models\Role::find($user->default_role_id)
+            ? Role::find($user->default_role_id)
             : $user->roles->first();
 
         session(['active_role' => $defaultRole?->name]);
@@ -63,7 +65,7 @@ class LoginController extends Controller
     {
         $validated = $request->validate(['role' => 'required|string']);
 
-        if (!ActiveRole::set($request->user(), $validated['role'])) {
+        if (! ActiveRole::set($request->user(), $validated['role'])) {
             return back()->with('error', 'Anda tidak memiliki role tersebut.');
         }
 

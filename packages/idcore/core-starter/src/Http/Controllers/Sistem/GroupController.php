@@ -18,7 +18,7 @@ class GroupController extends BaseCoreController
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $groups = Role::when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+        $groups = Role::when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
             ->orderBy('name')
             ->paginate($perPage)
             ->appends($request->only(['search', 'per_page']));
@@ -52,7 +52,7 @@ class GroupController extends BaseCoreController
     public function update(Request $request, Role $group)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $group->id,
+            'name' => 'required|string|max:255|unique:roles,name,'.$group->id,
         ]);
 
         $group->update(['name' => $validated['name']]);
