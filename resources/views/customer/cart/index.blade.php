@@ -90,7 +90,12 @@
                 <p class="text-lg font-bold text-gray-900 dark:text-white">Total Belanja</p>
                 <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Rp {{ number_format($total, 0, ',', '.') }}</p>
             </div>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Pembayaran dan pengiriman akan dihitung saat checkout (fitur menyusul).</p>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Ongkir dihitung saat checkout.</p>
+            <a href="{{ route('customer.checkout.index') }}"
+               class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500">
+                @svg('heroicon-o-arrow-right', 'h-4 w-4')
+                Lanjut ke Checkout
+            </a>
         </div>
     </div>
 @endif

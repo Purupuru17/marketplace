@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Catalog\ProductController;
 use App\Http\Controllers\Catalog\ProductVariantController;
+use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\StorefrontController;
 use App\Http\Controllers\Master\AttributeController;
 use App\Http\Controllers\Master\CategoryController;
@@ -38,6 +41,16 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
     Route::post('cart', [CartController::class, 'store'])->name('cart.store');
     Route::put('cart/{item}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('cart/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+    Route::resource('address', AddressController::class)->except(['show']);
+    Route::post('address/{address}/default', [AddressController::class, 'setDefault'])->name('address.default');
+
+    Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('checkout/success/{invoice}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    Route::get('orders', [OrderController::class, 'index'])->name('order.index');
+    Route::get('orders/{invoice}', [OrderController::class, 'show'])->name('order.show');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('master')->name('master.')->group(function () {
