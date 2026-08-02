@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Catalog\ProductController;
 use App\Http\Controllers\Catalog\ProductVariantController;
+use App\Http\Controllers\Customer\AuthController;
+use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\StorefrontController;
 use App\Http\Controllers\Master\AttributeController;
 use App\Http\Controllers\Master\CategoryController;
 use App\Http\Controllers\Master\CustomerLevelController;
@@ -16,8 +19,25 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::middleware(['web', 'auth:customer', 'active:customer'])->group(function () {
-    
+
+Route::middleware(['web'])->group(function () {
+    Route::get('storefront', [StorefrontController::class, 'index'])->name('storefront.index');
+    Route::get('storefront/store/{store}', [StorefrontController::class, 'show'])->name('storefront.store');
+    Route::get('storefront/store/{store}/product/{product}', [StorefrontController::class, 'product'])->name('storefront.product');
+
+    Route::get('daftar', [AuthController::class, 'showRegister'])->name('customer.auth.register');
+    Route::post('daftar', [AuthController::class, 'register'])->name('customer.auth.register.store');
+    Route::get('masuk', [AuthController::class, 'showLogin'])->name('customer.auth.login');
+    Route::post('masuk', [AuthController::class, 'login'])->name('customer.auth.login.store');
+});
+
+Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer')->name('customer.')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('cart', [CartController::class, 'store'])->name('cart.store');
+    Route::put('cart/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('cart/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('master')->name('master.')->group(function () {
