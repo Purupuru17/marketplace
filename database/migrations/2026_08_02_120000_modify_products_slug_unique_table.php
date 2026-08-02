@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->index('store_id', 'products_store_id_index');
             $table->dropUnique('products_store_id_slug_unique');
-            $table->string('slug_unique')->storedAs("IF(deleted_at IS NULL, slug, CONCAT(slug, '#', id))")->after('slug');
+            $table->string('slug_unique')->storedAs("CASE WHEN deleted_at IS NULL THEN slug ELSE CONCAT(slug, '#', id) END")->after('slug');
             $table->unique(['store_id', 'slug_unique'], 'products_store_id_slug_unique');
         });
     }

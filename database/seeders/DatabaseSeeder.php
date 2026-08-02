@@ -18,5 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CoreDatabaseSeeder::class);
         $this->call(MasterDataSeeder::class);
         $this->call(LocationDataSeeder::class);
+        $this->call(StoreDataSeeder::class);
+        $this->call(CatalogDataSeeder::class);
     }
 }
