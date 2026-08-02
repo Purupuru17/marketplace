@@ -7,13 +7,17 @@ use App\Models\OrderStatusHistory;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Services\Customer\LoyaltyService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class StoreOrderService
 {
-    public function __construct(protected StoreWalletService $walletService) {}
+    public function __construct(
+        protected StoreWalletService $walletService,
+        protected LoyaltyService $loyaltyService
+    ) {}
 
     public const TRANSITIONS = [
         'pending' => ['processing', 'cancelled'],
@@ -82,6 +86,7 @@ class StoreOrderService
             if ($to === 'completed') {
                 $this->settleCodIfApplicable($order);
                 $this->walletService->settle($order);
+                $this->loyaltyService->creditEarn($order);
             }
 
             $order->update(['status' => $to]);

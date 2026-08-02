@@ -33,6 +33,7 @@ class StorefrontService
             ->when($search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->with([
                 'category',
+                'promotions',
                 'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
             ])
             ->orderBy('name')
@@ -46,6 +47,8 @@ class StorefrontService
             ->where('status', 'active')
             ->with([
                 'category',
+                'promotions',
+                'ratings' => fn ($q) => $q->where('status', 'active')->with('customer'),
                 'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
             ])
             ->firstOrFail();

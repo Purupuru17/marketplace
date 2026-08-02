@@ -6,6 +6,7 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Promotion;
 use App\Models\Store;
 use App\Models\User;
 use IdCore\CoreStarter\Models\Menu;
@@ -29,6 +30,7 @@ class CatalogDataSeeder extends Seeder
         $this->seedPermissions();
         $this->seedOwnerRole();
         $this->seedSampleData();
+        $this->seedPromotions();
         $this->seedMenus();
     }
 
@@ -68,7 +70,17 @@ class CatalogDataSeeder extends Seeder
             ['index', 'create']
         ));
 
-        $ownerRole->syncPermissions(array_merge($catalogPermissions, $storeOrderPermissions, $walletPermissions));
+        $promotionPermissions = array_filter(array_map(
+            fn (string $action) => Permission::findByName("promotion.{$action}", 'web'),
+            ['index', 'create', 'edit', 'delete']
+        ));
+
+        $ownerRole->syncPermissions(array_merge(
+            $catalogPermissions,
+            $storeOrderPermissions,
+            $walletPermissions,
+            $promotionPermissions
+        ));
 
         $owner = User::where('email', 'toko@gmail.com')->first();
 
@@ -128,6 +140,65 @@ class CatalogDataSeeder extends Seeder
         if ($ayamGeprek) {
             $ayamGeprek->attributeValues()->sync([$spicyValueIds['Sedang']]);
         }
+    }
+
+    protected function seedPromotions(): void
+    {
+        $store = Store::where('store_code', 'STR-DEMO1')->first();
+
+        if (! $store) {
+            return;
+        }
+
+        $product = Product::firstOrCreate(
+            ['store_id' => $store->id, 'slug' => 'es-kopi-susu'],
+            [
+                'name' => 'Es Kopi Susu',
+                'description' => 'Produk contoh dengan promo.',
+                'status' => 'active',
+                'is_featured' => false,
+            ]
+        );
+
+        ProductVariant::firstOrCreate(
+            ['store_id' => $store->id, 'sku' => 'KSG-REG'],
+            [
+                'product_id' => $product->id,
+                'price' => 18000,
+                'stock' => 30,
+                'weight_grams' => 250,
+                'status' => 'active',
+            ]
+        );
+
+        $platformPromo = Promotion::firstOrCreate(
+            ['name' => 'Promo Agustus', 'source' => 'platform'],
+            [
+                'store_id' => null,
+                'type' => 'percentage',
+                'value' => 10,
+                'starts_at' => now()->subWeek(),
+                'ends_at' => now()->addMonth(),
+                'stackable' => false,
+                'status' => 'active',
+            ]
+        );
+
+        $storePromo = Promotion::firstOrCreate(
+            ['name' => 'Diskon Minuman', 'source' => 'store'],
+            [
+                'store_id' => $store->id,
+                'type' => 'fixed',
+                'value' => 3000,
+                'starts_at' => now()->subWeek(),
+                'ends_at' => now()->addMonth(),
+                'stackable' => false,
+                'status' => 'active',
+            ]
+        );
+
+        $platformPromo->products()->syncWithoutDetaching([$product->id]);
+        $storePromo->products()->syncWithoutDetaching([$product->id]);
     }
 
     protected function seedMenus(): void

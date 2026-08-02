@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Services\Customer\CartService;
 use App\Services\Customer\CheckoutService;
+use App\Services\Customer\LoyaltyService;
 use App\Services\Customer\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +38,12 @@ class CheckoutController extends Controller
 
         $summary = $this->service->getSummary($customer, $selectedAddressId);
 
-        return view('customer.checkout.index', compact('addresses', 'summary', 'payment_methods'));
+        return view('customer.checkout.index', [
+            'addresses' => $addresses,
+            'summary' => $summary,
+            'payment_methods' => $payment_methods,
+            'available_points' => app(LoyaltyService::class)->availablePoints($customer),
+        ]);
     }
 
     public function store(Request $request)
@@ -45,10 +51,16 @@ class CheckoutController extends Controller
         $data = $request->validate([
             'address_id' => ['required', 'uuid', 'exists:customer_addresses,id'],
             'payment_method' => ['required', 'string', Rule::in(array_keys(PaymentService::METHODS))],
+            'points' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $customer = Auth::guard('customer')->user();
-        $invoice = $this->service->placeOrder($customer, $data['address_id'], $data['payment_method']);
+        $invoice = $this->service->placeOrder(
+            $customer,
+            $data['address_id'],
+            $data['payment_method'],
+            (int) ($data['points'] ?? 0)
+        );
 
         return redirect()->route('customer.checkout.success', $invoice->id);
     }

@@ -6,8 +6,11 @@ use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\FavoriteController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Customer\PointController;
+use App\Http\Controllers\Customer\RatingController;
 use App\Http\Controllers\Customer\StorefrontController;
 use App\Http\Controllers\Master\AttributeController;
 use App\Http\Controllers\Master\CategoryController;
@@ -16,6 +19,7 @@ use App\Http\Controllers\Master\LocationDistanceController;
 use App\Http\Controllers\Master\LocationNodeController;
 use App\Http\Controllers\Master\StoreLevelController;
 use App\Http\Controllers\Store\OrdersController;
+use App\Http\Controllers\Store\PromotionController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\Store\SubscriptionController;
 use App\Http\Controllers\Store\SubscriptionInvoiceController;
@@ -57,6 +61,14 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
 
     Route::get('payment/{invoice}', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('payment/{invoice}', [PaymentController::class, 'store'])->name('payment.store');
+
+    Route::post('ratings', [RatingController::class, 'store'])->name('rating.store');
+    Route::delete('ratings/{rating}', [RatingController::class, 'destroy'])->name('rating.destroy');
+
+    Route::get('favorites', [FavoriteController::class, 'index'])->name('favorite.index');
+    Route::post('favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
+
+    Route::get('points', [PointController::class, 'index'])->name('point.index');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('master')->name('master.')->group(function () {
@@ -80,6 +92,8 @@ Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->gro
     Route::get('wallet', [WalletController::class, 'index'])->name('wallet.index');
     Route::post('wallet', [WalletController::class, 'store'])->name('wallet.store');
     Route::post('wallet/withdrawal/{withdrawal}/{action}', [WalletController::class, 'process'])->name('wallet.process');
+
+    Route::resource('promotion', PromotionController::class)->except(['show']);
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('katalog')->name('katalog.')->group(function () {

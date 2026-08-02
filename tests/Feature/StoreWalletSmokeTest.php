@@ -7,9 +7,8 @@ use App\Models\CustomerAddress;
 use App\Models\Invoice;
 use App\Models\LocationNode;
 use App\Models\Order;
-use App\Models\Store;
+use App\Models\ProductVariant;
 use App\Models\User;
-use App\Models\WalletTransaction;
 use App\Models\WithdrawalRequest;
 use Database\Seeders\CatalogDataSeeder;
 use Database\Seeders\CustomerDataSeeder;
@@ -72,7 +71,7 @@ class StoreWalletSmokeTest extends TestCase
 
     protected function placeOrder(string $method): Order
     {
-        $variant = \App\Models\ProductVariant::where('sku', 'NGS-REG')->firstOrFail();
+        $variant = ProductVariant::where('sku', 'NGS-REG')->firstOrFail();
 
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.cart.store'), ['variant_id' => $variant->id, 'qty' => 1]);

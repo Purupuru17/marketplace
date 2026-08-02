@@ -59,9 +59,17 @@
                                         @endif
                                         × {{ $item->qty }}
                                     </p>
+                                    @if((float) $item->unit_discount > 0)
+                                        <p class="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                                            <span class="text-gray-400 line-through dark:text-gray-500">Rp {{ number_format((float) $item->unit_original_price, 0, ',', '.') }}</span>
+                                            <span class="rounded-full bg-red-50 px-2 py-0.5 font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                                                {{ $item->promotion?->name }}
+                                            </span>
+                                        </p>
+                                    @endif
                                 </div>
                                 <p class="font-semibold text-gray-900 dark:text-white">
-                                    Rp {{ number_format((float) $item->variant->price * $item->qty, 0, ',', '.') }}
+                                    Rp {{ number_format((float) $item->unit_price * $item->qty, 0, ',', '.') }}
                                 </p>
                             </div>
                         @endforeach
@@ -72,6 +80,12 @@
                             <span>Subtotal</span>
                             <span>Rp {{ number_format($group['subtotal'], 0, ',', '.') }}</span>
                         </div>
+                        @if($group['discount'] > 0)
+                            <div class="mt-1 flex justify-between text-red-600 dark:text-red-400">
+                                <span>Diskon Promo</span>
+                                <span>- Rp {{ number_format($group['discount'], 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         <div class="mt-1 flex justify-between text-gray-600 dark:text-gray-300">
                             <span>Ongkir ({{ $group['shipping']['distance_km'] !== null ? $group['shipping']['distance_km'] . ' km' : '—' }})</span>
                             <span>Rp {{ number_format($group['shipping']['cost'], 0, ',', '.') }}</span>
@@ -88,6 +102,24 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+
+        <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Tukar Poin</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Saldo poin: <span class="font-semibold text-gray-900 dark:text-white">{{ number_format($available_points) }}</span> poin
+                — 100 poin = Rp 1.000.
+            </p>
+
+            <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <input type="number" name="points" min="0" step="100" value="{{ old('points', 0) }}"
+                       placeholder="Contoh: 100"
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 sm:w-48">
+                <span class="text-xs text-gray-500 dark:text-gray-400">Masukkan kelipatan 100.</span>
+            </div>
+            @error('points')
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">

@@ -42,8 +42,16 @@
                                         </span>
                                     @endif
                                 </div>
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    Rp {{ number_format((float) $item->variant->price, 0, ',', '.') }} / pcs
+                                <p class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                    @if((float) $item->unit_discount > 0)
+                                        <span class="text-gray-400 line-through dark:text-gray-500">Rp {{ number_format((float) $item->unit_original_price, 0, ',', '.') }}</span>
+                                        <span class="font-semibold text-gray-900 dark:text-white">Rp {{ number_format((float) $item->unit_price, 0, ',', '.') }}</span>
+                                        <span class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                                            {{ $item->promotion?->name }}
+                                        </span>
+                                    @else
+                                        Rp {{ number_format((float) $item->unit_price, 0, ',', '.') }} / pcs
+                                    @endif
                                 </p>
                             </div>
 
@@ -69,7 +77,7 @@
                                 <div class="w-28 text-right">
                                     <p class="text-sm text-gray-500 dark:text-gray-400">Subtotal</p>
                                     <p class="font-semibold text-gray-900 dark:text-white">
-                                        Rp {{ number_format((float) $item->variant->price * $item->qty, 0, ',', '.') }}
+                                        Rp {{ number_format((float) $item->unit_price * $item->qty, 0, ',', '.') }}
                                     </p>
                                 </div>
                             </div>

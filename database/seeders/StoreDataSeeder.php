@@ -25,6 +25,7 @@ class StoreDataSeeder extends Seeder
         'subscription-invoice' => ['index', 'create', 'edit', 'delete'],
         'orders' => ['index', 'detail', 'edit'],
         'wallet' => ['index', 'create'],
+        'promotion' => ['index', 'create', 'edit', 'delete'],
     ];
 
     public function run(): void
@@ -122,7 +123,8 @@ class StoreDataSeeder extends Seeder
             ['name' => 'Subscription', 'url' => '/toko/subscription', 'sort_by' => 2, 'icon' => 'heroicon-o-credit-card', 'actions' => $this->permissions['subscription']],
             ['name' => 'Invoice Subscription', 'url' => '/toko/subscription-invoice', 'sort_by' => 3, 'icon' => 'heroicon-o-document-text', 'actions' => $this->permissions['subscription-invoice']],
             ['name' => 'Pesanan', 'url' => '/toko/orders', 'sort_by' => 4, 'icon' => 'heroicon-o-truck', 'actions' => $this->permissions['orders']],
-            ['name' => 'Saldo', 'url' => '/toko/wallet', 'sort_by' => 5, 'icon' => 'heroicon-o-wallet', 'actions' => $this->permissions['wallet']],
+            ['name' => 'Promo', 'url' => '/toko/promotion', 'sort_by' => 5, 'icon' => 'heroicon-o-tag', 'actions' => $this->permissions['promotion']],
+            ['name' => 'Saldo', 'url' => '/toko/wallet', 'sort_by' => 6, 'icon' => 'heroicon-o-wallet', 'actions' => $this->permissions['wallet']],
         ];
 
         foreach ($childMenus as $menu) {

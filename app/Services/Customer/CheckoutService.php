@@ -12,6 +12,7 @@ use App\Models\OrderStatusHistory;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\Store;
+use App\Services\Pricing\PromotionService;
 use App\Services\Shipping\ShippingService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,9 @@ class CheckoutService
     public function __construct(
         protected CartService $cartService,
         protected ShippingService $shippingService,
-        protected PaymentService $paymentService
+        protected PaymentService $paymentService,
+        protected PromotionService $promotionService,
+        protected LoyaltyService $loyaltyService
     ) {}
 
     public function getSummary(Customer $customer, ?string $addressId = null): array
@@ -34,13 +37,26 @@ class CheckoutService
         $byStore = $items->groupBy(fn ($item) => $item->variant->product->store_id)
             ->map(function ($group) use ($address) {
                 $store = $group->first()->variant->product->store;
-                $subtotal = $group->sum(fn ($item) => (float) $item->variant->price * $item->qty);
+                $subtotal = 0.0;
+                $discount = 0.0;
+
+                foreach ($group as $item) {
+                    $pricing = $this->promotionService->pricing($item->variant);
+                    $item->setAttribute('unit_price', $pricing['effective']);
+                    $item->setAttribute('unit_original_price', $pricing['original']);
+                    $item->setAttribute('unit_discount', $pricing['discount']);
+                    $item->setAttribute('promotion', $pricing['promotion']);
+                    $subtotal += $pricing['effective'] * $item->qty;
+                    $discount += $pricing['discount'] * $item->qty;
+                }
+
                 $shipping = $this->shippingService->estimate($store, $address?->locationNode);
 
                 return [
                     'store' => $store,
                     'items' => $group,
-                    'subtotal' => $subtotal,
+                    'subtotal' => round($subtotal, 2),
+                    'discount' => round($discount, 2),
                     'shipping' => $shipping,
                     'total' => round($subtotal + $shipping['cost'], 2),
                 ];
@@ -52,14 +68,15 @@ class CheckoutService
             'items' => $items,
             'by_store' => $byStore,
             'subtotal' => $byStore->sum('subtotal'),
+            'discount' => $byStore->sum('discount'),
             'shipping_total' => $byStore->sum(fn ($group) => $group['shipping']['cost']),
             'grand_total' => $byStore->sum('total'),
         ];
     }
 
-    public function placeOrder(Customer $customer, string $addressId, string $paymentMethod): Invoice
+    public function placeOrder(Customer $customer, string $addressId, string $paymentMethod, int $points = 0): Invoice
     {
-        return DB::transaction(function () use ($customer, $addressId, $paymentMethod) {
+        return DB::transaction(function () use ($customer, $addressId, $paymentMethod, $points) {
             $address = $this->addressOf($customer, $addressId);
             $items = $this->cartService->items($customer);
 
@@ -81,15 +98,36 @@ class CheckoutService
                 throw ValidationException::withMessages($errors);
             }
 
+            $promoDiscount = collect($ordersPayload)->sum('discount');
+            $grandTotal = collect($ordersPayload)->sum('total');
+
+            if ($points > 0) {
+                $this->loyaltyService->assertRedeemable($customer, $points);
+                $pointsValue = $this->loyaltyService->redeemValue($points);
+
+                if ($pointsValue > $grandTotal) {
+                    throw ValidationException::withMessages([
+                        'points' => 'Nilai poin yang ditukar melebihi total belanja.',
+                    ]);
+                }
+            } else {
+                $pointsValue = 0;
+            }
+
             $invoice = Invoice::create([
                 'invoice_no' => $this->nextInvoiceNo(),
                 'customer_id' => $customer->id,
                 'subtotal' => collect($ordersPayload)->sum('subtotal'),
-                'total_discount' => 0,
+                'total_discount' => round($promoDiscount + $pointsValue, 2),
                 'total_shipping_cost' => collect($ordersPayload)->sum('shipping_cost'),
-                'grand_total' => collect($ordersPayload)->sum('total'),
+                'grand_total' => round($grandTotal - $pointsValue, 2),
+                'points_used' => $points,
                 'status' => 'pending',
             ]);
+
+            if ($points > 0) {
+                $this->loyaltyService->redeem($customer, $invoice, $points);
+            }
 
             foreach ($ordersPayload as $payload) {
                 $order = Order::create([
@@ -113,7 +151,7 @@ class CheckoutService
                 ]);
 
                 foreach ($payload['items'] as $item) {
-                    $this->createOrderItem($order, $item);
+                    $this->createOrderItem($order, $item, $payload['pricing'][$item->id] ?? null);
                     $this->deductStock($order, $item);
                 }
 
@@ -136,11 +174,13 @@ class CheckoutService
 
     /**
      * @param  array<string, string>  $errors
-     * @return array{store: Store, items: Collection<int, CartItem>, subtotal: float, discount: float, shipping_cost: float, total: float, distance_km: float|null, origin_node: string|null, destination_node: string|null, rate_per_km: float|null, free_distance: float|null}
+     * @return array{store: Store, items: Collection<int, CartItem>, subtotal: float, discount: float, shipping_cost: float, total: float, distance_km: float|null, origin_node: string|null, destination_node: string|null, rate_per_km: float|null, free_distance: float|null, pricing: array<string, array{original: float, effective: float, discount: float}>}
      */
     protected function buildOrderPayload(Store $store, $group, CustomerAddress $address, array &$errors): array
     {
         $subtotal = 0.0;
+        $discount = 0.0;
+        $pricing = [];
 
         foreach ($group as $item) {
             $variant = $item->variant;
@@ -156,7 +196,10 @@ class CheckoutService
                 $errors['items'] = "Stok {$variant->product->name} ({$variant->sku}) tidak mencukupi.";
             }
 
-            $subtotal += (float) $variant->price * $item->qty;
+            $itemPricing = $this->promotionService->pricing($variant);
+            $pricing[$item->id] = $itemPricing;
+            $subtotal += $itemPricing['effective'] * $item->qty;
+            $discount += $itemPricing['discount'] * $item->qty;
         }
 
         $estimate = $this->shippingService->estimate($store, $address->locationNode);
@@ -171,7 +214,7 @@ class CheckoutService
             'store' => $store,
             'items' => $group,
             'subtotal' => round($subtotal, 2),
-            'discount' => 0,
+            'discount' => round($discount, 2),
             'shipping_cost' => $shippingCost,
             'total' => round($subtotal + $shippingCost, 2),
             'distance_km' => $estimate['distance_km'],
@@ -179,12 +222,16 @@ class CheckoutService
             'destination_node' => $address->locationNode?->name,
             'rate_per_km' => $store->rate_per_km,
             'free_distance' => $store->min_free_distance_km,
+            'pricing' => $pricing,
         ];
     }
 
-    protected function createOrderItem(Order $order, $item): void
+    protected function createOrderItem(Order $order, $item, ?array $pricing = null): void
     {
         $variant = $item->variant;
+        $original = $pricing['original'] ?? (float) $variant->price;
+        $final = $pricing['effective'] ?? $original;
+        $discount = $pricing['discount'] ?? 0;
 
         OrderItem::create([
             'order_id' => $order->id,
@@ -195,11 +242,11 @@ class CheckoutService
             'variant_snapshot' => $variant->attributeValues->isNotEmpty()
                 ? $variant->attributeValues->sortBy(fn ($value) => $value->attribute?->name)->pluck('value')->join(' · ')
                 : null,
-            'original_price_snapshot' => $variant->price,
-            'discount_snapshot' => 0,
-            'final_price_snapshot' => $variant->price,
+            'original_price_snapshot' => $original,
+            'discount_snapshot' => $discount,
+            'final_price_snapshot' => $final,
             'qty' => $item->qty,
-            'subtotal_snapshot' => round((float) $variant->price * $item->qty, 2),
+            'subtotal_snapshot' => round($final * $item->qty, 2),
         ]);
     }
 

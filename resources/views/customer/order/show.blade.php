@@ -81,18 +81,68 @@
 
                 <div class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach($order->items as $item)
-                        <div class="flex items-center justify-between gap-4 px-6 py-4">
-                            <div>
-                                <p class="font-medium text-gray-900 dark:text-white">{{ $item->name_snapshot }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $item->sku_snapshot }}
-                                    @if($item->variant_snapshot) · {{ $item->variant_snapshot }} @endif
-                                    × {{ $item->qty }}
+                        <div class="px-6 py-4">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ $item->name_snapshot }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ $item->sku_snapshot }}
+                                        @if($item->variant_snapshot) · {{ $item->variant_snapshot }} @endif
+                                        × {{ $item->qty }}
+                                    </p>
+                                </div>
+                                <p class="font-semibold text-gray-900 dark:text-white">
+                                    Rp {{ number_format((float) $item->subtotal_snapshot, 0, ',', '.') }}
                                 </p>
                             </div>
-                            <p class="font-semibold text-gray-900 dark:text-white">
-                                Rp {{ number_format((float) $item->subtotal_snapshot, 0, ',', '.') }}
-                            </p>
+
+                            @if($order->status === 'completed')
+                                <div class="mt-3 rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-800/30">
+                                    @if($item->rating)
+                                        <div class="flex items-center justify-between gap-3">
+                                            <div>
+                                                <div class="flex items-center gap-0.5 text-amber-500">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        @svg($i <= $item->rating->rating ? 'heroicon-s-star' : 'heroicon-o-star', 'h-4 w-4')
+                                                    @endfor
+                                                </div>
+                                                @if($item->rating->review)
+                                                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{{ $item->rating->review }}</p>
+                                                @endif
+                                            </div>
+                                            <form method="POST" action="{{ route('customer.rating.destroy', $item->rating->id) }}">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-xs font-medium text-red-500 hover:text-red-600">Hapus</button>
+                                            </form>
+                                        </div>
+                                    @else
+                                        <form method="POST" action="{{ route('customer.rating.store') }}" class="space-y-2">
+                                            @csrf
+                                            <input type="hidden" name="order_item_id" value="{{ $item->id }}">
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Nilai:</span>
+                                                <div class="flex items-center gap-2">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <label class="cursor-pointer">
+                                                            <input type="radio" name="rating" value="{{ $i }}" class="peer sr-only" @checked($i === 5)>
+                                                            <span class="text-gray-300 transition peer-checked:text-amber-500 peer-hover:text-amber-400">@svg('heroicon-s-star', 'h-5 w-5')</span>
+                                                        </label>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                            <textarea name="review" rows="2" placeholder="Tulis ulasan (opsional)..."
+                                                      class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"></textarea>
+                                            @error('order_item_id')
+                                                <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                            @enderror
+                                            <button type="submit"
+                                                    class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500">
+                                                Kirim Penilaian
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>

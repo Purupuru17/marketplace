@@ -48,6 +48,8 @@
                         ['label' => 'Beranda', 'icon' => 'heroicon-o-home', 'route' => 'storefront.index', 'pattern' => 'storefront.*', 'auth' => false],
                         ['label' => 'Keranjang', 'icon' => 'heroicon-o-shopping-cart', 'route' => 'customer.cart.index', 'pattern' => 'customer.cart.*', 'auth' => true, 'count' => $cartCount ?? 0],
                         ['label' => 'Pesanan', 'icon' => 'heroicon-o-receipt-refund', 'route' => 'customer.order.index', 'pattern' => 'customer.order.*', 'auth' => true],
+                        ['label' => 'Poin', 'icon' => 'heroicon-o-star', 'route' => 'customer.point.index', 'pattern' => 'customer.point.*', 'auth' => true],
+                        ['label' => 'Favorit', 'icon' => 'heroicon-o-heart', 'route' => 'customer.favorite.index', 'pattern' => 'customer.favorite.*', 'auth' => true],
                         ['label' => 'Alamat Saya', 'icon' => 'heroicon-o-map-pin', 'route' => 'customer.address.index', 'pattern' => 'customer.address.*', 'auth' => true],
                     ];
                 @endphp

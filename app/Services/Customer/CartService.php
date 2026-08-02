@@ -6,10 +6,13 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\ProductVariant;
+use App\Services\Pricing\PromotionService;
 use Illuminate\Validation\ValidationException;
 
 class CartService
 {
+    public function __construct(protected PromotionService $promotionService) {}
+
     public function getActiveCart(Customer $customer): Cart
     {
         return Cart::firstOrCreate([
@@ -76,7 +79,7 @@ class CartService
         return $this->getActiveCart($customer)
             ->items()
             ->with([
-                'variant' => fn ($q) => $q->with(['product.store', 'attributeValues.attribute']),
+                'variant' => fn ($q) => $q->with(['product.store', 'product.promotions', 'attributeValues.attribute']),
             ])
             ->get();
     }
@@ -89,10 +92,19 @@ class CartService
             ->map(function ($group) {
                 $store = $group->first()->variant->product->store;
 
+                foreach ($group as $item) {
+                    $pricing = $this->promotionService->pricing($item->variant);
+                    $item->setAttribute('unit_price', $pricing['effective']);
+                    $item->setAttribute('unit_original_price', $pricing['original']);
+                    $item->setAttribute('unit_discount', $pricing['discount']);
+                    $item->setAttribute('promotion', $pricing['promotion']);
+                }
+
                 return [
                     'store' => $store,
                     'items' => $group,
-                    'subtotal' => $group->sum(fn ($item) => (float) $item->variant->price * $item->qty),
+                    'subtotal' => $group->sum(fn ($item) => (float) $item->unit_price * $item->qty),
+                    'discount' => $group->sum(fn ($item) => (float) $item->unit_discount * $item->qty),
                 ];
             })
             ->values();
@@ -100,6 +112,8 @@ class CartService
         return [
             'items' => $items,
             'by_store' => $byStore,
+            'subtotal' => $byStore->sum('subtotal'),
+            'discount' => $byStore->sum('discount'),
             'total' => $byStore->sum('subtotal'),
         ];
     }
