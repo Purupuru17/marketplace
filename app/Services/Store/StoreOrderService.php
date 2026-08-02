@@ -13,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 
 class StoreOrderService
 {
+    public function __construct(protected StoreWalletService $walletService) {}
+
     public const TRANSITIONS = [
         'pending' => ['processing', 'cancelled'],
         'processing' => ['shipped', 'cancelled'],
@@ -74,10 +76,12 @@ class StoreOrderService
         return DB::transaction(function () use ($order, $from, $to, $user, $notes) {
             if ($to === 'cancelled') {
                 $this->restoreStock($order);
+                $this->walletService->reverseHold($order);
             }
 
             if ($to === 'completed') {
                 $this->settleCodIfApplicable($order);
+                $this->walletService->settle($order);
             }
 
             $order->update(['status' => $to]);

@@ -19,6 +19,7 @@ use App\Http\Controllers\Store\OrdersController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\Store\SubscriptionController;
 use App\Http\Controllers\Store\SubscriptionInvoiceController;
+use App\Http\Controllers\Store\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -75,6 +76,10 @@ Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->gro
     Route::get('orders', [OrdersController::class, 'index'])->name('order.index');
     Route::get('orders/{order}', [OrdersController::class, 'show'])->name('order.show');
     Route::post('orders/{order}/status', [OrdersController::class, 'update'])->name('order.update');
+
+    Route::get('wallet', [WalletController::class, 'index'])->name('wallet.index');
+    Route::post('wallet', [WalletController::class, 'store'])->name('wallet.store');
+    Route::post('wallet/withdrawal/{withdrawal}/{action}', [WalletController::class, 'process'])->name('wallet.process');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('katalog')->name('katalog.')->group(function () {

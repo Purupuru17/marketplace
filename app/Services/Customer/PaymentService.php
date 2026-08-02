@@ -6,12 +6,15 @@ use App\Models\Invoice;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use App\Models\PaymentWebhookLog;
+use App\Services\Store\StoreWalletService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class PaymentService
 {
+    public function __construct(protected StoreWalletService $walletService) {}
+
     public const ONLINE_METHODS = ['bank_transfer', 'e_wallet'];
 
     public const METHODS = [
@@ -127,6 +130,8 @@ class PaymentService
 
             foreach ($invoice->orders as $order) {
                 $order->update(['status' => 'processing']);
+
+                $this->walletService->hold($order);
 
                 OrderStatusHistory::create([
                     'order_id' => $order->id,

@@ -63,7 +63,12 @@ class CatalogDataSeeder extends Seeder
             ['index', 'detail', 'edit']
         ));
 
-        $ownerRole->syncPermissions(array_merge($catalogPermissions, $storeOrderPermissions));
+        $walletPermissions = array_filter(array_map(
+            fn (string $action) => Permission::findByName("wallet.{$action}", 'web'),
+            ['index', 'create']
+        ));
+
+        $ownerRole->syncPermissions(array_merge($catalogPermissions, $storeOrderPermissions, $walletPermissions));
 
         $owner = User::where('email', 'toko@gmail.com')->first();
 
