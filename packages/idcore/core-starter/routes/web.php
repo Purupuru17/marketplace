@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 // Login: TIDAK butuh auth (justru untuk yang belum login)
 Route::middleware(['web', 'guest'])->group(function () {
     Route::get('login', [LoginController::class, 'index'])->name('login');
-    Route::post('login', [LoginController::class, 'login']);
+    Route::post('login', [LoginController::class, 'login'])->middleware('throttle:login');
 });
 
 // Area privat: cukup 'auth', TIDAK ada core_permission di sini

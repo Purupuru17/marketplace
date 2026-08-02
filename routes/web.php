@@ -50,7 +50,7 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
 
     Route::get('cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('cart', [CartController::class, 'store'])->name('cart.store');
+    Route::post('cart', [CartController::class, 'store'])->middleware('throttle:action')->name('cart.store');
     Route::put('cart/{item}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('cart/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
 
@@ -58,27 +58,27 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
     Route::post('address/{address}/default', [AddressController::class, 'setDefault'])->name('address.default');
 
     Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:action')->name('checkout.store');
     Route::get('checkout/success/{invoice}', [CheckoutController::class, 'success'])->name('checkout.success');
 
     Route::get('orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('orders/{invoice}', [OrderController::class, 'show'])->name('order.show');
 
     Route::get('payment/{invoice}', [PaymentController::class, 'show'])->name('payment.show');
-    Route::post('payment/{invoice}', [PaymentController::class, 'store'])->name('payment.store');
+    Route::post('payment/{invoice}', [PaymentController::class, 'store'])->middleware('throttle:payment')->name('payment.store');
 
-    Route::post('ratings', [RatingController::class, 'store'])->name('rating.store');
+    Route::post('ratings', [RatingController::class, 'store'])->middleware('throttle:action')->name('rating.store');
     Route::delete('ratings/{rating}', [RatingController::class, 'destroy'])->name('rating.destroy');
 
     Route::get('favorites', [FavoriteController::class, 'index'])->name('favorite.index');
-    Route::post('favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
+    Route::post('favorites/toggle', [FavoriteController::class, 'toggle'])->middleware('throttle:action')->name('favorite.toggle');
 
     Route::get('points', [PointController::class, 'index'])->name('point.index');
 
     Route::get('chat', [CustomerChatController::class, 'index'])->name('chat.index');
-    Route::post('chat/start', [CustomerChatController::class, 'start'])->name('chat.start');
+    Route::post('chat/start', [CustomerChatController::class, 'start'])->middleware('throttle:action')->name('chat.start');
     Route::get('chat/{conversation}', [CustomerChatController::class, 'show'])->name('chat.show');
-    Route::post('chat/{conversation}', [CustomerChatController::class, 'store'])->name('chat.store');
+    Route::post('chat/{conversation}', [CustomerChatController::class, 'store'])->middleware('throttle:action')->name('chat.store');
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('master')->name('master.')->group(function () {

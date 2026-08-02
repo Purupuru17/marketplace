@@ -4,20 +4,22 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\User;
-use Database\Seeders\MasterDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class MasterSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
+
+        $this->flushTestCache();
+        $this->seedCore();
+        $this->seedMaster();
     }
 
     public function test_index_and_create_pages_render(): void

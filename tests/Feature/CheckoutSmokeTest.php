@@ -13,29 +13,21 @@ use App\Models\StockMovement;
 use App\Models\Store;
 use App\Models\User;
 use App\Services\Shipping\ShippingService;
-use Database\Seeders\CatalogDataSeeder;
-use Database\Seeders\CustomerDataSeeder;
-use Database\Seeders\LocationDataSeeder;
-use Database\Seeders\MasterDataSeeder;
-use Database\Seeders\StoreDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class CheckoutSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
-        $this->seed(LocationDataSeeder::class);
-        $this->seed(StoreDataSeeder::class);
-        $this->seed(CatalogDataSeeder::class);
-        $this->seed(CustomerDataSeeder::class);
+        $this->flushTestCache();
+        $this->seedMarketplace();
     }
 
     protected function customer(): Customer

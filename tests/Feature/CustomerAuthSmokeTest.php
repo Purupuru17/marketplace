@@ -3,30 +3,22 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
-use Database\Seeders\CatalogDataSeeder;
-use Database\Seeders\CustomerDataSeeder;
-use Database\Seeders\LocationDataSeeder;
-use Database\Seeders\MasterDataSeeder;
-use Database\Seeders\StoreDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class CustomerAuthSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
-        $this->seed(LocationDataSeeder::class);
-        $this->seed(StoreDataSeeder::class);
-        $this->seed(CatalogDataSeeder::class);
-        $this->seed(CustomerDataSeeder::class);
+        $this->flushTestCache();
+        $this->seedMarketplace();
     }
 
     public function test_register_and_login_pages_render(): void

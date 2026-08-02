@@ -6,29 +6,21 @@ use App\Models\CartItem;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use Database\Seeders\CatalogDataSeeder;
-use Database\Seeders\CustomerDataSeeder;
-use Database\Seeders\LocationDataSeeder;
-use Database\Seeders\MasterDataSeeder;
-use Database\Seeders\StoreDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class CartSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
-        $this->seed(LocationDataSeeder::class);
-        $this->seed(StoreDataSeeder::class);
-        $this->seed(CatalogDataSeeder::class);
-        $this->seed(CustomerDataSeeder::class);
+        $this->flushTestCache();
+        $this->seedMarketplace();
     }
 
     protected function customer(): Customer

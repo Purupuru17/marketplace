@@ -7,25 +7,24 @@ use App\Models\StoreLevel;
 use App\Models\Subscription;
 use App\Models\SubscriptionInvoice;
 use App\Models\User;
-use Database\Seeders\LocationDataSeeder;
-use Database\Seeders\MasterDataSeeder;
-use Database\Seeders\StoreDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class StoreSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
-        $this->seed(LocationDataSeeder::class);
-        $this->seed(StoreDataSeeder::class);
+        $this->flushTestCache();
+        $this->seedCore();
+        $this->seedMaster();
+        $this->seedLocations();
+        $this->seedStores();
     }
 
     public function test_index_and_create_pages_render(): void

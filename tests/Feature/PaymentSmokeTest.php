@@ -8,30 +8,22 @@ use App\Models\Invoice;
 use App\Models\LocationNode;
 use App\Models\PaymentWebhookLog;
 use App\Models\ProductVariant;
-use Database\Seeders\CatalogDataSeeder;
-use Database\Seeders\CustomerDataSeeder;
-use Database\Seeders\LocationDataSeeder;
-use Database\Seeders\MasterDataSeeder;
-use Database\Seeders\StoreDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class PaymentSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
-        $this->seed(LocationDataSeeder::class);
-        $this->seed(StoreDataSeeder::class);
-        $this->seed(CatalogDataSeeder::class);
-        $this->seed(CustomerDataSeeder::class);
+        $this->flushTestCache();
+        $this->seedMarketplace();
     }
 
     protected function customer(): Customer

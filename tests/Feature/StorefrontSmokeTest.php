@@ -3,27 +3,25 @@
 namespace Tests\Feature;
 
 use App\Models\Store;
-use Database\Seeders\CatalogDataSeeder;
-use Database\Seeders\LocationDataSeeder;
-use Database\Seeders\MasterDataSeeder;
-use Database\Seeders\StoreDataSeeder;
-use IdCore\CoreStarter\Database\Seeders\CoreDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
 class StorefrontSmokeTest extends TestCase
 {
     use RefreshDatabase;
+    use SeedsMarketplace;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(CoreDatabaseSeeder::class);
-        $this->seed(MasterDataSeeder::class);
-        $this->seed(LocationDataSeeder::class);
-        $this->seed(StoreDataSeeder::class);
-        $this->seed(CatalogDataSeeder::class);
+        $this->flushTestCache();
+        $this->seedCore();
+        $this->seedMaster();
+        $this->seedLocations();
+        $this->seedStores();
+        $this->seedCatalog();
     }
 
     public function test_public_pages_render(): void

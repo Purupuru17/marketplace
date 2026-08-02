@@ -70,3 +70,15 @@ chat, serta arsitektur service yang modular.
 - Pengembangan dilakukan bertahap sesuai sprint.
 6. Catatan
 Dokumen ini merupakan ringkasan diskusi dan akan digunakan sebagai konteks awal pada chat baru. Dokumen ini menjadi acuan utama sebelum implementasi migration maupun coding dimulai.
+7. Progress
+- Step 1-13 Selesai: Foundation sampai Chat real-time (Reverb/Pusher). Chat: ChatConversation/ChatMessage, ChatService (start unik per [customer,store,product], send transaction + broadcast resilient), MessageSent ke channel private `chat.{id}`, ChatChannel::join() multi-guard, controller + view customer & store, permission `chat.*`, menu Toko.
+- Step 14 (Hardening & Testing) Selesai:
+  - A1 Rate limiting: limiter login (5/menit email+IP), register (3/menit IP), payment (10/menit), action (30/menit) di AppServiceProvider; throttle dipasang di route customer sensitif, daftar, masuk, dan POST /login idcore.
+  - A2 SecurityHeaders middleware (X-Content-Type-Options, X-Frame-Options SAMEORIGIN, Referrer-Policy, Permissions-Policy, HSTS) di grup web.
+  - A3 trustProxies at('*') + URL::forceScheme('https') saat production.
+  - A4 SESSION_SECURE_COOKIE=false di .env.example.
+  - B1 Refactor seed test: trait Tests\Concerns\SeedsMarketplace (seedCore/Master/Locations/Stores/Catalog/Customers + flushTestCache); 14 file Feature memakainya.
+  - B2 Unit test service layer: PromotionServiceTest, LoyaltyServiceTest, StoreWalletServiceTest, CartServiceTest, ChatServiceTest.
+  - B3 Test validasi & authz negatif: ValidationSmokeTest, AuthorizationSmokeTest (403 lintas tenant, transisi status ilegal, rating order belum selesai/milik orang lain, penarikan non-admin).
+  - Fix hardening: `points_used` ditambahkan ke Invoice::$fillable + cast integer; CheckoutService tidak lagi set points_used saat create (redeem adalah satu-satunya penulis) sehingga terhindar dari double counting.
+  - Total: 186 test passed (616 assertions), pint bersih. CI/Docker deployment menyusul.

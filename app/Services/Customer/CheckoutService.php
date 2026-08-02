@@ -121,7 +121,6 @@ class CheckoutService
                 'total_discount' => round($promoDiscount + $pointsValue, 2),
                 'total_shipping_cost' => collect($ordersPayload)->sum('shipping_cost'),
                 'grand_total' => round($grandTotal - $pointsValue, 2),
-                'points_used' => $points,
                 'status' => 'pending',
             ]);
 

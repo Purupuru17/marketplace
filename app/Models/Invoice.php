@@ -13,7 +13,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'invoice_no', 'customer_id', 'subtotal', 'total_discount',
-        'total_shipping_cost', 'grand_total', 'status',
+        'total_shipping_cost', 'grand_total', 'points_used', 'status',
     ];
 
     protected function casts(): array
@@ -23,6 +23,7 @@ class Invoice extends Model
             'total_discount' => 'decimal:2',
             'total_shipping_cost' => 'decimal:2',
             'grand_total' => 'decimal:2',
+            'points_used' => 'integer',
         ];
     }
 
