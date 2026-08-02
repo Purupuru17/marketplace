@@ -75,11 +75,17 @@ class CatalogDataSeeder extends Seeder
             ['index', 'create', 'edit', 'delete']
         ));
 
+        $chatPermissions = array_filter(array_map(
+            fn (string $action) => Permission::findByName("chat.{$action}", 'web'),
+            ['index', 'create', 'detail']
+        ));
+
         $ownerRole->syncPermissions(array_merge(
             $catalogPermissions,
             $storeOrderPermissions,
             $walletPermissions,
-            $promotionPermissions
+            $promotionPermissions,
+            $chatPermissions
         ));
 
         $owner = User::where('email', 'toko@gmail.com')->first();

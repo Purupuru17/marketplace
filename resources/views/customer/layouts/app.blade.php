@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', config('app.name'))</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -50,6 +51,7 @@
                         ['label' => 'Pesanan', 'icon' => 'heroicon-o-receipt-refund', 'route' => 'customer.order.index', 'pattern' => 'customer.order.*', 'auth' => true],
                         ['label' => 'Poin', 'icon' => 'heroicon-o-star', 'route' => 'customer.point.index', 'pattern' => 'customer.point.*', 'auth' => true],
                         ['label' => 'Favorit', 'icon' => 'heroicon-o-heart', 'route' => 'customer.favorite.index', 'pattern' => 'customer.favorite.*', 'auth' => true],
+                        ['label' => 'Chat', 'icon' => 'heroicon-o-chat-bubble-left-right', 'route' => 'customer.chat.index', 'pattern' => 'customer.chat.*', 'auth' => true],
                         ['label' => 'Alamat Saya', 'icon' => 'heroicon-o-map-pin', 'route' => 'customer.address.index', 'pattern' => 'customer.address.*', 'auth' => true],
                     ];
                 @endphp

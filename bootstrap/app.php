@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\SecurityHeaders;
 use IdCore\CoreStarter\Http\Middleware\CheckCorePermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'core_permission' => CheckCorePermission::class,
             'active' => EnsureAccountIsActive::class,
         ]);
+
+        $middleware->appendToGroup('web', SecurityHeaders::class);
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

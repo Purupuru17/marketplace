@@ -18,6 +18,7 @@
         "blade-ui-kit/blade-icons": "^1.10",
         "idcore/core-starter": "dev-main",
         "laravel/framework": "^13.8",
+        "laravel/reverb": "^1.11",
         "laravel/tinker": "^3.0",
         "spatie/laravel-permission": "^7.4"
     },

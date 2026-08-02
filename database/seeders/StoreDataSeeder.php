@@ -26,6 +26,7 @@ class StoreDataSeeder extends Seeder
         'orders' => ['index', 'detail', 'edit'],
         'wallet' => ['index', 'create'],
         'promotion' => ['index', 'create', 'edit', 'delete'],
+        'chat' => ['index', 'create', 'detail'],
     ];
 
     public function run(): void
@@ -125,6 +126,7 @@ class StoreDataSeeder extends Seeder
             ['name' => 'Pesanan', 'url' => '/toko/orders', 'sort_by' => 4, 'icon' => 'heroicon-o-truck', 'actions' => $this->permissions['orders']],
             ['name' => 'Promo', 'url' => '/toko/promotion', 'sort_by' => 5, 'icon' => 'heroicon-o-tag', 'actions' => $this->permissions['promotion']],
             ['name' => 'Saldo', 'url' => '/toko/wallet', 'sort_by' => 6, 'icon' => 'heroicon-o-wallet', 'actions' => $this->permissions['wallet']],
+            ['name' => 'Chat', 'url' => '/toko/chat', 'sort_by' => 7, 'icon' => 'heroicon-o-chat-bubble-left-right', 'actions' => $this->permissions['chat']],
         ];
 
         foreach ($childMenus as $menu) {

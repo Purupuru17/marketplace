@@ -2,8 +2,21 @@
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
 import Swal from 'sweetalert2';
+import Pusher from 'pusher-js';
 
 window.Swal = Swal;
+window.Pusher = Pusher;
+
+Pusher.logToConsole = import.meta.env.DEV && true;
+
+window.Pusher.config = {
+    key: import.meta.env.VITE_REVERB_APP_KEY || import.meta.env.VITE_PUSHER_APP_KEY || 'marketplace-key',
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER || null,
+    wsHost: import.meta.env.VITE_REVERB_HOST || import.meta.env.VITE_PUSHER_HOST || window.location.hostname,
+    wsPort: Number(import.meta.env.VITE_REVERB_PORT || import.meta.env.VITE_PUSHER_PORT) || undefined,
+    wssPort: Number(import.meta.env.VITE_REVERB_PORT || import.meta.env.VITE_PUSHER_PORT) ? Number(import.meta.env.VITE_REVERB_PORT || import.meta.env.VITE_PUSHER_PORT) + 443 : undefined,
+    forceTLS: (import.meta.env.VITE_REVERB_SCHEME || import.meta.env.VITE_PUSHER_SCHEME || 'http') === 'https',
+};
 
 document.addEventListener('alpine:init', () => {
     Alpine.store('layout', {

@@ -55,6 +55,16 @@
                     @endif
                 </button>
             </form>
+
+            <form method="POST" action="{{ route('customer.chat.start') }}">
+                @csrf
+                <input type="hidden" name="store_id" value="{{ $store->id }}">
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">
+                    @svg('heroicon-o-chat-bubble-left-right', 'h-5 w-5') Tanya Toko
+                </button>
+            </form>
         @endauth
     </div>
 </div>

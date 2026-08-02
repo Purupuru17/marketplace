@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ChatConversation extends Model
 {
@@ -30,6 +31,12 @@ class ChatConversation extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(ChatMessage::class, 'conversation_id');
+        return $this->hasMany(ChatMessage::class, 'conversation_id')->orderBy('created_at');
+    }
+
+    public function lastMessage(): HasOne
+    {
+        return $this->hasOne(ChatMessage::class, 'conversation_id')
+            ->orderByDesc('created_at');
     }
 }
