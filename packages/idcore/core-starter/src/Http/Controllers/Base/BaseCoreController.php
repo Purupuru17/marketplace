@@ -15,7 +15,7 @@ abstract class BaseCoreController implements HasMiddleware
     public static function middleware(): array
     {
         $resourceName = static::resourceName();
-        $middlewares = [];
+        $middlewares  = [];
 
         foreach (config('idcore.permission_map') as $method => $suffix) {
             $permission = "{$resourceName}.{$suffix}";

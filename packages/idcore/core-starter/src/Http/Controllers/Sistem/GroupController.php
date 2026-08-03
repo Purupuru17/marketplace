@@ -8,6 +8,8 @@ use Spatie\Permission\Models\Role;
 
 class GroupController extends BaseCoreController
 {
+    private $module = 'sistem.group';
+
     protected static function resourceName(): string
     {
         return 'group';
@@ -18,17 +20,39 @@ class GroupController extends BaseCoreController
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $groups = Role::when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
+        $listData = Role::when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
             ->orderBy('name')
             ->paginate($perPage)
             ->appends($request->only(['search', 'per_page']));
 
-        return view('idcore::sistem.group.index', compact('groups'));
+        $compact = [
+            'listData'          => $listData,
+            
+            'title'             => 'Group',
+            'subtitle'          => 'Daftar Role yang tersedia',
+
+            'module'            => $this->module,
+            'rolesName'         => $this->resourceName(),
+            'breadcrumb'        => [[ 'Beranda', route('dashboard')], [ucwords($this->resourceName())]]
+        ];
+        return view('idcore::'.$this->module.'.index', $compact);
     }
 
     public function create()
     {
-        return view('idcore::sistem.group.form', ['group' => null]);
+        $compact = [
+            'formData'          => null,
+            
+            'title'             => 'Group',
+            'subtitle'          => 'Atur Roles',
+            'action'            => route($this->module.'.store'),
+
+            'module'            => $this->module,
+            'breadcrumb'        => [['Beranda', route('dashboard')], 
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Tambah Data']]
+
+        ];
+        return view('idcore::'.$this->module.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -40,26 +64,38 @@ class GroupController extends BaseCoreController
         Role::create(['name' => $validated['name']]);
 
         return redirect()
-            ->route('sistem.group.index')
-            ->with('success', 'Grup berhasil ditambahkan.');
+            ->route($this->module.'.index')
+            ->with('success', 'Data berhasil ditambahkan.');
     }
 
     public function edit(Role $group)
     {
-        return view('idcore::sistem.group.form', ['group' => $group]);
+        $compact = [
+            'formData'          => $group,
+            
+            'title'             => 'Group',
+            'subtitle'          => 'Atur Roles',
+            'action'            => route($this->module.'.update', $group->id),
+
+            'module'            => $this->module,
+            'breadcrumb'        => [['Beranda', route('dashboard')], 
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Ubah Data']]
+
+        ];
+        return view('idcore::'.$this->module.'.form', $compact);
     }
 
     public function update(Request $request, Role $group)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,'.$group->id,
+            'name' => 'required|string|max:255|unique:roles,name,' . $group->id,
         ]);
 
         $group->update(['name' => $validated['name']]);
 
         return redirect()
-            ->route('sistem.group.index')
-            ->with('success', 'Grup berhasil diperbarui.');
+            ->route($this->module.'.index')
+            ->with('success', 'Data berhasil diperbarui.');
     }
 
     public function destroy(Role $group)
@@ -67,7 +103,7 @@ class GroupController extends BaseCoreController
         $group->delete();
 
         return redirect()
-            ->route('sistem.group.index')
-            ->with('success', 'Grup berhasil dihapus.');
+            ->route($this->module.'.index')
+            ->with('success', 'Data berhasil dihapus.');
     }
 }

@@ -21,7 +21,7 @@ class LoginController extends Controller
 
     public function dashboard()
     {
-        if (! Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
 
@@ -31,11 +31,11 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => 'Email atau password salah.']);
         }
@@ -65,7 +65,7 @@ class LoginController extends Controller
     {
         $validated = $request->validate(['role' => 'required|string']);
 
-        if (! ActiveRole::set($request->user(), $validated['role'])) {
+        if (!ActiveRole::set($request->user(), $validated['role'])) {
             return back()->with('error', 'Anda tidak memiliki role tersebut.');
         }
 

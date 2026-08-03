@@ -1,19 +1,16 @@
 @extends('idcore::layouts.backend')
-@section('title', $menu->exists ? 'Edit Menu' : 'Tambah Menu')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $menu->exists ? 'Edit Menu' : 'Tambah Menu' }}</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Menu', 'url' => route('sistem.menu.index')], ['label' => $menu->exists ? 'Edit' : 'Create']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
 </div>
 
-<x-idcore::card title="{{ $menu->exists ? 'Edit Menu' : 'Tambah Menu' }}" subtitle="Atur struktur sidebar dan action permission yang akan disinkronkan otomatis." class="max-w-5xl">
-    <form id="menuForm"
-          action="{{ $menu->exists ? route('sistem.menu.update', $menu->id) : route('sistem.menu.store') }}"
-          method="POST"
-          class="space-y-8"
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" class="max-w-4xl">
+    <form id="menuForm" action="{{ $action }}" method="POST" class="space-y-6"
           x-data="{ originalActions: @js($menu->actions ?? []), formDirty: false }"
           @input.debounce.500ms="formDirty = true"
           @change="formDirty = true"
@@ -70,20 +67,22 @@
         </div>
 
         <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:justify-end">
-            <x-idcore::button variant="outline" @click.prevent="
+            <x-idcore::button variant="light" @click.prevent="
                 if (formDirty) {
                     $confirm({
-                        title: 'Perubahan Belum Disimpan',
-                        message: 'Ada perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
+                        title: 'Konfirmasi',
+                        message: 'Ada perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini ?',
                         confirmText: 'Ya, Tinggalkan',
                         cancelText: 'Batal',
                         variant: 'warning'
-                    }).then(ok => { if (ok) window.location.href = '{{ route('sistem.menu.index') }}'; });
+                    }).then(ok => { if (ok) window.location.href = '{{ route($module.'.index') }}'; });
                 } else {
-                    window.location.href = '{{ route('sistem.menu.index') }}';
+                    window.location.href = '{{ route($module.'.index') }}';
                 }
-            ">Batal</x-idcore::button>
-            <x-idcore::button type="submit" variant="{{ $menu->exists ? 'warning' : 'success' }}">Simpan</x-idcore::button>
+            ">@svg('heroicon-o-arrow-path', 'h-4 w-4') Batal</x-idcore::button>
+            <x-idcore::button type="submit" variant="{{ $menu->exists ? 'warning' : 'success' }}">
+                @svg('heroicon-o-paper-airplane', 'h-4 w-4') Simpan
+            </x-idcore::button>
         </div>
     </form>
 </x-idcore::card>

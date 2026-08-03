@@ -382,7 +382,6 @@
         <h3 class="text-base font-bold text-gray-900 dark:text-white">Breadcrumb</h3>
         <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">Navigasi hirarki. Props: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">items</code> (array of <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">['label', 'url']</code>).</p>
         <div class="mb-3">
-            <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => '#'], ['label' => 'Sistem', 'url' => '#'], ['label' => 'User']]" />
         </div>
         <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::breadcrumb :items="[['label' =&gt; 'Home', 'url' =&gt; route('dashboard')], ['label' =&gt; 'User']]" /&gt;</code></pre>
     </section>

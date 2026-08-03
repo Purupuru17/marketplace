@@ -1,18 +1,20 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Kelola Menu')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Kelola Menu</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Menu']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    @can('menu.create')
-        <x-idcore::button variant="primary" :href="route('sistem.menu.create')">Tambah Menu</x-idcore::button>
+    @can($rolesName.'.create')
+        <x-idcore::button variant="primary" :href="route($module.'.create')">
+            @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+        </x-idcore::button>
     @endcan
 </div>
 
-    <x-idcore::card title="Datatable Menu" subtitle="Struktur menu sidebar dan action permission yang digenerate" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
@@ -44,7 +46,7 @@
             @forelse($tree as $item)
                 @include('idcore::sistem.menu.partials.tree-item', ['items' => [$item], 'depth' => 0])
             @empty
-                <x-idcore::table-empty colspan="5" message="Belum ada data menu." />
+                <x-idcore::table-empty colspan="5" message="Data tidak ditemukan." />
             @endforelse
         </tbody>
     </x-idcore::table>

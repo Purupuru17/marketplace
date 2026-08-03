@@ -9,10 +9,12 @@
         $table->uuid($columnNames['model_morph_key']); (model_has_permissions, model_has_roles)
         
 3. Spatie Middleware --> bootstrap > app.php
-    'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-    'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-    'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-    'core_permission'    => CheckCorePermission::class,
+    $middleware->alias([
+        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        'core_permission'    => CheckCorePermission::class,
+    ]);
 4. Call Seeder --> $this->call(CoreDatabaseSeeder::class);
 5. composer.json --> require "idcore/core-starter": "dev-main"
                     "repositories": [
@@ -23,14 +25,12 @@
                         }
                     ]
 6.  - composer --> update idcore/core-starter, dump-autoload
-    - php artisan --> route:list, route:clear, permission:cache-reset, db:seed, cache^route^config^optimize:clear
     - php artisan --> migrate:fresh
+    - php artisan --> route:list, route:clear, permission:cache-reset, db:seed, cache^route^config^optimize:clear
+    
 7. Tailwind
     - npm install -D tailwindcss postcss autoprefixer @tailwindcss/forms alpinejs
-    - npx tailwindcss init -p
-    - WAJIB: scan semua view di package idcore/core-starter
-        './packages/idcore/core-starter/resources/**/*.blade.php',
-        './packages/idcore/core-starter/src/**/*.php',
+    - copy app.css.stub k resource
     - Tambahkan x-cloak — resources/css/app.css [x-cloak] { display: none !important; }
 8. 
 

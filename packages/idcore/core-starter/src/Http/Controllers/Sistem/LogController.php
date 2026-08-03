@@ -8,5 +8,9 @@ class LogController extends BaseCoreController
 {
     protected string $resourceName = 'log';
 
-    public function index() {}
+    public function index()
+    {
+
+    }
+
 }

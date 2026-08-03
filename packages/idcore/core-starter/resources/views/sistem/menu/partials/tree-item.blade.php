@@ -37,7 +37,7 @@
         <td class="px-6 py-4 hidden lg:table-cell">
             <div class="flex flex-wrap gap-1.5">
                 @forelse($item['actions'] ?? [] as $action)
-                    <x-idcore::badge variant="blue">{{ $action }}</x-idcore::badge>
+                    <x-idcore::badge variant="warning">{{ $action }}</x-idcore::badge>
                 @empty
                     <span class="text-sm text-gray-400">-</span>
                 @endforelse
@@ -46,7 +46,7 @@
 
         <td class="px-6 py-4 text-center">
             @if($item['is_active'])
-                <x-idcore::badge variant="green">Aktif</x-idcore::badge>
+                <x-idcore::badge variant="success">Aktif</x-idcore::badge>
             @else
                 <x-idcore::badge>Nonaktif</x-idcore::badge>
             @endif

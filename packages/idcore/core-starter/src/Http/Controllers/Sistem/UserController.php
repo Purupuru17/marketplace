@@ -12,6 +12,8 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends BaseCoreController
 {
+    private $module = 'sistem.user';
+
     protected static function resourceName(): string
     {
         return 'user';
@@ -22,34 +24,57 @@ class UserController extends BaseCoreController
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $users = User::with('roles')
-            ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
+        $listData = User::with('roles')
+            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
             ->orderBy('name')
             ->paginate($perPage)
             ->appends($request->only(['search', 'per_page']));
 
-        return view('idcore::sistem.user.index', compact('users'));
+        $compact = [
+            'listData'          => $listData,
+            
+            'title'             => 'Users',
+            'subtitle'          => 'Daftar Akun dan Role yang tersedia',
+            
+            'module'            => $this->module,
+            'rolesName'         => $this->resourceName(),
+            'breadcrumb'        => [[ 'Beranda', route('dashboard')], [ucwords($this->resourceName())]]
+        ];
+        return view('idcore::'.$this->module.'.index', $compact);
     }
 
     public function create()
     {
         $roles = Role::orderBy('name')->get();
+        
+        $compact = [
+            'formData'          => null,
+            'roles'             => $roles,
 
-        return view('idcore::sistem.user.form', ['user' => null, 'roles' => $roles]);
+            'title'             => 'Users',
+            'subtitle'          => 'Atur identitas, password, role, dan default role user',
+            'action'            => route($this->module.'.store'),
+            
+            'module'            => $this->module,
+            'breadcrumb'        => [['Beranda', route('dashboard')], 
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Tambah Data']]
+
+        ];
+        return view('idcore::'.$this->module.'.form', $compact);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => ['required', Password::min(8)],
-            'roles' => 'required|array|min:1',
-            'roles.*' => 'exists:roles,name',
-            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))],
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'password'     => ['required', Password::min(8)],
+            'roles'        => 'required|array|min:1',
+            'roles.*'      => 'exists:roles,name',
+            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))]
         ], [
             'default_role.required' => 'Silakan pilih salah satu role sebagai default.',
-            'default_role.in' => 'Role default harus salah satu dari role yang dicentang.',
+            'default_role.in'       => 'Role default harus salah satu dari role yang dicentang.',
         ]);
 
         $user = User::create([
@@ -64,8 +89,8 @@ class UserController extends BaseCoreController
         $user->update(['default_role_id' => $defaultRole?->id]);
 
         return redirect()
-            ->route('sistem.user.index')
-            ->with('success', 'User berhasil ditambahkan.');
+            ->route($this->module.'.index')
+            ->with('success', 'Data berhasil ditambahkan.');
     }
 
     public function edit(User $user)
@@ -73,21 +98,33 @@ class UserController extends BaseCoreController
         $roles = Role::orderBy('name')->get();
         $user->load('roles');
 
-        return view('idcore::sistem.user.form', compact('user', 'roles'));
+        $compact = [
+            'formData'          => $user,
+            'roles'             => $roles,
+            
+            'title'             => 'Users',
+            'subtitle'          => 'Atur identitas, password, role, dan default role user',
+            'action'            => route($this->module.'.update', $user->id),
+
+            'module'            => $this->module,
+            'breadcrumb'        => [['Beranda', route('dashboard')], 
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Ubah Data']]
+        ];
+        return view('idcore::'.$this->module.'.form', $compact);
     }
 
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', Password::min(8)],
-            'roles' => 'required|array|min:1',
-            'roles.*' => 'exists:roles,name',
-            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))],
+            'name'         => 'required|string|max:255',
+            'email'        => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'password'     => ['nullable', Password::min(8)],
+            'roles'        => 'required|array|min:1',
+            'roles.*'      => 'exists:roles,name',
+            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))]
         ], [
             'default_role.required' => 'Silakan pilih salah satu role sebagai default.',
-            'default_role.in' => 'Role default harus salah satu dari role yang dicentang.',
+            'default_role.in'       => 'Role default harus salah satu dari role yang dicentang.',
         ]);
 
         $user->update([
@@ -102,28 +139,28 @@ class UserController extends BaseCoreController
         $user->update(['default_role_id' => $defaultRole?->id]);
 
         return redirect()
-            ->route('sistem.user.index')
-            ->with('success', 'User berhasil diperbarui.');
+            ->route($this->module.'.index')
+            ->with('success', 'Data berhasil diperbarui.');
     }
 
     public function destroy(User $user)
     {
         if ($user->id === Auth::id()) {
             return redirect()
-                ->route('sistem.user.index')
+                ->route($this->module.'.index')
                 ->with('error', 'Tidak bisa menghapus akun sendiri.');
         }
 
         $user->delete();
 
         return redirect()
-            ->route('sistem.user.index')
-            ->with('success', 'User berhasil dihapus.');
+            ->route($this->module.'.index')
+            ->with('success', 'Data berhasil dihapus.');
     }
 
     public function show(User $user)
     {
-        return view('idcore::sistem.user.show', compact('user'));
+        
     }
 
     public function ajax(Request $request)

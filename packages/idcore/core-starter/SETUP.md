@@ -29,15 +29,6 @@ composer require spatie/laravel-permission
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
 ```
 
-### Enable UUID support in Spatie config
-
-Set `'uuid' => true` in `config/permission.php` so that pivot tables use UUID for the morph key:
-
-```php
-// config/permission.php
-'uuid' => true,
-```
-
 ### Modify Spatie migration for UUID
 
 Edit `database/migrations/*_create_permission_tables.php` — change the morph key column type from `unsignedBigInteger` to `uuid`:
@@ -48,12 +39,6 @@ $table->unsignedBigInteger($columnNames['model_morph_key']);
 
 // Ubah menjadi:
 $table->uuid($columnNames['model_morph_key']);
-```
-
-Then run migration:
-
-```bash
-php artisan migrate
 ```
 
 ### Update User model with HasUuids + HasRoles
@@ -83,6 +68,15 @@ $table->uuid('id')->primary();
 $table->unsignedBigInteger('default_role_id')->nullable();
 $table->uuid('user_id')->nullable()->index();
 ```
+
+### Delete Seeder Bawaan
+
+Then run migration:
+
+```bash
+php artisan migrate
+```
+
 
 ## Step 3: Install Additional Backend Dependencies
 
