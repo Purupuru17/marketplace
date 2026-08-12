@@ -4,7 +4,7 @@
     'padding' => true,
 ])
 
-<div {{ $attributes->merge(['class' => 'rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-700 dark:bg-white/[0.03]']) }}>
+<div {{ $attributes->merge(['class' => 'rounded-xl border border-gray-200/80 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-900']) }}>
     @if($title || $subtitle || isset($actions))
         <div class="border-b border-gray-200 px-6 py-5 dark:border-gray-700 sm:px-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -25,7 +25,7 @@
                     'text-success-500': item.type === 'success',
                     'text-danger-500': item.type === 'error',
                     'text-warning-500': item.type === 'warning',
-                    'text-brand-500': item.type === 'info',
+                    'text-primary-500': item.type === 'info',
                 }"
             >
                 <template x-if="item.type === 'success'">@svg('heroicon-o-check-circle', 'h-5 w-5')</template>

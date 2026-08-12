@@ -29,8 +29,8 @@
     - php artisan --> route:list, route:clear, permission:cache-reset, db:seed, cache^route^config^optimize:clear
     
 7. Tailwind
-    - npm install -D tailwindcss postcss autoprefixer @tailwindcss/forms alpinejs
-    - copy app.css.stub k resource
+    - npm install -D tailwindcss @tailwindcss/vite @tailwindcss/forms
+    - copy app.css.stub ke resources/css/app.css
     - Tambahkan x-cloak — resources/css/app.css [x-cloak] { display: none !important; }
 8. 
 
@@ -41,21 +41,16 @@
 Setiap kali package ini dipakai di proyek baru, jalankan:
 
 ```bash
-npm install -D tailwindcss postcss autoprefixer @tailwindcss/forms
+npm install -D tailwindcss @tailwindcss/vite @tailwindcss/forms
 npm install alpinejs @alpinejs/collapse
 ```
 
-Lalu di `tailwind.config.js` proyek utama, tambahkan ke `content`:
-```javascript
-'./packages/idcore/core-starter/resources/**/*.blade.php',
-'./packages/idcore/core-starter/src/**/*.php',
-```
+Tailwind v4 pakai CSS-first config, jadi tak perlu `tailwind.config.js` untuk content source.
 
 Copy isi `resources/js/app.js` dan `resources/css/app.css` dari
 `packages/idcore/core-starter/stubs/` (lihat bag. di bawah) ke
 `resources/js/app.js` / `resources/css/app.css` milik proyek.
 
 packages/idcore/core-starter/stubs/
-├── app.js.stub      ← isi persis app.js Fase 2 kemarin (Alpine store + collapse plugin)
-├── app.css.stub     ← isi persis app.css Fase 1
-└── tailwind.config.snippet.js  ← potongan content[] + safelist[] yang wajib ditambahkan
+├── app.js.stub      ← Alpine store (layout, theme, toast, confirm) + collapse plugin
+└── app.css.stub     ← Tailwind v4 CSS-first tokens + source globs

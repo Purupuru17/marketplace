@@ -4,8 +4,8 @@
     $initial = strtoupper(substr($user?->name ?? 'U', 0, 1));
 @endphp
 
-<header class="sticky top-0 z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
-    <div class="flex items-center justify-between px-4 py-3 sm:px-6">
+<header class="sticky top-0 z-30 w-full bg-white/95 border-b border-gray-200/80 backdrop-blur dark:bg-gray-900/95 dark:border-gray-800">
+    <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div class="flex items-center gap-3">
             <!-- Mobile Sidebar Toggle -->
             <button class="flex lg:hidden items-center justify-center h-10 w-10 text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
@@ -20,20 +20,20 @@
             </button>
 
             <!-- Search Bar (Desktop) -->
-            <div class="hidden xl:block">
+            <div class="hidden xl:block flex-1 max-w-xl">
                 <form action="#" method="GET">
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 dark:text-gray-500">
                             @svg('heroicon-o-magnifying-glass', 'h-5 w-5')
                         </span>
                         <input type="text" name="search" placeholder="Search..."
-                               class="block w-72 rounded-lg border border-gray-200 bg-transparent py-2.5 pl-10 pr-3 text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-1 focus:ring-primary/20 dark:border-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-primary">
+                               class="block w-72 rounded-lg border border-gray-200 bg-transparent py-2.5 pl-10 pr-3 text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-primary-400">
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-2 sm:gap-3">
             <!-- Theme Toggle -->
             <button class="flex items-center justify-center h-10 w-10 text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                     @click="$store.theme.toggle()" aria-label="Toggle Theme">
@@ -53,7 +53,7 @@
                 </button>
 
                 <div x-show="open" x-cloak x-transition
-                     class="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 z-50">
+                     class="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-gray-200/80 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
                     <!-- User Info -->
                     <div class="px-3 py-2.5 border-b border-gray-100 dark:border-gray-800">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $user?->name }}</p>

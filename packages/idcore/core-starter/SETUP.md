@@ -87,8 +87,8 @@ composer require blade-ui-kit/blade-icons blade-ui-kit/blade-heroicons
 ## Step 4: Install Frontend Dependencies
 
 ```bash
-npm install alpinejs @alpinejs/collapse sweetalert2
-npm install -D tailwindcss @tailwindcss/vite
+npm install alpinejs @alpinejs/collapse
+npm install -D tailwindcss @tailwindcss/vite @tailwindcss/forms
 ```
 
 ## Step 5: Configure Vite for Tailwind
@@ -112,7 +112,7 @@ export default defineConfig({
 ```css
 /* resources/css/app.css */
 @import "tailwindcss";
-@import "tailwindcss-animated";
+@plugin "@tailwindcss/forms";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -178,9 +178,7 @@ export default defineConfig({
 // resources/js/app.js
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
-import Swal from 'sweetalert2';
 
-window.Swal = Swal;
 
 document.addEventListener('alpine:init', () => {
     Alpine.store('layout', {
@@ -217,21 +215,28 @@ document.addEventListener('alpine:init', () => {
         info(message, d = 4000) { this.push(message, 'info', d); },
     });
 
-    Alpine.magic('confirm', () => {
-        return (options = {}) => {
-            const colorMap = { danger: '#DC2626', warning: '#F59E0B', brand: '#3C50E0' };
-            return Swal.fire({
-                title: options.title || 'Konfirmasi',
-                text: options.message || 'Apakah kamu yakin?',
-                icon: options.variant === 'danger' ? 'warning' : 'question',
-                showCancelButton: true,
-                confirmButtonText: options.confirmText || 'Ya, Lanjutkan',
-                cancelButtonText: options.cancelText || 'Batal',
-                confirmButtonColor: colorMap[options.variant] || '#3C50E0',
-                reverseButtons: true,
-            }).then(result => result.isConfirmed);
-        };
+    Alpine.store('confirm', {
+        open: false,
+        options: {},
+        resolver: null,
+        show(options, resolver) {
+            this.options = options;
+            this.resolver = resolver;
+            this.open = true;
+        },
+        close(result) {
+            const resolver = this.resolver;
+            this.open = false;
+            this.resolver = null;
+            if (resolver) resolver(result);
+        },
+        confirm() { this.close(true); },
+        cancel() { this.close(false); },
     });
+
+    Alpine.magic('confirm', () => (options = {}) => new Promise(resolve => {
+        Alpine.store('confirm').show(options, resolve);
+    }));
 });
 
 window.Alpine = Alpine;

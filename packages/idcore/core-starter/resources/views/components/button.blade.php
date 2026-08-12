@@ -12,19 +12,19 @@
 
 @php
     $variantClasses = match($variant) {
-        'primary'   => 'bg-primary text-white hover:bg-primary-700 focus:ring-primary/30',
-        'secondary' => 'bg-secondary text-white hover:bg-blue-300 focus:ring-blue-300/30',
-        'danger'    => 'bg-danger text-white hover:bg-danger-700 focus:ring-danger/30',
-        'success'   => 'bg-success text-white hover:bg-success-700 focus:ring-success/30',
-        'warning'   => 'bg-warning text-white hover:bg-warning-700 focus:ring-warning/30',
+        'primary'   => 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/30',
+        'secondary' => 'bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500/30',
+        'danger'    => 'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500/30',
+        'success'   => 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500/30',
+        'warning'   => 'bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500/30',
         'light'     => 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300/30 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
         'dark'      => 'bg-gray-900 text-white hover:bg-gray-800 focus:ring-gray-700/30 dark:bg-gray-950 dark:hover:bg-gray-800',
-        'outline'   => 'border border-primary text-primary hover:bg-primary hover:text-white dark:border-primary-500 dark:text-primary-400 dark:hover:bg-primary-600 dark:hover:text-white focus:ring-primary/30',
-        'outline-danger' => 'border border-danger text-danger hover:bg-danger hover:text-white dark:border-danger-500 dark:text-danger-400 dark:hover:bg-danger-600 dark:hover:text-white focus:ring-danger/30',
-        'outline-warning' => 'border border-warning text-warning hover:bg-warning hover:text-white dark:border-warning-500 dark:text-warning-400 dark:hover:bg-warning-600 dark:hover:text-white focus:ring-warning/10',
-        'outline-success' => 'border border-success text-success hover:bg-success hover:text-white dark:border-success-500 dark:text-success-400 dark:hover:bg-success-600 dark:hover:text-white focus:ring-success/30',
-        'ghost'     => 'text-primary hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-gray-800 focus:ring-primary/30',
-        default     => 'bg-primary text-white hover:bg-primary-700 focus:ring-primary/30',
+        'outline'   => 'border border-primary-200 text-primary-700 hover:bg-primary-50 dark:border-primary-500/40 dark:text-primary-300 dark:hover:bg-primary-500/10 focus:ring-primary-500/30',
+        'outline-danger' => 'border border-danger-200 text-danger-700 hover:bg-danger-50 dark:border-danger-500/40 dark:text-danger-300 dark:hover:bg-danger-500/10 focus:ring-danger-500/30',
+        'outline-warning' => 'border border-warning-200 text-warning-700 hover:bg-warning-50 dark:border-warning-500/40 dark:text-warning-300 dark:hover:bg-warning-500/10 focus:ring-warning-500/20',
+        'outline-success' => 'border border-success-200 text-success-700 hover:bg-success-50 dark:border-success-500/40 dark:text-success-300 dark:hover:bg-success-500/10 focus:ring-success-500/30',
+        'ghost'     => 'text-primary-700 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-gray-800 focus:ring-primary-500/30',
+        default     => 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/30',
     };
 
     $sizeClasses = match($size) {
@@ -34,7 +34,7 @@
         default => $circle ? 'h-10 w-10 p-0 text-sm' : 'py-2.5 px-4 text-sm',
     };
 
-    $baseClasses = 'inline-flex items-center justify-center gap-2 text-center font-medium duration-200 ease-in-out rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+    $baseClasses = 'inline-flex items-center justify-center gap-2 text-center font-medium duration-200 ease-in-out rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 disabled:cursor-not-allowed disabled:opacity-50';
     $shapeClasses = $pill || $circle ? 'rounded-full' : '';
     $widthClasses = $block ? 'w-full' : '';
     $loadingClasses = $loading ? 'opacity-50 pointer-events-none' : '';

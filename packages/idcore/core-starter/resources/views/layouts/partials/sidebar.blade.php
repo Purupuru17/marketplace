@@ -3,7 +3,7 @@
 @endphp
 
 <aside id="sidebar"
-    class="fixed flex flex-col top-0 left-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-40 dark:bg-gray-900 dark:border-gray-800 lg:sticky"
+    class="fixed top-0 left-0 z-40 flex h-screen flex-col border-r border-gray-200/80 bg-white/95 shadow-theme-sm backdrop-blur transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900/95 lg:sticky"
     x-data="{
         openSubmenus: {},
         toggleSubmenu(key) {
@@ -14,17 +14,17 @@
         }
     }"
     :class="{
-        'w-64': !$store.layout.collapsed || $store.layout.sidebarOpen,
-        'w-16': $store.layout.collapsed,
+        'w-72': !$store.layout.collapsed || $store.layout.sidebarOpen,
+        'w-20': $store.layout.collapsed,
         'translate-x-0': $store.layout.sidebarOpen,
         '-translate-x-full lg:translate-x-0': !$store.layout.sidebarOpen
     }">
 
     <!-- Logo -->
-    <div class="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800"
+    <div class="flex h-16 items-center border-b border-gray-200/80 px-4 dark:border-gray-800"
         :class="$store.layout.collapsed ? 'lg:justify-center' : ''">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-white">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-sm font-bold text-white shadow-theme-sm">
                 {{ substr(config('app.name'), 0, 1) }}
             </div>
             <span x-show="!$store.layout.collapsed" class="text-lg font-bold text-gray-900 dark:text-white truncate">{{ config('app.name') }}</span>
@@ -45,7 +45,7 @@
                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                        :class="[
                            {{ request()->routeIs('dashboard') ? 'true' : 'false' }}
-                               ? 'bg-blue-50 text-blue-700 dark:bg-gray-800 dark:text-blue-400'
+                               ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400'
                                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200',
                            $store.layout.collapsed ? 'lg:justify-center' : ''
                        ]">

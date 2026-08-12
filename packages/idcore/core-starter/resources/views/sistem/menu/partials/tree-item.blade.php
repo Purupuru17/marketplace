@@ -12,7 +12,7 @@
                 <span class="absolute left-0 top-1/2 w-3 h-px bg-gray-300 dark:bg-gray-600" style="left: {{ $indent - 10 }}px;"></span>
             @endif
             <div class="flex items-center gap-3" style="padding-left: {{ $depth > 0 ? $indent + 8 : $indent }}px;">
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {{ $isGroup ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300' }}">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {{ $isGroup ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300' : 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-300' }}">
                     @php
                         $iconName = $item['icon'] ?: ($isGroup ? 'heroicon-o-folder' : 'heroicon-o-circle');
                         $iconName = str_replace('fa fa-', 'heroicon-o-', $iconName);

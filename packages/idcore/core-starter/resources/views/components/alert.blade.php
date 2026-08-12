@@ -20,7 +20,7 @@
 @endphp
 
 <div @if($dismissible) x-data="{ show: true }" x-show="show" x-transition @endif
-     {{ $attributes->merge(['class' => "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm $classes"]) }}>
+     {{ $attributes->merge(['class' => "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-theme-xs $classes"]) }}>
     <span class="mt-0.5 shrink-0">@svg($iconName, 'h-5 w-5')</span>
     <div class="flex-1 leading-6">{{ $slot }}</div>
     @if($dismissible)

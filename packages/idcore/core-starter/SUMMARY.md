@@ -15,9 +15,9 @@ A **Laravel starter package** (`idcore/core-starter`) designed as the foundation
 | Layer | Tech |
 |-------|------|
 | Backend | Laravel 13, PHP 8.3 |
-| UI Framework | Tailwind CSS 3 (PostCSS) |
+| UI Framework | Tailwind CSS v4 (@tailwindcss/vite) |
 | Icons | Blade Heroicons (`blade-ui-kit/blade-heroicons`) |
-| JS | Alpine.js 3, SweetAlert2 |
+| JS | Alpine.js 3, native confirm dialog |
 | Auth / RBAC | Spatie Laravel Permission |
 | Build | Vite |
 | Container | Docker (`app-php8`) |
@@ -46,7 +46,7 @@ packages/idcore/core-starter/
 │   ├── Providers/           # CoreServiceProvider
 │   ├── Services/            # DataTableService (server-side DataTables)
 │   └── Support/             # ActiveRole helper, MenuTreeBuilder
-├── stubs/                   # app.js.stub, app.css.stub, tailwind.config.snippet.js
+├── stubs/                   # app.js.stub, app.css.stub
 ├── SUMMARY.md               # This file
 └── SETUP.md                 # Step-by-step setup guide (UUID-ready)
 ```
@@ -75,9 +75,8 @@ packages/idcore/core-starter/
 - [x] Button variants: primary, secondary, danger, success, warning, light, dark,
       outline, outline-danger, outline-warning, outline-success, ghost
 - [x] Button tooltip prop (hover reveal, group relative + span)
-- [x] TailAdmin-style component polish: shadow-theme-*, rounded-2xl, dark:bg-white/[0.03],
-      focus:ring-2, placeholder:text-gray-400, py-2.5 compact sizing
-- [x] SweetAlert2 integration (confirm dialogs, toast notifications)
+- [x] TailAdmin 2.0 component polish: shadow-theme-*, rounded-xl, dark backgrounds, responsive spacing, focus rings, compact sizing
+- [x] Native Alpine confirm dialog + toast notifications
 - [x] Dark mode (class strategy, full coverage on all components)
 
 #### CRUD Views (Sistem)
@@ -94,7 +93,7 @@ packages/idcore/core-starter/
 - [x] SETUP.md with UUID support (HasUuids trait, uuid migration, Spatie uuid config)
 - [x] Component Reference section in dashboard.blade.php (18 components with live preview
       + code snippets + props docs + Alpine magic reference + best practices)
-- [x] Build passes (Vite), CSS ~96 kB
+- [x] Build passes (Vite), Tailwind v4-ready CSS tokens
 
 ### Remaining / Future
 

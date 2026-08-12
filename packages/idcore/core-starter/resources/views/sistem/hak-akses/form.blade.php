@@ -70,7 +70,7 @@
                                 @php
                                     $label = \Illuminate\Support\Str::headline(explode('.', $permission->name)[1] ?? $permission->name);
                                 @endphp
-                                <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+                                <div class="rounded-xl border border-gray-200/80 bg-gray-50/80 p-4 dark:border-gray-800 dark:bg-gray-900">
                                     <x-idcore::checkbox
                                         name="permissions[]"
                                         :value="$permission->name"

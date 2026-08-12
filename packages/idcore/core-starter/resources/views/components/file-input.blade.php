@@ -19,7 +19,7 @@
         </label>
     @endif
 
-    <label for="{{ $inputId }}" class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-8 text-center transition hover:border-brand-400 hover:bg-brand-50/40 dark:border-gray-700 dark:hover:border-brand-500 dark:hover:bg-brand-500/10 {{ $hasError ? 'border-danger-300' : 'border-gray-200 dark:border-gray-700' }}">
+    <label for="{{ $inputId }}" class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-8 text-center transition hover:border-primary-400 hover:bg-primary-50/60 dark:hover:bg-primary-500/10 {{ $hasError ? 'border-danger-300 bg-danger-50/30 dark:border-danger-700 dark:bg-danger-500/10' : 'border-gray-200/80 bg-white dark:border-gray-700 dark:bg-gray-900' }}">
         <template x-if="previewUrl">
             <img :src="previewUrl" class="mb-3 h-16 w-16 rounded-lg object-cover">
         </template>

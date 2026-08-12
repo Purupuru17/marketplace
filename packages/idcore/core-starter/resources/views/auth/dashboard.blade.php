@@ -18,7 +18,7 @@
         <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dashboard</p>
             <h1 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">Selamat datang, {{ $user?->name ?? 'Admin' }}</h1>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Role aktif: <span class="font-semibold text-brand-600 dark:text-brand-300">{{ $activeRole?->name ?? 'Belum ada role' }}</span></p>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Role aktif: <span class="font-semibold text-primary-600 dark:text-primary-300">{{ $activeRole?->name ?? 'Belum ada role' }}</span></p>
         </div>
         <div class="flex items-center gap-2">
             <x-idcore::button variant="light" size="sm">
@@ -70,7 +70,7 @@
                 <div class="flex h-64 items-end gap-3 border-b border-gray-100 px-2 pb-8 dark:border-gray-800 sm:gap-5">
                     @foreach($bars as $index => $height)
                         <div class="flex flex-1 flex-col items-center justify-end gap-3">
-                            <div class="w-full max-w-8 rounded-t-md bg-brand-600 transition hover:bg-brand-700" style="height: {{ $height }}%;"></div>
+                            <div class="w-full max-w-8 rounded-t-md bg-primary-600 transition hover:bg-primary-700" style="height: {{ $height }}%;"></div>
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $months[$index] }}</span>
                         </div>
                     @endforeach
@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div class="rounded-xl border border-gray-200/80 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="p-6 text-center">
                 <h2 class="text-left text-lg font-bold text-gray-900 dark:text-white">Monthly Target</h2>
                 <p class="mt-1 text-left text-sm text-gray-500 dark:text-gray-400">Target yang ditetapkan bulan ini</p>
@@ -129,7 +129,7 @@
             <div class="mt-8 h-56 rounded-xl border border-dashed border-gray-200 bg-gradient-to-b from-brand-50 to-white p-5 dark:border-gray-800 dark:from-brand-900/20 dark:to-gray-900">
                 <div class="flex h-full items-end gap-2">
                     @foreach([32, 44, 38, 58, 50, 63, 59, 72, 67, 82, 79, 76] as $height)
-                        <div class="flex-1 rounded-t-md bg-brand-500/25" style="height: {{ $height }}%;"></div>
+                        <div class="flex-1 rounded-t-md bg-primary-500/25" style="height: {{ $height }}%;"></div>
                     @endforeach
                 </div>
             </div>
@@ -167,25 +167,25 @@
     {{-- TOC --}}
     <div class="mb-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-gray-100 pb-4 text-sm dark:border-gray-800">
         <span class="font-semibold text-gray-700 dark:text-gray-300">Daftar Isi:</span>
-        <a href="#ref-button" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Button</a>
-        <a href="#ref-badge" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Badge</a>
-        <a href="#ref-card" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Card</a>
-        <a href="#ref-input" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Input</a>
-        <a href="#ref-select" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Select</a>
-        <a href="#ref-textarea" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Textarea</a>
-        <a href="#ref-checkbox" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Checkbox</a>
-        <a href="#ref-radio" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Radio</a>
-        <a href="#ref-toggle" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Toggle</a>
-        <a href="#ref-alert" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Alert</a>
-        <a href="#ref-avatar" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Avatar</a>
-        <a href="#ref-breadcrumb" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Breadcrumb</a>
-        <a href="#ref-pagination" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Pagination</a>
-        <a href="#ref-table" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Table</a>
-        <a href="#ref-modal" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Modal</a>
-        <a href="#ref-tabs" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Tabs</a>
-        <a href="#ref-file-input" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">File Input</a>
-        <a href="#ref-toast" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Toast</a>
-        <a href="#ref-alpine" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Alpine Magic</a>
+        <a href="#ref-button" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Button</a>
+        <a href="#ref-badge" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Badge</a>
+        <a href="#ref-card" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Card</a>
+        <a href="#ref-input" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Input</a>
+        <a href="#ref-select" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Select</a>
+        <a href="#ref-textarea" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Textarea</a>
+        <a href="#ref-checkbox" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Checkbox</a>
+        <a href="#ref-radio" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Radio</a>
+        <a href="#ref-toggle" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Toggle</a>
+        <a href="#ref-alert" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Alert</a>
+        <a href="#ref-avatar" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Avatar</a>
+        <a href="#ref-breadcrumb" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Breadcrumb</a>
+        <a href="#ref-pagination" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Pagination</a>
+        <a href="#ref-table" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Table</a>
+        <a href="#ref-modal" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Modal</a>
+        <a href="#ref-tabs" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Tabs</a>
+        <a href="#ref-file-input" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">File Input</a>
+        <a href="#ref-toast" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Toast</a>
+        <a href="#ref-alpine" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Alpine Magic</a>
     </div>
 
     {{-- ===== BUTTON ===== --}}
@@ -531,7 +531,7 @@
         <div class="mb-4 grid gap-3 md:grid-cols-2">
             <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
                 <p class="mb-1 text-sm font-semibold text-gray-800 dark:text-white">$confirm({...})</p>
-                <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">SweetAlert2 confirm dialog. Return Promise&lt;boolean&gt;.</p>
+                <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">Native Alpine confirm dialog. Return Promise&lt;boolean&gt;.</p>
                 <pre class="overflow-x-auto rounded bg-gray-50 p-2 text-xs leading-relaxed dark:bg-gray-950"><code>$confirm({
     title: 'Hapus?',
     message: 'Yakin?',

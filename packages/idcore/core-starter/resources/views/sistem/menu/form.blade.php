@@ -58,7 +58,7 @@
             </div>
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach(config('idcore.menu_actions') as $key => $label)
-                    <div class="rounded-xl border border-gray-200 bg-white p-4 transition hover:border-brand-200 hover:bg-brand-50/30 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-brand-500/10">
+                    <div class="rounded-xl border border-gray-200/80 bg-white p-4 transition hover:border-primary-200 hover:bg-primary-50/40 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-primary-500/10">
                         <x-idcore::checkbox name="actions[]" :value="$key" :label="$label" :checked="in_array($key, $menu->actions ?? [])" />
                     </div>
                 @endforeach

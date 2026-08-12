@@ -28,6 +28,7 @@
     </div>
 
     <x-idcore::toast />
+    <x-idcore::confirm-dialog />
 
     @stack('scripts')
 </body>

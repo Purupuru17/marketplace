@@ -15,6 +15,6 @@
     $shape = $pill ? 'rounded-full' : 'rounded-md';
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold $variantClasses $shape"]) }}>
+<span {{ $attributes->merge(['class' => "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold tracking-wide $variantClasses $shape"]) }}>
     {{ $slot }}
 </span>

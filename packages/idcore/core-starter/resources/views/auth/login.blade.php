@@ -9,9 +9,9 @@
 </head>
 <body class="h-full font-sans antialiased text-gray-600 bg-gray-50 dark:bg-gray-950 dark:text-gray-400" x-data x-init="$store.theme.init()">
     <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="flex w-full max-w-5xl rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <div class="flex w-full max-w-5xl rounded-xl border border-gray-200/80 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-900">
             <!-- Brand Section -->
-            <div class="hidden w-1/2 lg:flex flex-col items-center justify-center p-12 border-r border-gray-200 dark:border-gray-700">
+            <div class="hidden w-1/2 lg:flex flex-col items-center justify-center p-12 border-r border-gray-200/80 dark:border-gray-800">
                 <a href="{{ route('login') }}" class="mb-6 inline-block">
                     <div class="flex items-center gap-3">
                         <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-2xl font-bold text-white">

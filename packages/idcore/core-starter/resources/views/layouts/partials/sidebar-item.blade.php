@@ -6,7 +6,7 @@
             <button type="button" @click.prevent="open = !open"
                     class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                     :class="[
-                        open ? 'bg-blue-50 text-blue-700 dark:bg-gray-800 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200',
+                        open ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-200',
                         $store.layout.collapsed ? 'lg:justify-center' : ''
                     ]">
                 <span class="shrink-0">
@@ -27,7 +27,7 @@
             </button>
 
             <div x-show="open && !$store.layout.collapsed" x-collapse>
-                <ul class="mt-1 space-y-1 ml-4 border-l border-gray-200 dark:border-gray-700 pl-3">
+                <ul class="mt-1 space-y-1 ml-4 border-l border-gray-200/80 pl-3 dark:border-gray-800">
                     @include('idcore::layouts.partials.sidebar-item', ['items' => $item['children']])
                 </ul>
             </div>
@@ -38,8 +38,8 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                :class="[
                    {{ $item['is_current'] ? 'true' : 'false' }}
-                       ? 'bg-blue-50 text-blue-700 dark:bg-gray-800 dark:text-blue-400'
-                       : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200',
+                       ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400'
+                       : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-200',
                    $store.layout.collapsed ? 'lg:justify-center' : ''
                ]">
                 <span class="shrink-0">
