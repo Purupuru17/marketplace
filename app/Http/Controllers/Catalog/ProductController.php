@@ -12,6 +12,10 @@ use Illuminate\Validation\Rule;
 
 class ProductController extends BaseCoreController
 {
+    private $module = 'katalog.product';
+
+    protected $view = 'catalog.product';
+
     public function __construct(
         protected ProductService $service,
         protected CategoryService $categoryService,
@@ -27,19 +31,39 @@ class ProductController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('catalog.product.index', [
-            'products' => $products,
-            'storeOptions' => $this->service->storeOptions($storeIds),
-        ]);
+        $compact = [
+            'listData'       => $products,
+            'storeOptions'   => $this->service->storeOptions($storeIds),
+
+            'title'          => 'Produk',
+            'subtitle'       => 'Data Produk',
+
+            'module'         => $this->module,
+            'rolesName'      => $this->resourceName(),
+            'breadcrumb'     => [['Beranda', route('dashboard')], ['Katalog'], ['Produk']],
+            
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function create(Request $request)
     {
-        return view('catalog.product.form', [
-            'product' => null,
-            'storeOptions' => $this->service->storeOptions($this->allowedStoreIds($request->user())),
-            'categoryOptions' => $this->categoryService->options(),
-        ]);
+        $compact = [
+            'formData'         => null,
+            'storeOptions'     => $this->service->storeOptions($this->allowedStoreIds($request->user())),
+            'categoryOptions'  => $this->categoryService->options(),
+
+            'title'            => 'Tambah Produk',
+            'subtitle'         => 'Data produk milik toko tertentu',
+
+            'action'           => route($this->module.'.store'),
+            'module'           => $this->module,
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Produk', route($this->module.'.index')], ['Tambah Data']],
+            
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -49,7 +73,7 @@ class ProductController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('katalog.product.index')
+            ->route($this->module.'.index')
             ->with('success', 'Produk berhasil ditambahkan.');
     }
 
@@ -57,11 +81,20 @@ class ProductController extends BaseCoreController
     {
         $this->authorizeOwnership($product, $this->allowedStoreIds($request->user()));
 
-        return view('catalog.product.form', [
-            'product' => $product,
-            'storeOptions' => $this->service->storeOptions($this->allowedStoreIds($request->user())),
-            'categoryOptions' => $this->categoryService->options(),
-        ]);
+        $compact = [
+            'formData'         => $product,
+            'storeOptions'     => $this->service->storeOptions($this->allowedStoreIds($request->user())),
+            'categoryOptions'  => $this->categoryService->options(),
+
+            'title'            => 'Edit Produk',
+            'subtitle'         => 'Data produk milik toko tertentu',
+
+            'action'           => route($this->module.'.update', $product->id),
+            'module'           => $this->module,
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Produk', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function update(Request $request, Product $product)
@@ -74,7 +107,7 @@ class ProductController extends BaseCoreController
         $this->service->update($product, $validated);
 
         return redirect()
-            ->route('katalog.product.index')
+            ->route($this->module.'.index')
             ->with('success', 'Produk berhasil diperbarui.');
     }
 
@@ -85,7 +118,7 @@ class ProductController extends BaseCoreController
         $this->service->delete($product);
 
         return redirect()
-            ->route('katalog.product.index')
+            ->route($this->module.'.index')
             ->with('success', 'Produk berhasil dihapus.');
     }
 

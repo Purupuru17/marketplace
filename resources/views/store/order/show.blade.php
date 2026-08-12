@@ -24,7 +24,7 @@
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $order->order_no }}</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Toko'], ['label' => 'Pesanan', 'url' => route('toko.order.index')], ['label' => $order->order_no]]" />
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
     <div class="flex items-center gap-2">
         <span class="rounded-full px-3 py-1 text-sm font-semibold {{ $badgeStyles[$order->status] ?? 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300' }}">

@@ -11,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class OrdersController extends BaseCoreController
 {
+    private $module = 'toko.order';
+
+    protected $view = 'store.order';
+
     public function __construct(protected StoreOrderService $service) {}
 
     public function index(Request $request)
@@ -23,11 +27,20 @@ class OrdersController extends BaseCoreController
 
         $stores = Auth::user()->stores()->orderBy('store_name')->get();
 
-        return view('store.order.index', [
-            'orders' => $orders,
-            'stores' => $stores,
-            'statusLabels' => StoreOrderService::STATUS_LABELS,
-        ]);
+        $compact = [
+            'listData'      => $orders,
+            'stores'        => $stores,
+            'statusLabels'  => StoreOrderService::STATUS_LABELS,
+
+            'title'         => 'Pesanan',
+            'subtitle'      => 'Data Pesanan',
+
+            'module'        => $this->module,
+            'rolesName'     => $this->resourceName(),
+            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Pesanan']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function show(Order $order)
@@ -36,8 +49,11 @@ class OrdersController extends BaseCoreController
 
         $order->load(['items', 'store', 'customer', 'invoice.payments', 'statusHistories']);
 
-        return view('store.order.show', [
+        return view($this->view.'.show', [
             'order' => $order,
+            'title' => 'Detail Pesanan',
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Pesanan', route($this->module.'.index')], [$order->order_no]],
             'transitions' => StoreOrderService::TRANSITIONS,
         ]);
     }
@@ -61,7 +77,7 @@ class OrdersController extends BaseCoreController
         }
 
         return redirect()
-            ->route('toko.order.show', $order->id)
+            ->route($this->module.'.show', $order->id)
             ->with('success', 'Status pesanan diperbarui.');
     }
 }

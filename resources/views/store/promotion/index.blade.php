@@ -1,22 +1,25 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Promo')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Promo</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Promo'], ['label' => 'Promo']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    @can('promotion.create')
-        <x-idcore::button variant="primary" :href="route('toko.promotion.create')">Tambah Promo</x-idcore::button>
+    @can($rolesName.'.create')
+        <x-idcore::button variant="primary" :href="route($module.'.create')">
+            @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+        </x-idcore::button>
     @endcan
 </div>
 
-<x-idcore::card title="Data Promo" subtitle="Diskon platform & toko" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
             <x-idcore::select name="per_page" :options="[10 => '10', 25 => '25', 50 => '50']" :selected="request('per_page', 10)" placeholder="" onchange="this.form.submit()" />
+            <span>entries</span>
             <x-idcore::select name="status" :options="['active' => 'Active', 'inactive' => 'Inactive']" :selected="request('status')" placeholder="Semua Status" onchange="this.form.submit()" />
         </div>
         <div class="relative w-full md:max-w-xs">
@@ -38,35 +41,35 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($promotions as $promotion)
+            @forelse($listData as $item)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $promotions->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ $promotion->name }}</p>
+                        <p class="font-semibold text-gray-900 dark:text-white">{{ $item->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ $promotion->source === 'platform' ? 'Platform' : ($promotion->store->store_name ?? '-') }}
-                            · {{ $promotion->products_count ?? $promotion->products->count() }} produk
+                            {{ $item->source === 'platform' ? 'Platform' : ($item->store->store_name ?? '-') }}
+                            · {{ $item->products_count ?? $item->products->count() }} produk
                         </p>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        @if($promotion->source === 'platform')
+                        @if($item->source === 'platform')
                             <x-idcore::badge variant="indigo">Platform</x-idcore::badge>
                         @else
-                            <x-idcore::badge variant="cyan">Toko</x-idcore::badge>
+                            <x-idcore::badge variant="blue">Toko</x-idcore::badge>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center font-semibold text-gray-900 dark:text-white">
-                        @if($promotion->type === 'percentage')
-                            {{ rtrim(rtrim(number_format($promotion->value, 2, ',', '.'), '0'), ',') }}%
+                        @if($item->type === 'percentage')
+                            {{ rtrim(rtrim(number_format($item->value, 2, ',', '.'), '0'), ',') }}%
                         @else
-                            Rp {{ number_format($promotion->value, 0, ',', '.') }}
+                            Rp {{ number_format($item->value, 0, ',', '.') }}
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
-                        {{ $promotion->starts_at?->translatedFormat('d M Y') }} — {{ $promotion->ends_at?->translatedFormat('d M Y') }}
+                        {{ $item->starts_at?->translatedFormat('d M Y') }} — {{ $item->ends_at?->translatedFormat('d M Y') }}
                     </td>
                     <td class="px-6 py-4 text-center">
-                        @if($promotion->status === 'active')
+                        @if($item->status === 'active')
                             <x-idcore::badge variant="green">Active</x-idcore::badge>
                         @else
                             <x-idcore::badge variant="red">Inactive</x-idcore::badge>
@@ -74,27 +77,11 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            @can('promotion.edit')
-                                <x-idcore::button variant="outline-warning" size="xs" circle tooltip="Edit" :href="route('toko.promotion.edit', $promotion->id)">
-                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
-                                </x-idcore::button>
+                            @can($rolesName.'.edit')
+                                <x-idcore::partials.edit-button :module="$module" :id="$item->id" />
                             @endcan
-                            @can('promotion.delete')
-                                <x-idcore::button variant="outline-danger" size="xs" circle tooltip="Hapus"
-                                    x-data
-                                    @click.prevent="
-                                        $confirm({
-                                            title: 'Hapus Promo?',
-                                            message: 'Promo {{ $promotion->name }} akan dihapus permanen.',
-                                            confirmText: 'Ya, Hapus',
-                                            variant: 'danger'
-                                        }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
-                                    ">
-                                    @svg('heroicon-o-trash', 'h-3.5 w-3.5')
-                                </x-idcore::button>
-                                <form action="{{ route('toko.promotion.destroy', $promotion->id) }}" method="POST" class="hidden">
-                                    @csrf @method('DELETE')
-                                </form>
+                            @can($rolesName.'.delete')
+                                <x-idcore::partials.delete-button :module="$module" :id="$item->id" :name="$item->name" />
                             @endcan
                         </div>
                     </td>
@@ -105,6 +92,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$promotions" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

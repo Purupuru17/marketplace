@@ -1,18 +1,20 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Jarak Antar Node')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Jarak Antar Node</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Master Data'], ['label' => 'Jarak Antar Node']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    @can('location-distance.create')
-        <x-idcore::button variant="primary" :href="route('master.location-distance.create')">Tambah Jarak</x-idcore::button>
+    @can($rolesName.'.create')
+        <x-idcore::button variant="primary" :href="route($module.'.create')">
+            @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+        </x-idcore::button>
     @endcan
 </div>
 
-<x-idcore::card title="Data Jarak Antar Node" subtitle="Grafik undirected: cukup satu baris per pasangan node" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
@@ -35,40 +37,24 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($locationDistances as $locationDistance)
+            @forelse($listData as $item)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $locationDistances->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                            <span class="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">{{ $locationDistance->origin->name }}</span>
+                            <span class="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">{{ $item->origin->name }}</span>
                             @svg('heroicon-o-arrow-right', 'h-4 w-4 text-gray-400')
-                            <span class="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">{{ $locationDistance->destination->name }}</span>
+                            <span class="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">{{ $item->destination->name }}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">{{ $locationDistance->distance_km }} km</td>
+                    <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">{{ $item->distance_km }} km</td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            @can('location-distance.edit')
-                                <x-idcore::button variant="outline-warning" size="xs" circle tooltip="Edit" :href="route('master.location-distance.edit', $locationDistance->id)">
-                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
-                                </x-idcore::button>
+                            @can($rolesName.'.edit')
+                                <x-idcore::partials.edit-button :module="$module" :id="$item->id" />
                             @endcan
-                            @can('location-distance.delete')
-                                <x-idcore::button variant="outline-danger" size="xs" circle tooltip="Hapus"
-                                    x-data
-                                    @click.prevent="
-                                        $confirm({
-                                            title: 'Hapus Jarak?',
-                                            message: 'Jarak {{ $locationDistance->origin->name }} - {{ $locationDistance->destination->name }} akan dihapus permanen.',
-                                            confirmText: 'Ya, Hapus',
-                                            variant: 'danger'
-                                        }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
-                                    ">
-                                    @svg('heroicon-o-trash', 'h-3.5 w-3.5')
-                                </x-idcore::button>
-                                <form action="{{ route('master.location-distance.destroy', $locationDistance->id) }}" method="POST" class="hidden">
-                                    @csrf @method('DELETE')
-                                </form>
+                            @can($rolesName.'.delete')
+                                <x-idcore::partials.delete-button :module="$module" :id="$item->id" :name="$item->origin->name.' - '.$item->destination->name" />
                             @endcan
                         </div>
                     </td>
@@ -79,6 +65,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$locationDistances" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

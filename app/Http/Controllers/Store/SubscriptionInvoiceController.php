@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class SubscriptionInvoiceController extends BaseCoreController
 {
+    private $module = 'toko.subscription-invoice';
+
+    protected $view = 'store.subscription-invoice';
+
     public function __construct(protected SubscriptionInvoiceService $service) {}
 
     public function index(Request $request)
@@ -18,15 +22,35 @@ class SubscriptionInvoiceController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('store.subscription-invoice.index', compact('invoices'));
+        $compact = [
+            'listData'   => $invoices,
+
+            'title'      => 'Invoice Subscription',
+            'subtitle'   => 'Data Invoice Subscription',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function create()
     {
-        return view('store.subscription-invoice.form', [
-            'invoice' => null,
-            'subscriptionOptions' => $this->service->subscriptionOptions(),
-        ]);
+        $compact = [
+            'formData'              => null,
+            'subscriptionOptions'   => $this->service->subscriptionOptions(),
+
+            'title'                 => 'Tambah Invoice Subscription',
+            'subtitle'              => 'Atur invoice langganan toko',
+
+            'action'                => route($this->module.'.store'),
+            'module'                => $this->module,
+            'breadcrumb'            => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -36,7 +60,7 @@ class SubscriptionInvoiceController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('toko.subscription-invoice.index')
+            ->route($this->module.'.index')
             ->with('success', 'Invoice subscription berhasil ditambahkan.');
     }
 
@@ -44,10 +68,19 @@ class SubscriptionInvoiceController extends BaseCoreController
     {
         $subscriptionInvoice->load(['subscription.store', 'subscription.storeLevel']);
 
-        return view('store.subscription-invoice.form', [
-            'invoice' => $subscriptionInvoice,
-            'subscriptionOptions' => $this->service->subscriptionOptions(),
-        ]);
+        $compact = [
+            'formData'              => $subscriptionInvoice,
+            'subscriptionOptions'   => $this->service->subscriptionOptions(),
+
+            'title'                 => 'Edit Invoice Subscription',
+            'subtitle'              => 'Atur invoice langganan toko',
+
+            'action'                => route($this->module.'.update', $subscriptionInvoice->id),
+            'module'                => $this->module,
+            'breadcrumb'            => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function update(Request $request, SubscriptionInvoice $subscriptionInvoice)
@@ -57,7 +90,7 @@ class SubscriptionInvoiceController extends BaseCoreController
         $this->service->update($subscriptionInvoice, $validated);
 
         return redirect()
-            ->route('toko.subscription-invoice.index')
+            ->route($this->module.'.index')
             ->with('success', 'Invoice subscription berhasil diperbarui.');
     }
 
@@ -66,7 +99,7 @@ class SubscriptionInvoiceController extends BaseCoreController
         $this->service->delete($subscriptionInvoice);
 
         return redirect()
-            ->route('toko.subscription-invoice.index')
+            ->route($this->module.'.index')
             ->with('success', 'Invoice subscription berhasil dihapus.');
     }
 

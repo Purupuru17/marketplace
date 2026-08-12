@@ -1,18 +1,20 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Invoice Subscription')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Invoice Subscription</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Toko'], ['label' => 'Invoice Subscription']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    @can('subscription-invoice.create')
-        <x-idcore::button variant="primary" :href="route('toko.subscription-invoice.create')">Tambah Invoice</x-idcore::button>
+    @can($rolesName.'.create')
+        <x-idcore::button variant="primary" :href="route($module.'.create')">
+            @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+        </x-idcore::button>
     @endcan
 </div>
 
-<x-idcore::card title="Data Invoice Subscription" subtitle="Tagihan langganan toko" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
@@ -39,20 +41,20 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($invoices as $invoice)
+            @forelse($listData as $item)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $invoices->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ $invoice->invoice_no }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $invoice->subscription->storeLevel->name ?? '-' }}</p>
+                        <p class="font-semibold text-gray-900 dark:text-white">{{ $item->invoice_no }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $item->subscription->storeLevel->name ?? '-' }}</p>
                     </td>
-                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $invoice->subscription->store->store_name ?? '-' }}</td>
-                    <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
-                    <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">{{ $invoice->due_at->format('d M Y') }}</td>
+                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $item->subscription->store->store_name ?? '-' }}</td>
+                    <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">Rp {{ number_format($item->amount, 0, ',', '.') }}</td>
+                    <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">{{ $item->due_at->format('d M Y') }}</td>
                     <td class="px-6 py-4 text-center">
-                        @if($invoice->status === 'paid')
+                        @if($item->status === 'paid')
                             <x-idcore::badge variant="green">Paid</x-idcore::badge>
-                        @elseif($invoice->status === 'overdue')
+                        @elseif($item->status === 'overdue')
                             <x-idcore::badge variant="red">Overdue</x-idcore::badge>
                         @else
                             <x-idcore::badge variant="yellow">Pending</x-idcore::badge>
@@ -60,27 +62,11 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            @can('subscription-invoice.edit')
-                                <x-idcore::button variant="outline-warning" size="xs" circle tooltip="Edit" :href="route('toko.subscription-invoice.edit', $invoice->id)">
-                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
-                                </x-idcore::button>
+                            @can($rolesName.'.edit')
+                                <x-idcore::partials.edit-button :module="$module" :id="$item->id" />
                             @endcan
-                            @can('subscription-invoice.delete')
-                                <x-idcore::button variant="outline-danger" size="xs" circle tooltip="Hapus"
-                                    x-data
-                                    @click.prevent="
-                                        $confirm({
-                                            title: 'Hapus Invoice?',
-                                            message: 'Invoice {{ $invoice->invoice_no }} akan dihapus permanen.',
-                                            confirmText: 'Ya, Hapus',
-                                            variant: 'danger'
-                                        }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
-                                    ">
-                                    @svg('heroicon-o-trash', 'h-3.5 w-3.5')
-                                </x-idcore::button>
-                                <form action="{{ route('toko.subscription-invoice.destroy', $invoice->id) }}" method="POST" class="hidden">
-                                    @csrf @method('DELETE')
-                                </form>
+                            @can($rolesName.'.delete')
+                                <x-idcore::partials.delete-button :module="$module" :id="$item->id" :name="$item->invoice_no" />
                             @endcan
                         </div>
                     </td>
@@ -91,6 +77,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$invoices" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

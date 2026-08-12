@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class LocationNodeController extends BaseCoreController
 {
+    private $module = 'master.location-node';
+
     public function __construct(protected LocationNodeService $service) {}
 
     public function index(Request $request)
@@ -18,12 +20,34 @@ class LocationNodeController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('master.location-node.index', compact('locationNodes'));
+        $compact = [
+            'listData'   => $locationNodes,
+
+            'title'      => 'Node Lokasi',
+            'subtitle'   => 'Data Node Lokasi',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Node Lokasi']],
+        ];
+
+        return view($this->module.'.index', $compact);
     }
 
     public function create()
     {
-        return view('master.location-node.form', ['locationNode' => null]);
+        $compact = [
+            'formData'   => null,
+
+            'title'      => 'Tambah Node Lokasi',
+            'subtitle'   => 'Titik lokasi untuk perhitungan ongkir',
+
+            'action'     => route($this->module.'.store'),
+            'module'     => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Node Lokasi', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -38,13 +62,24 @@ class LocationNodeController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('master.location-node.index')
+            ->route($this->module.'.index')
             ->with('success', 'Node lokasi berhasil ditambahkan.');
     }
 
     public function edit(LocationNode $locationNode)
     {
-        return view('master.location-node.form', compact('locationNode'));
+        $compact = [
+            'formData'   => $locationNode,
+
+            'title'      => 'Edit Node Lokasi',
+            'subtitle'   => 'Titik lokasi untuk perhitungan ongkir',
+            
+            'action'     => route($this->module.'.update', $locationNode->id),
+            'module'     => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Node Lokasi', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function update(Request $request, LocationNode $locationNode)
@@ -59,7 +94,7 @@ class LocationNodeController extends BaseCoreController
         $this->service->update($locationNode, $validated);
 
         return redirect()
-            ->route('master.location-node.index')
+            ->route($this->module.'.index')
             ->with('success', 'Node lokasi berhasil diperbarui.');
     }
 
@@ -68,7 +103,7 @@ class LocationNodeController extends BaseCoreController
         $this->service->delete($locationNode);
 
         return redirect()
-            ->route('master.location-node.index')
+            ->route($this->module.'.index')
             ->with('success', 'Node lokasi berhasil dihapus.');
     }
 }

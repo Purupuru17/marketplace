@@ -13,6 +13,10 @@ use Illuminate\Validation\Rule;
 
 class ProductVariantController extends BaseCoreController
 {
+    private $module = 'katalog.product-variant';
+
+    protected $view = 'catalog.product-variant';
+
     public function __construct(protected ProductVariantService $service) {}
 
     public function index(Request $request)
@@ -25,20 +29,38 @@ class ProductVariantController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('catalog.product-variant.index', [
-            'variants' => $variants,
-            'storeOptions' => $this->service->storeOptions($storeIds),
-            'productOptions' => $this->service->productOptions($storeIds),
-        ]);
+        $compact = [
+            'listData'         => $variants,
+            'storeOptions'     => $this->service->storeOptions($storeIds),
+            'productOptions'   => $this->service->productOptions($storeIds),
+
+            'title'            => 'Varian Produk',
+            'subtitle'         => 'Data Varian Produk',
+
+            'module'           => $this->module,
+            'rolesName'        => $this->resourceName(),
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function create(Request $request)
     {
-        return view('catalog.product-variant.form', [
-            'variant' => null,
-            'productOptions' => $this->service->productOptions($this->allowedStoreIds($request->user())),
-            'attributeGroups' => $this->service->attributeGroups(),
-        ]);
+        $compact = [
+            'formData'         => null,
+            'productOptions'   => $this->service->productOptions($this->allowedStoreIds($request->user())),
+            'attributeGroups'  => $this->service->attributeGroups(),
+
+            'title'            => 'Tambah Varian',
+            'subtitle'         => 'Data varian produk milik toko tertentu',
+
+            'action'           => route($this->module.'.store'),
+            'module'           => $this->module,
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -48,7 +70,7 @@ class ProductVariantController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('katalog.product-variant.index')
+            ->route($this->module.'.index')
             ->with('success', 'Varian produk berhasil ditambahkan.');
     }
 
@@ -58,11 +80,20 @@ class ProductVariantController extends BaseCoreController
 
         $productVariant->load('attributeValues');
 
-        return view('catalog.product-variant.form', [
-            'variant' => $productVariant,
-            'productOptions' => $this->service->productOptions($this->allowedStoreIds($request->user())),
-            'attributeGroups' => $this->service->attributeGroups(),
-        ]);
+        $compact = [
+            'formData'         => $productVariant,
+            'productOptions'   => $this->service->productOptions($this->allowedStoreIds($request->user())),
+            'attributeGroups'  => $this->service->attributeGroups(),
+            
+            'title'            => 'Edit Varian Produk',
+            'subtitle'         => 'Data varian produk milik toko tertentu',
+
+            'action'           => route($this->module.'.update', $productVariant->id),
+            'module'           => $this->module,
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function update(Request $request, ProductVariant $productVariant)
@@ -75,7 +106,7 @@ class ProductVariantController extends BaseCoreController
         $this->service->update($productVariant, $validated);
 
         return redirect()
-            ->route('katalog.product-variant.index')
+            ->route($this->module.'.index')
             ->with('success', 'Varian produk berhasil diperbarui.');
     }
 
@@ -86,7 +117,7 @@ class ProductVariantController extends BaseCoreController
         $this->service->delete($productVariant);
 
         return redirect()
-            ->route('katalog.product-variant.index')
+            ->route($this->module.'.index')
             ->with('success', 'Varian produk berhasil dihapus.');
     }
 

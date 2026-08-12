@@ -1,28 +1,28 @@
 @extends('idcore::layouts.backend')
-@section('title', $attribute ? 'Edit Atribut' : 'Tambah Atribut')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $attribute ? 'Edit Atribut' : 'Tambah Atribut' }}</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Master Data'], ['label' => 'Atribut', 'url' => route('master.attribute.index')], ['label' => $attribute ? 'Edit' : 'Create']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
 </div>
 
-<x-idcore::card title="{{ $attribute ? 'Edit Atribut' : 'Tambah Atribut' }}" subtitle="Atribut digunakan sebagai dimensi varian produk (misal: warna, ukuran)." class="max-w-2xl">
-    <form action="{{ $attribute ? route('master.attribute.update', $attribute->id) : route('master.attribute.store') }}" method="POST" class="space-y-6"
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" class="max-w-2xl">
+    <form action="{{ $action }}" method="POST" class="space-y-6"
           x-data="{
               formDirty: false,
-              values: @js($attribute?->values?->pluck('value')->toArray() ?? [])
+              values: @js($formData?->values?->pluck('value')->toArray() ?? [])
           }"
           @input.debounce.500ms="formDirty = true"
           @change="formDirty = true"
           @submit="formDirty = false"
           x-init="$watch('formDirty', val => { window.onbeforeunload = val ? () => true : null; })">
         @csrf
-        @if($attribute) @method('PUT') @endif
+        @if($formData) @method('PUT') @endif
 
-        <x-idcore::input name="name" label="Nama Atribut" required :value="$attribute->name ?? null" placeholder="Contoh: Warna" />
+        <x-idcore::input name="name" label="Nama Atribut" required :value="$formData->name ?? null" placeholder="Contoh: Warna" />
 
         <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Nilai Atribut</label>
@@ -44,20 +44,22 @@
         </div>
 
         <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:justify-end">
-            <x-idcore::button variant="outline" @click.prevent="
+            <x-idcore::button variant="light" @click.prevent="
                 if (formDirty) {
                     $confirm({
-                        title: 'Perubahan Belum Disimpan',
-                        message: 'Ada perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
+                        title: 'Konfirmasi',
+                        message: 'Ada perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini ?',
                         confirmText: 'Ya, Tinggalkan',
                         cancelText: 'Batal',
                         variant: 'warning'
-                    }).then(ok => { if (ok) window.location.href = '{{ route('master.attribute.index') }}'; });
+                    }).then(ok => { if (ok) window.location.href = '{{ route($module.'.index') }}'; });
                 } else {
-                    window.location.href = '{{ route('master.attribute.index') }}';
+                    window.location.href = '{{ route($module.'.index') }}';
                 }
-            ">Batal</x-idcore::button>
-            <x-idcore::button type="submit" variant="{{ $attribute ? 'warning' : 'success' }}">Simpan</x-idcore::button>
+            ">@svg('heroicon-o-arrow-path', 'h-4 w-4') Batal</x-idcore::button>
+            <x-idcore::button type="submit" variant="{{ $formData ? 'warning' : 'success' }}">
+                @svg('heroicon-o-paper-airplane', 'h-4 w-4') Simpan
+            </x-idcore::button>
         </div>
     </form>
 </x-idcore::card>

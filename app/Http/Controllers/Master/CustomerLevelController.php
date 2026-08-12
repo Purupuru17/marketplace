@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class CustomerLevelController extends BaseCoreController
 {
+    private $module = 'master.customer-level';
+
     public function __construct(protected CustomerLevelService $service) {}
 
     public function index(Request $request)
@@ -18,12 +20,34 @@ class CustomerLevelController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('master.customer-level.index', compact('customerLevels'));
+        $compact = [
+            'listData'   => $customerLevels,
+
+            'title'      => 'Customer Level',
+            'subtitle'   => 'Data Customer Level',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Customer Level']],
+        ];
+
+        return view($this->module.'.index', $compact);
     }
 
     public function create()
     {
-        return view('master.customer-level.form', ['customerLevel' => null]);
+        $compact = [
+            'formData'   => null,
+
+            'title'      => 'Tambah Customer Level',
+            'subtitle'   => 'Atur level customer marketplace',
+
+            'action'     => route($this->module.'.store'),
+            'module'     => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Customer Level', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -39,13 +63,24 @@ class CustomerLevelController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('master.customer-level.index')
+            ->route($this->module.'.index')
             ->with('success', 'Customer level berhasil ditambahkan.');
     }
 
     public function edit(CustomerLevel $customerLevel)
     {
-        return view('master.customer-level.form', compact('customerLevel'));
+        $compact = [
+            'formData'   => $customerLevel,
+
+            'title'      => 'Edit Customer Level',
+            'subtitle'   => 'Atur level customer marketplace',
+            
+            'action'     => route($this->module.'.update', $customerLevel->id),
+            'module'     => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Customer Level', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function update(Request $request, CustomerLevel $customerLevel)
@@ -61,7 +96,7 @@ class CustomerLevelController extends BaseCoreController
         $this->service->update($customerLevel, $validated);
 
         return redirect()
-            ->route('master.customer-level.index')
+            ->route($this->module.'.index')
             ->with('success', 'Customer level berhasil diperbarui.');
     }
 
@@ -70,7 +105,7 @@ class CustomerLevelController extends BaseCoreController
         $this->service->delete($customerLevel);
 
         return redirect()
-            ->route('master.customer-level.index')
+            ->route($this->module.'.index')
             ->with('success', 'Customer level berhasil dihapus.');
     }
 }

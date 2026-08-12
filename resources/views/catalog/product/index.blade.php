@@ -1,18 +1,20 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Produk')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Produk</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Katalog'], ['label' => 'Produk']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    @can('product.create')
-        <x-idcore::button variant="primary" :href="route('katalog.product.create')">Tambah Produk</x-idcore::button>
+    @can($rolesName.'.create')
+        <x-idcore::button variant="primary" :href="route($module.'.create')">
+            @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+        </x-idcore::button>
     @endcan
 </div>
 
-<x-idcore::card title="Data Produk" subtitle="Katalog produk per toko" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
@@ -39,30 +41,30 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($products as $product)
+            @forelse($listData as $item)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $products->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">
                                 @svg('heroicon-o-shopping-bag', 'h-5 w-5')
                             </div>
                             <div>
-                                <p class="font-semibold text-gray-900 dark:text-white">{{ $product->name }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">/{{ $product->slug }}</p>
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ $item->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">/{{ $item->slug }}</p>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $product->store->store_name ?? '-' }}</td>
+                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $item->store->store_name ?? '-' }}</td>
                     <td class="px-6 py-4">
-                        @if($product->category)
-                            <x-idcore::badge variant="indigo">{{ $product->category->name }}</x-idcore::badge>
+                        @if($item->category)
+                            <x-idcore::badge variant="indigo">{{ $item->category->name }}</x-idcore::badge>
                         @else
                             <span class="text-gray-400">-</span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center">
-                        @if($product->status === 'active')
+                        @if($item->status === 'active')
                             <x-idcore::badge variant="green">Active</x-idcore::badge>
                         @else
                             <x-idcore::badge variant="red">Inactive</x-idcore::badge>
@@ -70,27 +72,11 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            @can('product.edit')
-                                <x-idcore::button variant="outline-warning" size="xs" circle tooltip="Edit" :href="route('katalog.product.edit', $product->id)">
-                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
-                                </x-idcore::button>
+                            @can($rolesName.'.edit')
+                                <x-idcore::partials.edit-button :module="$module" :id="$item->id" />
                             @endcan
-                            @can('product.delete')
-                                <x-idcore::button variant="outline-danger" size="xs" circle tooltip="Hapus"
-                                    x-data
-                                    @click.prevent="
-                                        $confirm({
-                                            title: 'Hapus Produk?',
-                                            message: 'Produk {{ $product->name }} akan dihapus.',
-                                            confirmText: 'Ya, Hapus',
-                                            variant: 'danger'
-                                        }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
-                                    ">
-                                    @svg('heroicon-o-trash', 'h-3.5 w-3.5')
-                                </x-idcore::button>
-                                <form action="{{ route('katalog.product.destroy', $product->id) }}" method="POST" class="hidden">
-                                    @csrf @method('DELETE')
-                                </form>
+                            @can($rolesName.'.delete')
+                                <x-idcore::partials.delete-button :module="$module" :id="$item->id" :name="$item->name" />
                             @endcan
                         </div>
                     </td>
@@ -101,6 +87,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$products" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

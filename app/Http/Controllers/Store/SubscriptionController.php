@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class SubscriptionController extends BaseCoreController
 {
+    private $module = 'toko.subscription';
+
+    protected $view = 'store.subscription';
+
     public function __construct(protected SubscriptionService $service) {}
 
     public function index(Request $request)
@@ -18,16 +22,36 @@ class SubscriptionController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('store.subscription.index', compact('subscriptions'));
+        $compact = [
+            'listData'   => $subscriptions,
+
+            'title'      => 'Subscription',
+            'subtitle'   => 'Data Subscription',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Subscription']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function create()
     {
-        return view('store.subscription.form', [
-            'subscription' => null,
-            'storeOptions' => $this->service->storeOptions(),
-            'levelOptions' => $this->service->levelOptions(),
-        ]);
+        $compact = [
+            'formData'      => null,
+            'storeOptions'  => $this->service->storeOptions(),
+            'levelOptions'  => $this->service->levelOptions(),
+
+            'title'         => 'Tambah Subscription',
+            'subtitle'      => 'Atur langganan toko',
+
+            'action'        => route($this->module.'.store'),
+            'module'        => $this->module,
+            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Subscription', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -37,7 +61,7 @@ class SubscriptionController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('toko.subscription.index')
+            ->route($this->module.'.index')
             ->with('success', 'Subscription berhasil ditambahkan, invoice otomatis dibuat.');
     }
 
@@ -45,11 +69,20 @@ class SubscriptionController extends BaseCoreController
     {
         $subscription->load(['store', 'storeLevel']);
 
-        return view('store.subscription.form', [
-            'subscription' => $subscription,
-            'storeOptions' => $this->service->storeOptions(),
-            'levelOptions' => $this->service->levelOptions(),
-        ]);
+        $compact = [
+            'formData'      => $subscription,
+            'storeOptions'  => $this->service->storeOptions(),
+            'levelOptions'  => $this->service->levelOptions(),
+            
+            'title'         => 'Edit Subscription',
+            'subtitle'      => 'Atur langganan toko',
+
+            'action'        => route($this->module.'.update', $subscription->id),
+            'module'        => $this->module,
+            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Subscription', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function update(Request $request, Subscription $subscription)
@@ -59,7 +92,7 @@ class SubscriptionController extends BaseCoreController
         $this->service->update($subscription, $validated);
 
         return redirect()
-            ->route('toko.subscription.index')
+            ->route($this->module.'.index')
             ->with('success', 'Subscription berhasil diperbarui.');
     }
 
@@ -68,7 +101,7 @@ class SubscriptionController extends BaseCoreController
         $this->service->delete($subscription);
 
         return redirect()
-            ->route('toko.subscription.index')
+            ->route($this->module.'.index')
             ->with('success', 'Subscription berhasil dihapus.');
     }
 

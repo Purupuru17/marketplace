@@ -1,15 +1,15 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Chat')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Chat</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Chat']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
 </div>
 
-<x-idcore::card title="Percakapan" subtitle="Pertanyaan pelanggan tentang produk" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <x-idcore::table>
         <thead class="bg-gray-50 dark:bg-gray-800/50">
             <tr>
@@ -21,9 +21,9 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($conversations as $conversation)
+            @forelse($listData as $conversation)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $conversations->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
                         <p class="font-semibold text-gray-900 dark:text-white">{{ $conversation->customer->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $conversation->customer->email }}</p>
@@ -46,7 +46,7 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <x-idcore::button variant="outline-primary" size="xs" circle tooltip="Buka"
-                            :href="route('toko.chat.show', $conversation->id)">
+                            :href="route($module.'.show', $conversation->id)">
                             @svg('heroicon-o-chat-bubble-left-right', 'h-3.5 w-3.5')
                         </x-idcore::button>
                     </td>
@@ -57,6 +57,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$conversations" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

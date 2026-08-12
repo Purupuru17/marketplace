@@ -1,36 +1,36 @@
 @extends('idcore::layouts.backend')
-@section('title', $variant ? 'Edit Varian' : 'Tambah Varian')
+@section('title', $title)
 
 @php
-    $selectedAttributeValueIds = $variant ? $variant->attributeValues->pluck('id')->all() : [];
+    $selectedAttributeValueIds = $formData ? $formData->attributeValues->pluck('id')->all() : [];
 @endphp
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $variant ? 'Edit Varian' : 'Tambah Varian' }}</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Katalog'], ['label' => 'Varian Produk', 'url' => route('katalog.product-variant.index')], ['label' => $variant ? 'Edit' : 'Create']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
 </div>
 
-<x-idcore::card title="{{ $variant ? 'Edit Varian' : 'Tambah Varian' }}" subtitle="Toko varian mengikuti produk yang dipilih." class="max-w-4xl">
-    <form action="{{ $variant ? route('katalog.product-variant.update', $variant->id) : route('katalog.product-variant.store') }}" method="POST" class="space-y-6"
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" class="max-w-4xl">
+    <form action="{{ $action }}" method="POST" class="space-y-6"
           x-data="{ formDirty: false }"
           @input.debounce.500ms="formDirty = true"
           @change="formDirty = true"
           @submit="formDirty = false"
           x-init="$watch('formDirty', val => { window.onbeforeunload = val ? () => true : null; })">
         @csrf
-        @if($variant) @method('PUT') @endif
+        @if($formData) @method('PUT') @endif
 
-        <x-idcore::select name="product_id" label="Produk" :options="$productOptions" :selected="$variant->product_id ?? null" placeholder="Pilih produk" required />
+        <x-idcore::select name="product_id" label="Produk" :options="$productOptions" :selected="$formData->product_id ?? null" placeholder="Pilih produk" required />
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <x-idcore::input name="sku" label="SKU" required :value="$variant->sku ?? null" placeholder="Contoh: NGS-REG-500" />
-            <x-idcore::input name="price" label="Harga (Rp)" type="number" step="0.01" min="0" required :value="$variant->price ?? null" placeholder="0" />
-            <x-idcore::input name="stock" label="Stok" type="number" min="0" required :value="$variant->stock ?? 0" placeholder="0" />
-            <x-idcore::input name="weight_grams" label="Berat (gram)" type="number" min="0" required :value="$variant->weight_grams ?? 0" placeholder="0" />
-            <x-idcore::select name="status" label="Status" :options="['active' => 'Active', 'inactive' => 'Inactive']" :selected="$variant->status ?? 'active'" required />
+            <x-idcore::input name="sku" label="SKU" required :value="$formData->sku ?? null" placeholder="Contoh: NGS-REG-500" />
+            <x-idcore::input name="price" label="Harga (Rp)" type="number" step="0.01" min="0" required :value="$formData->price ?? null" placeholder="0" />
+            <x-idcore::input name="stock" label="Stok" type="number" min="0" required :value="$formData->stock ?? 0" placeholder="0" />
+            <x-idcore::input name="weight_grams" label="Berat (gram)" type="number" min="0" required :value="$formData->weight_grams ?? 0" placeholder="0" />
+            <x-idcore::select name="status" label="Status" :options="['active' => 'Active', 'inactive' => 'Inactive']" :selected="$formData->status ?? 'active'" required />
         </div>
 
         @if(! empty($attributeGroups))
@@ -61,20 +61,22 @@
         @endif
 
         <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:justify-end">
-            <x-idcore::button variant="outline" @click.prevent="
+            <x-idcore::button variant="light" @click.prevent="
                 if (formDirty) {
                     $confirm({
-                        title: 'Perubahan Belum Disimpan',
-                        message: 'Ada perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?',
+                        title: 'Konfirmasi',
+                        message: 'Ada perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini ?',
                         confirmText: 'Ya, Tinggalkan',
                         cancelText: 'Batal',
                         variant: 'warning'
-                    }).then(ok => { if (ok) window.location.href = '{{ route('katalog.product-variant.index') }}'; });
+                    }).then(ok => { if (ok) window.location.href = '{{ route($module.'.index') }}'; });
                 } else {
-                    window.location.href = '{{ route('katalog.product-variant.index') }}';
+                    window.location.href = '{{ route($module.'.index') }}';
                 }
-            ">Batal</x-idcore::button>
-            <x-idcore::button type="submit" variant="{{ $variant ? 'warning' : 'success' }}">Simpan</x-idcore::button>
+            ">@svg('heroicon-o-arrow-path', 'h-4 w-4') Batal</x-idcore::button>
+            <x-idcore::button type="submit" variant="{{ $formData ? 'warning' : 'success' }}">
+                @svg('heroicon-o-paper-airplane', 'h-4 w-4') Simpan
+            </x-idcore::button>
         </div>
     </form>
 </x-idcore::card>

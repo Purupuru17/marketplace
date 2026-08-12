@@ -14,6 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class WalletController extends BaseCoreController
 {
+    private $module = 'toko.wallet';
+
+    protected $view = 'store.wallet';
+
     public function __construct(protected StoreWalletService $service) {}
 
     public function index()
@@ -43,7 +47,7 @@ class WalletController extends BaseCoreController
             ->limit(50)
             ->get();
 
-        return view('store.wallet.index', [
+        return view($this->view.'.index', [
             'wallets' => $wallets,
             'withdrawals' => $withdrawals,
             'transactions' => $transactions,
@@ -51,6 +55,13 @@ class WalletController extends BaseCoreController
                 fn (Wallet $wallet) => [$wallet->id => $this->service->withdrawable($wallet)]
             ),
             'isAdmin' => $isAdmin,
+
+            'title' => 'Saldo',
+            'subtitle' => 'Data Saldo',
+            
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Saldo']],
         ]);
     }
 
@@ -75,7 +86,7 @@ class WalletController extends BaseCoreController
         }
 
         return redirect()
-            ->route('toko.wallet.index')
+            ->route($this->module.'.index')
             ->with('success', 'Permintaan penarikan dikirim. Menunggu persetujuan admin.');
     }
 
@@ -88,7 +99,7 @@ class WalletController extends BaseCoreController
         }
 
         return redirect()
-            ->route('toko.wallet.index')
+            ->route($this->module.'.index')
             ->with('success', 'Permintaan penarikan diperbarui.');
     }
 }

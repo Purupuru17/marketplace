@@ -7,9 +7,9 @@
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Chat</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Chat', 'url' => route('toko.chat.index')], ['label' => $conversation->customer->name]]" />
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    <a href="{{ route('toko.chat.index') }}"
+    <a href="{{ route($module.'.index') }}"
        class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
         @svg('heroicon-o-arrow-left', 'h-4 w-4') Semua percakapan
     </a>

@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class ChatController extends BaseCoreController
 {
+    private $module = 'toko.chat';
+
+    protected $view = 'store.chat';
+
     public function __construct(protected ChatService $service) {}
 
     public function index(Request $request)
@@ -18,7 +22,18 @@ class ChatController extends BaseCoreController
             (int) $request->input('per_page', 15)
         );
 
-        return view('store.chat.index', compact('conversations'));
+        $compact = [
+            'listData'   => $conversations,
+
+            'title'      => 'Chat',
+            'subtitle'   => 'Data Chat',
+            
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Chat']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function show(ChatConversation $conversation)
@@ -26,8 +41,11 @@ class ChatController extends BaseCoreController
         $this->service->authorizeStore($conversation, auth()->user());
         $this->service->markRead($conversation, 'store');
 
-        return view('store.chat.show', [
+        return view($this->view.'.show', [
             'conversation' => $conversation->load(['customer', 'product', 'messages' => fn ($query) => $query->orderBy('created_at')]),
+            'title' => 'Chat',
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Chat', route($this->module.'.index')]],
         ]);
     }
 

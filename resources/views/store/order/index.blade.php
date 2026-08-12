@@ -1,5 +1,5 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Pesanan Toko')
+@section('title', $title)
 
 @section('content')
 @php
@@ -14,12 +14,12 @@
 
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Pesanan Toko</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Toko'], ['label' => 'Pesanan']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
 </div>
 
-<x-idcore::card title="Data Pesanan" subtitle="Kelola pesanan masuk dari pelanggan" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
@@ -51,9 +51,9 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($orders as $order)
+            @forelse($listData as $order)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $orders->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
                         <p class="font-semibold text-gray-900 dark:text-white">{{ $order->order_no }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->store->store_name }}</p>
@@ -76,7 +76,7 @@
                     </td>
                     <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $order->created_at->format('d M Y H:i') }}</td>
                     <td class="px-6 py-4 text-right">
-                        <x-idcore::button variant="outline-primary" size="xs" circle tooltip="Detail" :href="route('toko.order.show', $order->id)">
+                        <x-idcore::button variant="outline-primary" size="xs" circle tooltip="Detail" :href="route($module.'.show', $order->id)">
                             @svg('heroicon-o-eye', 'h-3.5 w-3.5')
                         </x-idcore::button>
                     </td>
@@ -87,6 +87,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$orders" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

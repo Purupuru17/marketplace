@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class StoreController extends BaseCoreController
 {
+    private $module = 'toko.store';
+
+    protected $view = 'store.store';
+
     public function __construct(protected StoreService $service) {}
 
     public function index(Request $request)
@@ -18,18 +22,38 @@ class StoreController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('store.store.index', compact('stores'));
+        $compact = [
+            'listData'   => $stores,
+
+            'title'      => 'Toko',
+            'subtitle'   => 'Data Toko',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Toko']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function create()
     {
-        return view('store.store.form', [
-            'store' => null,
-            'userOptions' => $this->service->userOptions(),
-            'levelOptions' => $this->service->levelOptions(),
-            'nodeOptions' => $this->service->nodeOptions(),
-            'hoursByDay' => collect(),
-        ]);
+        $compact = [
+            'formData'      => null,
+            'userOptions'   => $this->service->userOptions(),
+            'levelOptions'  => $this->service->levelOptions(),
+            'nodeOptions'   => $this->service->nodeOptions(),
+            'hoursByDay'    => collect(),
+
+            'title'         => 'Tambah Toko',
+            'subtitle'      => 'Data toko sebagai tenant marketplace',
+
+            'action'        => route($this->module.'.store'),
+            'module'        => $this->module,
+            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Toko', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -39,7 +63,7 @@ class StoreController extends BaseCoreController
         $this->service->create($validated, $request->input('hours', []));
 
         return redirect()
-            ->route('toko.store.index')
+            ->route($this->module.'.index')
             ->with('success', 'Toko berhasil ditambahkan.');
     }
 
@@ -47,13 +71,22 @@ class StoreController extends BaseCoreController
     {
         $store->load('operatingHours');
 
-        return view('store.store.form', [
-            'store' => $store,
-            'userOptions' => $this->service->userOptions(),
-            'levelOptions' => $this->service->levelOptions(),
-            'nodeOptions' => $this->service->nodeOptions(),
-            'hoursByDay' => $store->operatingHours->keyBy('day'),
-        ]);
+        $compact = [
+            'formData'      => $store,
+            'userOptions'   => $this->service->userOptions(),
+            'levelOptions'  => $this->service->levelOptions(),
+            'nodeOptions'   => $this->service->nodeOptions(),
+            'hoursByDay'    => $store->operatingHours->keyBy('day'),
+
+            'title'         => 'Edit Toko',
+            'subtitle'      => 'Data toko sebagai tenant marketplace',
+
+            'action'        => route($this->module.'.update', $store->id),
+            'module'        => $this->module,
+            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Toko', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function update(Request $request, Store $store)
@@ -63,7 +96,7 @@ class StoreController extends BaseCoreController
         $this->service->update($store, $validated, $request->input('hours', []));
 
         return redirect()
-            ->route('toko.store.index')
+            ->route($this->module.'.index')
             ->with('success', 'Toko berhasil diperbarui.');
     }
 
@@ -72,7 +105,7 @@ class StoreController extends BaseCoreController
         $this->service->delete($store);
 
         return redirect()
-            ->route('toko.store.index')
+            ->route($this->module.'.index')
             ->with('success', 'Toko berhasil dihapus.');
     }
 

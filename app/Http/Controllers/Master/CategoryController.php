@@ -10,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class CategoryController extends BaseCoreController
 {
+    private $module = 'master.category';
+
     public function __construct(protected CategoryService $service) {}
 
     public function index(Request $request)
@@ -19,16 +21,36 @@ class CategoryController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        $parentOptions = $this->service->options();
+        $compact = [
+            'listData'       => $categories,
+            'parentOptions'  => $this->service->options(),
 
-        return view('master.category.index', compact('categories', 'parentOptions'));
+            'title'          => 'Kategori',
+            'subtitle'       => 'Data Kategori',
+
+            'module'         => $this->module,
+            'rolesName'      => $this->resourceName(),
+            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori']],
+        ];
+
+        return view($this->module.'.index', $compact);
     }
 
     public function create()
     {
-        $parentOptions = $this->service->options();
+        $compact = [
+            'formData'       => null,
+            'parentOptions'  => $this->service->options(),
 
-        return view('master.category.form', ['category' => null, 'parentOptions' => $parentOptions]);
+            'title'          => 'Tambah Kategori',
+            'subtitle'       => 'Kategori untuk mengelompokkan produk',
+
+            'action'         => route($this->module.'.store'),
+            'module'         => $this->module,
+            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -43,15 +65,25 @@ class CategoryController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('master.category.index')
+            ->route($this->module.'.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     public function edit(Category $category)
     {
-        $parentOptions = $this->service->options($category);
+        $compact = [
+            'formData'       => $category,
+            'parentOptions'  => $this->service->options($category),
+            
+            'title'          => 'Edit Kategori',
+            'subtitle'       => 'Kategori untuk mengelompokkan produk',
 
-        return view('master.category.form', compact('category', 'parentOptions'));
+            'action'         => route($this->module.'.update', $category->id),
+            'module'         => $this->module,
+            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function update(Request $request, Category $category)
@@ -71,7 +103,7 @@ class CategoryController extends BaseCoreController
         $this->service->update($category, $validated);
 
         return redirect()
-            ->route('master.category.index')
+            ->route($this->module.'.index')
             ->with('success', 'Kategori berhasil diperbarui.');
     }
 
@@ -80,7 +112,7 @@ class CategoryController extends BaseCoreController
         $this->service->delete($category);
 
         return redirect()
-            ->route('master.category.index')
+            ->route($this->module.'.index')
             ->with('success', 'Kategori berhasil dihapus.');
     }
 }

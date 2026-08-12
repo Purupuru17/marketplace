@@ -10,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class AttributeController extends BaseCoreController
 {
+    private $module = 'master.attribute';
+
     public function __construct(protected AttributeService $service) {}
 
     public function index(Request $request)
@@ -19,12 +21,33 @@ class AttributeController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('master.attribute.index', compact('attributes'));
+        $compact = [
+            'listData'   => $attributes,
+
+            'title'      => 'Atribut',
+            'subtitle'   => 'Data Atribut',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Atribut']],
+        ];
+
+        return view($this->module.'.index', $compact);
     }
 
     public function create()
     {
-        return view('master.attribute.form', ['attribute' => null]);
+        $compact = [
+            'formData'   => null,
+            'title'      => 'Tambah Atribut',
+            'subtitle'   => 'Atribut sebagai dimensi varian produk',
+
+            'action'     => route($this->module.'.store'),
+            'module'     => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Atribut', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -38,7 +61,7 @@ class AttributeController extends BaseCoreController
         $this->service->create($validated);
 
         return redirect()
-            ->route('master.attribute.index')
+            ->route($this->module.'.index')
             ->with('success', 'Atribut berhasil ditambahkan.');
     }
 
@@ -46,7 +69,18 @@ class AttributeController extends BaseCoreController
     {
         $attribute->load('values');
 
-        return view('master.attribute.form', compact('attribute'));
+        $compact = [
+            'formData'   => $attribute,
+
+            'title'      => 'Edit Atribut',
+            'subtitle'   => 'Atribut sebagai dimensi varian produk',
+            
+            'action'     => route($this->module.'.update', $attribute->id),
+            'module'     => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Atribut', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->module.'.form', $compact);
     }
 
     public function update(Request $request, Attribute $attribute)
@@ -60,7 +94,7 @@ class AttributeController extends BaseCoreController
         $this->service->update($attribute, $validated);
 
         return redirect()
-            ->route('master.attribute.index')
+            ->route($this->module.'.index')
             ->with('success', 'Atribut berhasil diperbarui.');
     }
 
@@ -69,7 +103,7 @@ class AttributeController extends BaseCoreController
         $this->service->delete($attribute);
 
         return redirect()
-            ->route('master.attribute.index')
+            ->route($this->module.'.index')
             ->with('success', 'Atribut berhasil dihapus.');
     }
 }

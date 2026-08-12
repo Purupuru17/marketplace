@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class PromotionController extends BaseCoreController
 {
+    private $module = 'toko.promotion';
+
+    protected $view = 'store.promotion';
+
     public function __construct(protected PromotionService $service) {}
 
     public function index(Request $request)
@@ -19,18 +23,38 @@ class PromotionController extends BaseCoreController
             (int) $request->input('per_page', 10)
         );
 
-        return view('store.promotion.index', compact('promotions'));
+        $compact = [
+            'listData'   => $promotions,
+
+            'title'      => 'Promo',
+            'subtitle'   => 'Data Promo',
+
+            'module'     => $this->module,
+            'rolesName'  => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Promo']],
+        ];
+
+        return view($this->view.'.index', $compact);
     }
 
     public function create()
     {
-        return view('store.promotion.form', [
-            'promotion' => null,
-            'storeOptions' => $this->service->storeOptions(auth()->user()),
-            'productOptions' => $this->service->productOptions(auth()->user()),
+        $compact = [
+            'formData'         => null,
+            'storeOptions'     => $this->service->storeOptions(auth()->user()),
+            'productOptions'   => $this->service->productOptions(auth()->user()),
             'selectedProducts' => collect(),
-            'isAdmin' => auth()->user()->hasRole('Administrator'),
-        ]);
+            'isAdmin'          => auth()->user()->hasRole('Administrator'),
+
+            'title'            => 'Tambah Promo',
+            'subtitle'         => 'Diskon otomatis untuk produk terpilih',
+
+            'action'           => route($this->module.'.store'),
+            'module'           => $this->module,
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Toko'], ['Promo', route($this->module.'.index')], ['Tambah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function store(Request $request)
@@ -40,7 +64,7 @@ class PromotionController extends BaseCoreController
         $this->service->create(auth()->user(), $validated, $request->input('products', []));
 
         return redirect()
-            ->route('toko.promotion.index')
+            ->route($this->module.'.index')
             ->with('success', 'Promo berhasil ditambahkan.');
     }
 
@@ -50,13 +74,22 @@ class PromotionController extends BaseCoreController
 
         $promotion->load('products');
 
-        return view('store.promotion.form', [
-            'promotion' => $promotion,
-            'storeOptions' => $this->service->storeOptions(auth()->user()),
-            'productOptions' => $this->service->productOptions(auth()->user()),
+        $compact = [
+            'formData'         => $promotion,
+            'storeOptions'     => $this->service->storeOptions(auth()->user()),
+            'productOptions'   => $this->service->productOptions(auth()->user()),
             'selectedProducts' => $promotion->products->pluck('id'),
-            'isAdmin' => auth()->user()->hasRole('Administrator'),
-        ]);
+            'isAdmin'          => auth()->user()->hasRole('Administrator'),
+
+            'title'            => 'Edit Promo',
+            'subtitle'         => 'Diskon otomatis untuk produk terpilih',
+
+            'action'           => route($this->module.'.update', $promotion->id),
+            'module'           => $this->module,
+            'breadcrumb'       => [['Beranda', route('dashboard')], ['Toko'], ['Promo', route($this->module.'.index')], ['Ubah Data']],
+        ];
+
+        return view($this->view.'.form', $compact);
     }
 
     public function update(Request $request, Promotion $promotion)
@@ -66,7 +99,7 @@ class PromotionController extends BaseCoreController
         $this->service->update(auth()->user(), $promotion, $validated, $request->input('products', []));
 
         return redirect()
-            ->route('toko.promotion.index')
+            ->route($this->module.'.index')
             ->with('success', 'Promo berhasil diperbarui.');
     }
 
@@ -75,7 +108,7 @@ class PromotionController extends BaseCoreController
         $this->service->delete(auth()->user(), $promotion);
 
         return redirect()
-            ->route('toko.promotion.index')
+            ->route($this->module.'.index')
             ->with('success', 'Promo berhasil dihapus.');
     }
 

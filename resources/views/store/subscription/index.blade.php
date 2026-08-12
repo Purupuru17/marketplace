@@ -1,18 +1,20 @@
 @extends('idcore::layouts.backend')
-@section('title', 'Subscription')
+@section('title', $title)
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Subscription</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Toko'], ['label' => 'Subscription']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
-    @can('subscription.create')
-        <x-idcore::button variant="primary" :href="route('toko.subscription.create')">Tambah Subscription</x-idcore::button>
+    @can($rolesName.'.create')
+        <x-idcore::button variant="primary" :href="route($module.'.create')">
+            @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+        </x-idcore::button>
     @endcan
 </div>
 
-<x-idcore::card title="Data Subscription" subtitle="Langganan level toko (invoice dibuat otomatis)" :padding="false">
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
@@ -39,30 +41,30 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($subscriptions as $subscription)
+            @forelse($listData as $item)
                 <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $subscriptions->firstItem() + $loop->index }}</td>
+                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
                     <td class="px-6 py-4">
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ $subscription->store->store_name ?? '-' }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $subscription->store->store_code ?? '' }}</p>
+                        <p class="font-semibold text-gray-900 dark:text-white">{{ $item->store->store_name ?? '-' }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $item->store->store_code ?? '' }}</p>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        @if($subscription->storeLevel)
-                            <x-idcore::badge variant="indigo">{{ $subscription->storeLevel->name }}</x-idcore::badge>
+                        @if($item->storeLevel)
+                            <x-idcore::badge variant="indigo">{{ $item->storeLevel->name }}</x-idcore::badge>
                         @endif
                     </td>
-                    <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">{{ $subscription->starts_at->format('d M Y') }} - {{ $subscription->ends_at->format('d M Y') }}</td>
+                    <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">{{ $item->starts_at->format('d M Y') }} - {{ $item->ends_at->format('d M Y') }}</td>
                     <td class="px-6 py-4 text-center">
-                        @if($subscription->auto_renew)
+                        @if($item->auto_renew)
                             <x-idcore::badge variant="green">Ya</x-idcore::badge>
                         @else
                             <x-idcore::badge variant="gray">Tidak</x-idcore::badge>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center">
-                        @if($subscription->status === 'active')
+                        @if($item->status === 'active')
                             <x-idcore::badge variant="green">Active</x-idcore::badge>
-                        @elseif($subscription->status === 'expired')
+                        @elseif($item->status === 'expired')
                             <x-idcore::badge variant="yellow">Expired</x-idcore::badge>
                         @else
                             <x-idcore::badge variant="red">Cancelled</x-idcore::badge>
@@ -70,27 +72,11 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            @can('subscription.edit')
-                                <x-idcore::button variant="outline-warning" size="xs" circle tooltip="Edit" :href="route('toko.subscription.edit', $subscription->id)">
-                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5')
-                                </x-idcore::button>
+                            @can($rolesName.'.edit')
+                                <x-idcore::partials.edit-button :module="$module" :id="$item->id" />
                             @endcan
-                            @can('subscription.delete')
-                                <x-idcore::button variant="outline-danger" size="xs" circle tooltip="Hapus"
-                                    x-data
-                                    @click.prevent="
-                                        $confirm({
-                                            title: 'Hapus Subscription?',
-                                            message: 'Subscription {{ $subscription->store->store_name ?? '' }} akan dihapus permanen.',
-                                            confirmText: 'Ya, Hapus',
-                                            variant: 'danger'
-                                        }).then(ok => { if (ok) $el.nextElementSibling.submit(); });
-                                    ">
-                                    @svg('heroicon-o-trash', 'h-3.5 w-3.5')
-                                </x-idcore::button>
-                                <form action="{{ route('toko.subscription.destroy', $subscription->id) }}" method="POST" class="hidden">
-                                    @csrf @method('DELETE')
-                                </form>
+                            @can($rolesName.'.delete')
+                                <x-idcore::partials.delete-button :module="$module" :id="$item->id" :name="$item->store->store_name ?? ''" />
                             @endcan
                         </div>
                     </td>
@@ -101,6 +87,6 @@
         </tbody>
     </x-idcore::table>
 
-    <x-idcore::pagination :paginator="$subscriptions" />
+    <x-idcore::pagination :paginator="$listData" />
 </x-idcore::card>
 @endsection

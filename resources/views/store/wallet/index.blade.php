@@ -25,8 +25,8 @@
 
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Saldo Toko</h1>
-        <x-idcore::breadcrumb :items="[['label' => 'Home', 'url' => route('dashboard')], ['label' => 'Toko'], ['label' => 'Saldo']]" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
+        <x-idcore::breadcrumb :items="$breadcrumb" />
     </div>
 </div>
 
@@ -60,7 +60,7 @@
             @endforeach
         </div>
 
-        @can('wallet.create')
+        @can($rolesName.'.create')
             <x-idcore::card title="Ajukan Penarikan" subtitle="Dana masuk ke rekening yang didaftarkan setelah disetujui admin">
                 @if($errors->any())
                     <div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
