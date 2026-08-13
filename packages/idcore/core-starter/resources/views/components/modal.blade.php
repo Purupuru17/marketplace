@@ -25,10 +25,10 @@
 
             <div class="flex min-h-full items-center justify-center p-4">
                 <div x-show="open" x-transition @click.outside="open = false"
-                     class="relative w-full {{ $widthClass }} rounded-xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
+                     class="relative w-full {{ $widthClass }} rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-gray-800 dark:bg-gray-900">
 
-                    <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-                        <h5 class="font-medium text-gray-900 dark:text-white">{{ $title ?? '' }}</h5>
+                    <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5 dark:border-gray-800">
+                        <h5 class="font-medium text-gray-800 dark:text-white/90">{{ $title ?? '' }}</h5>
                         <button @click="open = false" type="button"
                                 class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -40,7 +40,7 @@
                     <div class="p-5 text-gray-700 dark:text-gray-300">{{ $slot }}</div>
 
                     @isset($footer)
-                        <div class="flex justify-end gap-2 px-5 py-3 border-t border-gray-200 bg-gray-50 rounded-b-lg dark:border-gray-700 dark:bg-gray-800">
+                        <div class="flex justify-end gap-2 border-t border-gray-100 bg-gray-50 px-5 py-3 dark:border-gray-800 dark:bg-gray-900">
                             {{ $footer }}
                         </div>
                     @endisset

@@ -23,13 +23,13 @@ class SubscriptionController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $subscriptions,
+            'listData' => $subscriptions,
 
-            'title'      => 'Subscription',
-            'subtitle'   => 'Data Subscription',
+            'title' => 'Subscription',
+            'subtitle' => 'Data Subscription',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Subscription']],
         ];
 
@@ -39,16 +39,16 @@ class SubscriptionController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'      => null,
-            'storeOptions'  => $this->service->storeOptions(),
-            'levelOptions'  => $this->service->levelOptions(),
+            'formData' => null,
+            'storeOptions' => $this->service->storeOptions(),
+            'levelOptions' => $this->service->levelOptions(),
 
-            'title'         => 'Tambah Subscription',
-            'subtitle'      => 'Atur langganan toko',
+            'title' => 'Tambah Subscription',
+            'subtitle' => 'Atur langganan toko',
 
-            'action'        => route($this->module.'.store'),
-            'module'        => $this->module,
-            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Subscription', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Subscription', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->view.'.form', $compact);
@@ -70,16 +70,16 @@ class SubscriptionController extends BaseCoreController
         $subscription->load(['store', 'storeLevel']);
 
         $compact = [
-            'formData'      => $subscription,
-            'storeOptions'  => $this->service->storeOptions(),
-            'levelOptions'  => $this->service->levelOptions(),
-            
-            'title'         => 'Edit Subscription',
-            'subtitle'      => 'Atur langganan toko',
+            'formData' => $subscription,
+            'storeOptions' => $this->service->storeOptions(),
+            'levelOptions' => $this->service->levelOptions(),
 
-            'action'        => route($this->module.'.update', $subscription->id),
-            'module'        => $this->module,
-            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Subscription', route($this->module.'.index')], ['Ubah Data']],
+            'title' => 'Edit Subscription',
+            'subtitle' => 'Atur langganan toko',
+
+            'action' => route($this->module.'.update', $subscription->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Subscription', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->view.'.form', $compact);

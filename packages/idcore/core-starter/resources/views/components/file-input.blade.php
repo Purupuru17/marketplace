@@ -15,11 +15,11 @@
 <div x-data="{ fileName: null, previewUrl: @js($preview) }">
     @if($label)
         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-            {{ $label }} @if($required)<span class="text-danger-500">*</span>@endif
+            {{ $label }} @if($required)<span class="text-error-500">*</span>@endif
         </label>
     @endif
 
-    <label for="{{ $inputId }}" class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-8 text-center transition hover:border-primary-400 hover:bg-primary-50/60 dark:hover:bg-primary-500/10 {{ $hasError ? 'border-danger-300 bg-danger-50/30 dark:border-danger-700 dark:bg-danger-500/10' : 'border-gray-200/80 bg-white dark:border-gray-700 dark:bg-gray-900' }}">
+    <label for="{{ $inputId }}" class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-8 text-center transition hover:border-brand-300 hover:bg-brand-50/60 dark:hover:bg-brand-500/10 {{ $hasError ? 'border-error-300 bg-error-50/30 dark:border-error-700 dark:bg-error-500/10' : 'border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900' }}">
         <template x-if="previewUrl">
             <img :src="previewUrl" class="mb-3 h-16 w-16 rounded-lg object-cover">
         </template>
@@ -38,6 +38,6 @@
         <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{{ $hint }}</p>
     @endif
     @error($name)
-        <p class="mt-1.5 text-xs text-danger-600 dark:text-danger-500">{{ $message }}</p>
+        <p class="mt-1.5 text-xs text-error-600 dark:text-error-500">{{ $message }}</p>
     @enderror
 </div>

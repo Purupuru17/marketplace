@@ -3,19 +3,19 @@
 namespace IdCore\CoreStarter\Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use IdCore\CoreStarter\Models\Menu;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class CoreDatabaseSeeder extends Seeder
 {
     protected array $permissions = [
-        'user'      => ['index', 'create', 'edit', 'delete', 'detail' ,'ajax'],
-        'group'     => ['index', 'create', 'edit', 'delete'],
-        'menu'      => ['index', 'create', 'edit', 'delete'],
+        'user' => ['index', 'create', 'edit', 'delete', 'detail', 'ajax'],
+        'group' => ['index', 'create', 'edit', 'delete'],
+        'menu' => ['index', 'create', 'edit', 'delete'],
         'hak-akses' => ['index', 'edit'],
     ];
 
@@ -36,7 +36,7 @@ class CoreDatabaseSeeder extends Seeder
             foreach ($actions as $action) {
                 Permission::firstOrCreate([
                     'name' => "{$module}.{$action}",
-                    'guard_name' => 'web'
+                    'guard_name' => 'web',
                 ]);
             }
         }
@@ -53,7 +53,7 @@ class CoreDatabaseSeeder extends Seeder
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('12345'),
-                'email_verified_at' => now()
+                'email_verified_at' => now(),
             ]
         );
         $superAdmin->assignRole($superAdminRole);

@@ -6,7 +6,7 @@
             <button type="button" @click.prevent="open = !open"
                     class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                     :class="[
-                        open ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-200',
+                        open ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5',
                         $store.layout.collapsed ? 'lg:justify-center' : ''
                     ]">
                 <span class="shrink-0">
@@ -38,8 +38,8 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                :class="[
                    {{ $item['is_current'] ? 'true' : 'false' }}
-                       ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400'
-                       : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-200',
+                       ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                       : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5',
                    $store.layout.collapsed ? 'lg:justify-center' : ''
                ]">
                 <span class="shrink-0">

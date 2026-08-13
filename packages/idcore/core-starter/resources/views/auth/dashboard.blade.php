@@ -18,7 +18,7 @@
         <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dashboard</p>
             <h1 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">Selamat datang, {{ $user?->name ?? 'Admin' }}</h1>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Role aktif: <span class="font-semibold text-primary-600 dark:text-primary-300">{{ $activeRole?->name ?? 'Belum ada role' }}</span></p>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Role aktif: <span class="font-semibold text-brand-600 dark:text-brand-400">{{ $activeRole?->name ?? 'Belum ada role' }}</span></p>
         </div>
         <div class="flex items-center gap-2">
             <x-idcore::button variant="light" size="sm">
@@ -39,7 +39,7 @@
                             <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
                                 @svg('heroicon-o-' . $stat['icon'], 'h-6 w-6')
                             </div>
-                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold {{ $stat['tone'] === 'success' ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500' : 'bg-danger-50 text-danger-600 dark:bg-danger-500/10 dark:text-danger-500' }}">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold {{ $stat['tone'] === 'success' ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500' : 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-500' }}">
                                 @if($stat['tone'] === 'success')
                                     @svg('heroicon-o-arrow-trending-up', 'h-3.5 w-3.5')
                                 @else
@@ -70,7 +70,7 @@
                 <div class="flex h-64 items-end gap-3 border-b border-gray-100 px-2 pb-8 dark:border-gray-800 sm:gap-5">
                     @foreach($bars as $index => $height)
                         <div class="flex flex-1 flex-col items-center justify-end gap-3">
-                            <div class="w-full max-w-8 rounded-t-md bg-primary-600 transition hover:bg-primary-700" style="height: {{ $height }}%;"></div>
+                            <div class="w-full max-w-8 rounded-t-md bg-brand-500 transition hover:bg-brand-600" style="height: {{ $height }}%;"></div>
                             <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ $months[$index] }}</span>
                         </div>
                     @endforeach
@@ -104,7 +104,7 @@
                             @if($item[2] === 'up')
                                 @svg('heroicon-o-arrow-trending-up', 'h-4 w-4 text-success-600 inline')
                             @else
-                                @svg('heroicon-o-arrow-trending-down', 'h-4 w-4 text-danger-600 inline')
+                                @svg('heroicon-o-arrow-trending-down', 'h-4 w-4 text-error-600 inline')
                             @endif
                         </p>
                     </div>
@@ -129,7 +129,7 @@
             <div class="mt-8 h-56 rounded-xl border border-dashed border-gray-200 bg-gradient-to-b from-brand-50 to-white p-5 dark:border-gray-800 dark:from-brand-900/20 dark:to-gray-900">
                 <div class="flex h-full items-end gap-2">
                     @foreach([32, 44, 38, 58, 50, 63, 59, 72, 67, 82, 79, 76] as $height)
-                        <div class="flex-1 rounded-t-md bg-primary-500/25" style="height: {{ $height }}%;"></div>
+                        <div class="flex-1 rounded-t-md bg-brand-500/25" style="height: {{ $height }}%;"></div>
                     @endforeach
                 </div>
             </div>
@@ -167,25 +167,28 @@
     {{-- TOC --}}
     <div class="mb-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-gray-100 pb-4 text-sm dark:border-gray-800">
         <span class="font-semibold text-gray-700 dark:text-gray-300">Daftar Isi:</span>
-        <a href="#ref-button" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Button</a>
-        <a href="#ref-badge" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Badge</a>
-        <a href="#ref-card" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Card</a>
-        <a href="#ref-input" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Input</a>
-        <a href="#ref-select" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Select</a>
-        <a href="#ref-textarea" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Textarea</a>
-        <a href="#ref-checkbox" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Checkbox</a>
-        <a href="#ref-radio" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Radio</a>
-        <a href="#ref-toggle" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Toggle</a>
-        <a href="#ref-alert" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Alert</a>
-        <a href="#ref-avatar" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Avatar</a>
-        <a href="#ref-breadcrumb" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Breadcrumb</a>
-        <a href="#ref-pagination" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Pagination</a>
-        <a href="#ref-table" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Table</a>
-        <a href="#ref-modal" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Modal</a>
-        <a href="#ref-tabs" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Tabs</a>
-        <a href="#ref-file-input" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">File Input</a>
-        <a href="#ref-toast" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Toast</a>
-        <a href="#ref-alpine" class="text-primary-600 hover:text-primary-800 dark:text-primary-400">Alpine Magic</a>
+        <a href="#ref-button" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Button</a>
+        <a href="#ref-badge" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Badge</a>
+        <a href="#ref-card" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Card</a>
+        <a href="#ref-input" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Input</a>
+        <a href="#ref-select" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Select</a>
+        <a href="#ref-textarea" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Textarea</a>
+        <a href="#ref-checkbox" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Checkbox</a>
+        <a href="#ref-radio" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Radio</a>
+        <a href="#ref-toggle" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Toggle</a>
+        <a href="#ref-alert" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Alert</a>
+        <a href="#ref-avatar" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Avatar</a>
+        <a href="#ref-breadcrumb" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Breadcrumb</a>
+        <a href="#ref-pagination" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Pagination</a>
+        <a href="#ref-table" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Table</a>
+        <a href="#ref-modal" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Modal</a>
+        <a href="#ref-tabs" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Tabs</a>
+        <a href="#ref-file-input" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">File Input</a>
+        <a href="#ref-toast" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Toast</a>
+        <a href="#ref-datatable" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">DataTables</a>
+        <a href="#ref-form-section" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Form Section</a>
+        <a href="#ref-misc" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Komponen Baru</a>
+        <a href="#ref-alpine" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Alpine Magic</a>
     </div>
 
     {{-- ===== BUTTON ===== --}}
@@ -291,7 +294,7 @@
             <x-idcore::input name="ref-nama" label="Nama" placeholder="Masukkan nama" />
             <x-idcore::input name="ref-email" type="email" label="Email" value="user@example.com" hint="Email aktif" />
             <x-idcore::input name="ref-pass" type="password" label="Password" required placeholder="Min 8 karakter" />
-            <x-idcore::input class="border-danger-500 focus:border-danger-500" name="ref-error" label="Dengan Error" value="salah" />
+            <x-idcore::input class="border-error-500 focus:border-error-500" name="ref-error" label="Dengan Error" value="salah" />
         </div>
         <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::input name="nama" label="Nama" placeholder="..." /&gt;
 &lt;x-idcore::input name="email" type="email" label="Email" value="@{{ $email }}" required /&gt;</code></pre>
@@ -521,6 +524,127 @@
 &lt;x-idcore::button @click="$store.toast.error('Error')"&gt;Error&lt;/x-idcore::button&gt;
 &lt;x-idcore::button @click="$store.toast.warning('Warning')"&gt;Warning&lt;/x-idcore::button&gt;
 &lt;x-idcore::button @click="$store.toast.info('Info')"&gt;Info&lt;/x-idcore::button&gt;</code></pre>
+    </section>
+
+    {{-- ===== DATATABLE ===== --}}
+    <section id="ref-datatable" class="mb-8 border-b border-gray-100 pb-6 dark:border-gray-800">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">DataTables (Client-side &amp; Server-driven)</h3>
+        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">Tabel interaktif dengan search, sort, dan pagination. Dua mode: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">datatable</code> (client-side, data penuh di browser, cocok untuk data kecil) dan <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">datatable-server</code> (server-driven via <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">DataTableService</code>, cocok untuk data besar).</p>
+
+        <div class="mb-3 space-y-3">
+            <x-idcore::card :padding="false">
+                <x-slot:actions>
+                    <x-idcore::badge variant="indigo">Client-side</x-idcore::badge>
+                </x-slot:actions>
+                <div class="flex flex-col gap-1 border-b border-gray-100 px-5 py-4 dark:border-gray-800 sm:px-6">
+                    <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90">DataTables Client-side</h4>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Data dimuat penuh di browser. Search, sort, dan pagination berjalan tanpa request ulang.</p>
+                </div>
+                <div class="p-0">
+                    <x-idcore::datatable :columns="$roleColumns" :rows="$roleRows" :per-page="10" searchable />
+                </div>
+            </x-idcore::card>
+
+            <x-idcore::card :padding="false">
+                <x-slot:actions>
+                    <x-idcore::badge variant="brand">Server-driven</x-idcore::badge>
+                </x-slot:actions>
+                <div class="flex flex-col gap-1 border-b border-gray-100 px-5 py-4 dark:border-gray-800 sm:px-6">
+                    <h4 class="text-sm font-semibold text-gray-800 dark:text-white/90">DataTables Server-driven</h4>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Search, sort, dan pagination diproses server-side via <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">DataTableService</code>. Sumber data di sini: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">dashboard.roles-json</code>.</p>
+                </div>
+                <div class="p-0">
+                    <x-idcore::datatable-server :url="$roleJsonUrl" :columns="$roleColumns" :per-page="10" searchable />
+                </div>
+            </x-idcore::card>
+        </div>
+
+        <p class="mb-1 text-xs font-semibold text-gray-600 dark:text-gray-400">Prop</p>
+        <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::datatable :columns="$columns" :rows="$rows" :per-page="10" searchable :show-number="true" /&gt;
+&lt;x-idcore::datatable-server :url="route('sistem.group.ajax')" :columns="$columns" :per-page="10" searchable /&gt;
+
+// Kolom
+[
+    ['key' => 'name', 'label' => 'Role', 'sortable' => true],
+    ['key' => 'status', 'label' => 'Status', 'sortable' => false, 'html' => true, 'align' => 'center'],
+]</code></pre>
+    </section>
+
+    {{-- ===== FORM SECTION & FIELD ===== --}}
+    <section id="ref-form-section" class="mb-8 border-b border-gray-100 pb-6 dark:border-gray-800">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">Form Section &amp; Field</h3>
+        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">Layout form dengan grid kolom responsif. <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">form-section</code> menampung <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">field</code> (label + control + hint + error). Props form-section: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">title</code>, <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">subtitle</code>, <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">description</code>, <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">columns</code> (1, 2, 3). Slot: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">footer</code>.</p>
+
+        <div class="mb-3">
+            <x-idcore::form-section title="Informasi Toko" subtitle="Contoh kombinasi field dalam form-section." :columns="2">
+                <x-idcore::field name="ref-nama-toko" label="Nama Toko" required>
+                    <x-idcore::input name="ref-nama-toko" type="text" placeholder="Nama toko Anda" />
+                </x-idcore::field>
+                <x-idcore::field name="ref-email-toko" label="Email" required>
+                    <x-idcore::input name="ref-email-toko" type="email" placeholder="nama@email.com" />
+                </x-idcore::field>
+                <x-idcore::field name="ref-deskripsi" label="Deskripsi" hint="Maksimal 200 karakter." :columns="3">
+                    <x-idcore::textarea name="ref-deskripsi" rows="3" placeholder="Ceritakan tentang toko Anda" />
+                </x-idcore::field>
+                <x-slot:footer>
+                    <div class="flex items-center justify-end gap-2">
+                        <x-idcore::button variant="outline" type="button">Reset</x-idcore::button>
+                        <x-idcore::button type="button" @click="$store.toast.success('Demo form: data tidak benar-benar disimpan.')">Simpan Informasi</x-idcore::button>
+                    </div>
+                </x-slot:footer>
+            </x-idcore::form-section>
+        </div>
+
+        <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::form-section title="Informasi Toko" :columns="2"&gt;
+    &lt;x-idcore::field name="nama_toko" label="Nama Toko" required&gt;
+        &lt;x-idcore::input name="nama_toko" type="text" /&gt;
+    &lt;/x-idcore::field&gt;
+    &lt;x-slot:footer&gt;
+        &lt;x-idcore::button type="submit"&gt;Simpan&lt;/x-idcore::button&gt;
+    &lt;/x-slot:footer&gt;
+&lt;/x-idcore::form-section&gt;</code></pre>
+    </section>
+
+    {{-- ===== KOMONEN BARU ===== --}}
+    <section id="ref-misc" class="mb-8 border-b border-gray-100 pb-6 dark:border-gray-800">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">Komponen Baru Lainnya</h3>
+        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">Komponen utility baru hasil sprint Step 15.</p>
+
+        <div class="mb-3 grid gap-3 md:grid-cols-2">
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <p class="mb-2 text-sm font-semibold text-gray-800 dark:text-white">page-header</p>
+                <x-idcore::page-header title="Contoh Header" subtitle="Subtitle halaman." :breadcrumb="[['Beranda', route('dashboard')], ['Contoh']]">
+                    <x-slot:actions>
+                        <x-idcore::button size="sm" variant="primary">Aksi</x-idcore::button>
+                    </x-slot:actions>
+                </x-idcore::page-header>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <p class="mb-2 text-sm font-semibold text-gray-800 dark:text-white">metric-card &amp; progress</p>
+                <x-idcore::metric-card label="Users" value="3,782" icon="users" tone="success" />
+                <div class="mt-3">
+                    <x-idcore::progress value="75" label="Kapasitas" />
+                </div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <p class="mb-2 text-sm font-semibold text-gray-800 dark:text-white">empty-state &amp; status-badge</p>
+                <x-idcore::status-badge status="completed" />
+                <x-idcore::status-badge status="pending" />
+                <x-idcore::status-badge status="failed" />
+                <x-idcore::empty-state title="Belum ada data" description="Belum ada record yang ditambahkan." class="mt-3" />
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <p class="mb-2 text-sm font-semibold text-gray-800 dark:text-white">toolbar</p>
+                <x-idcore::toolbar>
+                    <x-slot:leading>
+                        <x-idcore::input name="ref-tb-search" type="search" placeholder="Cari..." class="!w-64" />
+                    </x-slot:leading>
+                    <x-slot:actions>
+                        <x-idcore::button size="sm" variant="primary">Tambah</x-idcore::button>
+                    </x-slot:actions>
+                </x-idcore::toolbar>
+            </div>
+        </div>
     </section>
 
     {{-- ===== ALPINE MAGIC ===== --}}

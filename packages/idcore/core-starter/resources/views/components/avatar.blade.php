@@ -9,6 +9,6 @@
     };
 @endphp
 
-<div {{ $attributes->merge(['class' => "flex items-center justify-center rounded-full border border-primary-100 bg-primary-50 font-semibold text-primary-700 shadow-theme-xs dark:border-gray-700 dark:bg-primary-500/10 dark:text-primary-300 $sizeClasses $class"]) }}>
+    <div {{ $attributes->merge(['class' => "flex items-center justify-center rounded-full border border-brand-100 bg-brand-50 font-semibold text-brand-700 shadow-theme-xs dark:border-gray-700 dark:bg-brand-500/10 dark:text-brand-300 $sizeClasses $class"]) }}>
     {{ $initial }}
 </div>

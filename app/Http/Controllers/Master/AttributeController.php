@@ -22,13 +22,13 @@ class AttributeController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $attributes,
+            'listData' => $attributes,
 
-            'title'      => 'Atribut',
-            'subtitle'   => 'Data Atribut',
+            'title' => 'Atribut',
+            'subtitle' => 'Data Atribut',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Atribut']],
         ];
 
@@ -38,12 +38,12 @@ class AttributeController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'   => null,
-            'title'      => 'Tambah Atribut',
-            'subtitle'   => 'Atribut sebagai dimensi varian produk',
+            'formData' => null,
+            'title' => 'Tambah Atribut',
+            'subtitle' => 'Atribut sebagai dimensi varian produk',
 
-            'action'     => route($this->module.'.store'),
-            'module'     => $this->module,
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Atribut', route($this->module.'.index')], ['Tambah Data']],
         ];
 
@@ -70,13 +70,13 @@ class AttributeController extends BaseCoreController
         $attribute->load('values');
 
         $compact = [
-            'formData'   => $attribute,
+            'formData' => $attribute,
 
-            'title'      => 'Edit Atribut',
-            'subtitle'   => 'Atribut sebagai dimensi varian produk',
-            
-            'action'     => route($this->module.'.update', $attribute->id),
-            'module'     => $this->module,
+            'title' => 'Edit Atribut',
+            'subtitle' => 'Atribut sebagai dimensi varian produk',
+
+            'action' => route($this->module.'.update', $attribute->id),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Atribut', route($this->module.'.index')], ['Ubah Data']],
         ];
 

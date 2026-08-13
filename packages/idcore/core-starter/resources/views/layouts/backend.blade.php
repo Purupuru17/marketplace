@@ -6,7 +6,7 @@
     <title>@yield('title', 'Admin Panel') - {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans antialiased bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-gray-200"
+<body class="h-full antialiased"
       x-data x-init="$store.theme.init()">
 
     <div class="min-h-screen flex bg-gray-50 dark:bg-gray-950">

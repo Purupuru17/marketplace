@@ -23,13 +23,13 @@ class ChatController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $conversations,
+            'listData' => $conversations,
 
-            'title'      => 'Chat',
-            'subtitle'   => 'Data Chat',
-            
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'title' => 'Chat',
+            'subtitle' => 'Data Chat',
+
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Chat']],
         ];
 

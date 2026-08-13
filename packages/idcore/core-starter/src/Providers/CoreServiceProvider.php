@@ -39,7 +39,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->publishes([__DIR__.'/../../config/idcore.php' => config_path('idcore.php')], 'idcore-config');
 
         // 6. Component Blade otomatis, sehingga bisa dipakai di view tanpa perlu register manual
-        Blade::anonymousComponentPath(__DIR__ . '/../../resources/views/components','idcore');
+        Blade::anonymousComponentPath(__DIR__.'/../../resources/views/components', 'idcore');
 
     }
 }

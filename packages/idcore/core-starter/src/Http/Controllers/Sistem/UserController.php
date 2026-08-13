@@ -21,60 +21,79 @@ class UserController extends BaseCoreController
 
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $perPage = $request->input('per_page', 10);
+        $users = User::with('roles')->orderBy('name')->get();
 
-        $listData = User::with('roles')
-            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
-            ->orderBy('name')
-            ->paginate($perPage)
-            ->appends($request->only(['search', 'per_page']));
+        $rows = $users->map(function (User $user) {
+            $rolesBadges = $user->roles->count() > 0
+                ? $user->roles->map(fn ($role) => '<span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">'.e($role->name).'</span>')->implode(' ')
+                : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Tanpa role</span>';
+
+            return [
+                'id' => $user->id,
+                'name' => '<div class="flex items-center gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-500 dark:bg-gray-800 dark:text-brand-400">'.e(strtoupper(substr($user->name, 0, 1))).'</div><div><p class="font-semibold text-gray-900 dark:text-white">'.e($user->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">ID : '.$user->id.'</p></div></div>',
+                'email' => $user->email,
+                'roles' => $rolesBadges,
+                'edit_url' => auth()->user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
+                'delete_url' => auth()->user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
+            ];
+        })->values()->all();
+
+        $columns = [
+            ['key' => 'name', 'label' => 'Name', 'sortable' => true, 'html' => true],
+            ['key' => 'email', 'label' => 'Email', 'sortable' => true],
+            ['key' => 'roles', 'label' => 'Role', 'sortable' => false, 'html' => true],
+        ];
 
         $compact = [
-            'listData'          => $listData,
-            
-            'title'             => 'Users',
-            'subtitle'          => 'Daftar Akun dan Role yang tersedia',
-            
-            'module'            => $this->module,
-            'rolesName'         => $this->resourceName(),
-            'breadcrumb'        => [[ 'Beranda', route('dashboard')], [ucwords($this->resourceName())]]
+            'listData' => $users,
+
+            'title' => 'Users',
+            'subtitle' => 'Daftar Akun dan Role yang tersedia',
+
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], [ucwords($this->resourceName())]],
+
+            'columns' => $columns,
+            'rows' => $rows,
         ];
+
         return view('idcore::'.$this->module.'.index', $compact);
     }
 
     public function create()
     {
         $roles = Role::orderBy('name')->get();
-        
-        $compact = [
-            'formData'          => null,
-            'roles'             => $roles,
 
-            'title'             => 'Users',
-            'subtitle'          => 'Atur identitas, password, role, dan default role user',
-            'action'            => route($this->module.'.store'),
-            
-            'module'            => $this->module,
-            'breadcrumb'        => [['Beranda', route('dashboard')], 
-                [ucwords($this->resourceName()), route($this->module.'.index')], ['Tambah Data']]
+        $compact = [
+            'formData' => null,
+            'roles' => $roles,
+
+            'title' => 'Users',
+            'subtitle' => 'Atur identitas, password, role, dan default role user',
+            'action' => route($this->module.'.store'),
+
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')],
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Tambah Data']],
 
         ];
+
         return view('idcore::'.$this->module.'.form', $compact);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email',
-            'password'     => ['required', Password::min(8)],
-            'roles'        => 'required|array|min:1',
-            'roles.*'      => 'exists:roles,name',
-            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))]
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', Password::min(8)],
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'exists:roles,name',
+            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))],
         ], [
             'default_role.required' => 'Silakan pilih salah satu role sebagai default.',
-            'default_role.in'       => 'Role default harus salah satu dari role yang dicentang.',
+            'default_role.in' => 'Role default harus salah satu dari role yang dicentang.',
         ]);
 
         $user = User::create([
@@ -99,32 +118,33 @@ class UserController extends BaseCoreController
         $user->load('roles');
 
         $compact = [
-            'formData'          => $user,
-            'roles'             => $roles,
-            
-            'title'             => 'Users',
-            'subtitle'          => 'Atur identitas, password, role, dan default role user',
-            'action'            => route($this->module.'.update', $user->id),
+            'formData' => $user,
+            'roles' => $roles,
 
-            'module'            => $this->module,
-            'breadcrumb'        => [['Beranda', route('dashboard')], 
-                [ucwords($this->resourceName()), route($this->module.'.index')], ['Ubah Data']]
+            'title' => 'Users',
+            'subtitle' => 'Atur identitas, password, role, dan default role user',
+            'action' => route($this->module.'.update', $user->id),
+
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')],
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Ubah Data']],
         ];
+
         return view('idcore::'.$this->module.'.form', $compact);
     }
 
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|max:255',
-            'email'        => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'password'     => ['nullable', Password::min(8)],
-            'roles'        => 'required|array|min:1',
-            'roles.*'      => 'exists:roles,name',
-            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))]
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', Password::min(8)],
+            'roles' => 'required|array|min:1',
+            'roles.*' => 'exists:roles,name',
+            'default_role' => ['required', 'exists:roles,name', Rule::in($request->input('roles', []))],
         ], [
             'default_role.required' => 'Silakan pilih salah satu role sebagai default.',
-            'default_role.in'       => 'Role default harus salah satu dari role yang dicentang.',
+            'default_role.in' => 'Role default harus salah satu dari role yang dicentang.',
         ]);
 
         $user->update([
@@ -158,10 +178,7 @@ class UserController extends BaseCoreController
             ->with('success', 'Data berhasil dihapus.');
     }
 
-    public function show(User $user)
-    {
-        
-    }
+    public function show(User $user) {}
 
     public function ajax(Request $request)
     {

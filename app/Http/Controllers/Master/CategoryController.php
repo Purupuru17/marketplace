@@ -22,15 +22,15 @@ class CategoryController extends BaseCoreController
         );
 
         $compact = [
-            'listData'       => $categories,
-            'parentOptions'  => $this->service->options(),
+            'listData' => $categories,
+            'parentOptions' => $this->service->options(),
 
-            'title'          => 'Kategori',
-            'subtitle'       => 'Data Kategori',
+            'title' => 'Kategori',
+            'subtitle' => 'Data Kategori',
 
-            'module'         => $this->module,
-            'rolesName'      => $this->resourceName(),
-            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori']],
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori']],
         ];
 
         return view($this->module.'.index', $compact);
@@ -39,15 +39,15 @@ class CategoryController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'       => null,
-            'parentOptions'  => $this->service->options(),
+            'formData' => null,
+            'parentOptions' => $this->service->options(),
 
-            'title'          => 'Tambah Kategori',
-            'subtitle'       => 'Kategori untuk mengelompokkan produk',
+            'title' => 'Tambah Kategori',
+            'subtitle' => 'Kategori untuk mengelompokkan produk',
 
-            'action'         => route($this->module.'.store'),
-            'module'         => $this->module,
-            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->module.'.form', $compact);
@@ -72,15 +72,15 @@ class CategoryController extends BaseCoreController
     public function edit(Category $category)
     {
         $compact = [
-            'formData'       => $category,
-            'parentOptions'  => $this->service->options($category),
-            
-            'title'          => 'Edit Kategori',
-            'subtitle'       => 'Kategori untuk mengelompokkan produk',
+            'formData' => $category,
+            'parentOptions' => $this->service->options($category),
 
-            'action'         => route($this->module.'.update', $category->id),
-            'module'         => $this->module,
-            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori', route($this->module.'.index')], ['Ubah Data']],
+            'title' => 'Edit Kategori',
+            'subtitle' => 'Kategori untuk mengelompokkan produk',
+
+            'action' => route($this->module.'.update', $category->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Kategori', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->module.'.form', $compact);

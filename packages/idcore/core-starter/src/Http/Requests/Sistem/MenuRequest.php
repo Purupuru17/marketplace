@@ -26,14 +26,14 @@ class MenuRequest extends FormRequest
         $menuId = $this->route('menu')?->id;
 
         return [
-            'name'            => 'required|string|max:100',
-            'url'             => 'nullable|string|max:150',
-            'icon'            => 'nullable|string|max:100',
-            'actions'         => 'nullable|array',
-            'actions.*'       => 'in:' . implode(',', array_keys(config('idcore.menu_actions'))),
-            'parent_id'       => 'nullable|exists:menus,id',
-            'sort_by'         => 'nullable|integer|min:0',
-            'is_active'       => 'boolean',
+            'name' => 'required|string|max:100',
+            'url' => 'nullable|string|max:150',
+            'icon' => 'nullable|string|max:100',
+            'actions' => 'nullable|array',
+            'actions.*' => 'in:'.implode(',', array_keys(config('idcore.menu_actions'))),
+            'parent_id' => 'nullable|exists:menus,id',
+            'sort_by' => 'nullable|integer|min:0',
+            'is_active' => 'boolean',
         ];
     }
 

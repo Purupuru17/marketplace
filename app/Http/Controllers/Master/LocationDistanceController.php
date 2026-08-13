@@ -21,13 +21,13 @@ class LocationDistanceController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $locationDistances,
+            'listData' => $locationDistances,
 
-            'title'      => 'Jarak Antar Node',
-            'subtitle'   => 'Data Jarak Antar Node',
+            'title' => 'Jarak Antar Node',
+            'subtitle' => 'Data Jarak Antar Node',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Jarak Antar Node']],
         ];
 
@@ -37,15 +37,15 @@ class LocationDistanceController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'       => null,
-            'nodeOptions'    => $this->service->nodeOptions(),
+            'formData' => null,
+            'nodeOptions' => $this->service->nodeOptions(),
 
-            'title'          => 'Tambah Jarak Antar Node',
-            'subtitle'       => 'Jarak antar node untuk grafik ongkir',
+            'title' => 'Tambah Jarak Antar Node',
+            'subtitle' => 'Jarak antar node untuk grafik ongkir',
 
-            'action'         => route($this->module.'.store'),
-            'module'         => $this->module,
-            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Jarak Antar Node', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Jarak Antar Node', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->module.'.form', $compact);
@@ -77,15 +77,15 @@ class LocationDistanceController extends BaseCoreController
         $locationDistance->load(['origin', 'destination']);
 
         $compact = [
-            'formData'       => $locationDistance,
-            'nodeOptions'    => $this->service->nodeOptions(),
+            'formData' => $locationDistance,
+            'nodeOptions' => $this->service->nodeOptions(),
 
-            'title'          => 'Edit Jarak Antar Node',
-            'subtitle'       => 'Jarak antar node untuk grafik ongkir',
+            'title' => 'Edit Jarak Antar Node',
+            'subtitle' => 'Jarak antar node untuk grafik ongkir',
 
-            'action'         => route($this->module.'.update', $locationDistance->id),
-            'module'         => $this->module,
-            'breadcrumb'     => [['Beranda', route('dashboard')], ['Master Data'], ['Jarak Antar Node', route($this->module.'.index')], ['Ubah Data']],
+            'action' => route($this->module.'.update', $locationDistance->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Jarak Antar Node', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->module.'.form', $compact);

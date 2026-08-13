@@ -15,7 +15,7 @@
             @if($link['url'] === null)
                 <span class="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200 px-3 text-xs font-medium text-gray-300 dark:border-gray-800 dark:text-gray-600">{!! $label !!}</span>
             @elseif($link['active'])
-                <span class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg bg-primary-600 px-3 text-xs font-semibold text-white shadow-theme-xs">{!! $label !!}</span>
+                <span class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg bg-brand-500 px-3 text-xs font-semibold text-white shadow-theme-xs">{!! $label !!}</span>
             @else
                 <a href="{{ $link['url'] }}" class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg border border-gray-200/80 bg-white px-3 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{!! $label !!}</a>
             @endif

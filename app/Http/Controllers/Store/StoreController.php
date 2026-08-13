@@ -23,13 +23,13 @@ class StoreController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $stores,
+            'listData' => $stores,
 
-            'title'      => 'Toko',
-            'subtitle'   => 'Data Toko',
+            'title' => 'Toko',
+            'subtitle' => 'Data Toko',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Toko']],
         ];
 
@@ -39,18 +39,18 @@ class StoreController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'      => null,
-            'userOptions'   => $this->service->userOptions(),
-            'levelOptions'  => $this->service->levelOptions(),
-            'nodeOptions'   => $this->service->nodeOptions(),
-            'hoursByDay'    => collect(),
+            'formData' => null,
+            'userOptions' => $this->service->userOptions(),
+            'levelOptions' => $this->service->levelOptions(),
+            'nodeOptions' => $this->service->nodeOptions(),
+            'hoursByDay' => collect(),
 
-            'title'         => 'Tambah Toko',
-            'subtitle'      => 'Data toko sebagai tenant marketplace',
+            'title' => 'Tambah Toko',
+            'subtitle' => 'Data toko sebagai tenant marketplace',
 
-            'action'        => route($this->module.'.store'),
-            'module'        => $this->module,
-            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Toko', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Toko', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->view.'.form', $compact);
@@ -72,18 +72,18 @@ class StoreController extends BaseCoreController
         $store->load('operatingHours');
 
         $compact = [
-            'formData'      => $store,
-            'userOptions'   => $this->service->userOptions(),
-            'levelOptions'  => $this->service->levelOptions(),
-            'nodeOptions'   => $this->service->nodeOptions(),
-            'hoursByDay'    => $store->operatingHours->keyBy('day'),
+            'formData' => $store,
+            'userOptions' => $this->service->userOptions(),
+            'levelOptions' => $this->service->levelOptions(),
+            'nodeOptions' => $this->service->nodeOptions(),
+            'hoursByDay' => $store->operatingHours->keyBy('day'),
 
-            'title'         => 'Edit Toko',
-            'subtitle'      => 'Data toko sebagai tenant marketplace',
+            'title' => 'Edit Toko',
+            'subtitle' => 'Data toko sebagai tenant marketplace',
 
-            'action'        => route($this->module.'.update', $store->id),
-            'module'        => $this->module,
-            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Toko', route($this->module.'.index')], ['Ubah Data']],
+            'action' => route($this->module.'.update', $store->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Toko', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->view.'.form', $compact);

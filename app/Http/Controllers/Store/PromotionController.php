@@ -24,13 +24,13 @@ class PromotionController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $promotions,
+            'listData' => $promotions,
 
-            'title'      => 'Promo',
-            'subtitle'   => 'Data Promo',
+            'title' => 'Promo',
+            'subtitle' => 'Data Promo',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Promo']],
         ];
 
@@ -40,18 +40,18 @@ class PromotionController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'         => null,
-            'storeOptions'     => $this->service->storeOptions(auth()->user()),
-            'productOptions'   => $this->service->productOptions(auth()->user()),
+            'formData' => null,
+            'storeOptions' => $this->service->storeOptions(auth()->user()),
+            'productOptions' => $this->service->productOptions(auth()->user()),
             'selectedProducts' => collect(),
-            'isAdmin'          => auth()->user()->hasRole('Administrator'),
+            'isAdmin' => auth()->user()->hasRole('Administrator'),
 
-            'title'            => 'Tambah Promo',
-            'subtitle'         => 'Diskon otomatis untuk produk terpilih',
+            'title' => 'Tambah Promo',
+            'subtitle' => 'Diskon otomatis untuk produk terpilih',
 
-            'action'           => route($this->module.'.store'),
-            'module'           => $this->module,
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Toko'], ['Promo', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Promo', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->view.'.form', $compact);
@@ -75,18 +75,18 @@ class PromotionController extends BaseCoreController
         $promotion->load('products');
 
         $compact = [
-            'formData'         => $promotion,
-            'storeOptions'     => $this->service->storeOptions(auth()->user()),
-            'productOptions'   => $this->service->productOptions(auth()->user()),
+            'formData' => $promotion,
+            'storeOptions' => $this->service->storeOptions(auth()->user()),
+            'productOptions' => $this->service->productOptions(auth()->user()),
             'selectedProducts' => $promotion->products->pluck('id'),
-            'isAdmin'          => auth()->user()->hasRole('Administrator'),
+            'isAdmin' => auth()->user()->hasRole('Administrator'),
 
-            'title'            => 'Edit Promo',
-            'subtitle'         => 'Diskon otomatis untuk produk terpilih',
+            'title' => 'Edit Promo',
+            'subtitle' => 'Diskon otomatis untuk produk terpilih',
 
-            'action'           => route($this->module.'.update', $promotion->id),
-            'module'           => $this->module,
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Toko'], ['Promo', route($this->module.'.index')], ['Ubah Data']],
+            'action' => route($this->module.'.update', $promotion->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Promo', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->view.'.form', $compact);

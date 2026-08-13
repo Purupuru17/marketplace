@@ -58,7 +58,7 @@ class WalletController extends BaseCoreController
 
             'title' => 'Saldo',
             'subtitle' => 'Data Saldo',
-            
+
             'module' => $this->module,
             'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Saldo']],

@@ -21,21 +21,39 @@ class LoginController extends Controller
 
     public function dashboard()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
-        return view('idcore::auth.dashboard');
+        $roles = Role::withCount('users')->orderBy('name')->limit(50)->get();
+
+        $roleRows = $roles->map(fn ($role) => [
+            'name' => $role->name,
+            'guard_name' => $role->guard_name,
+            'users_count' => $role->users_count,
+            'created_at' => $role->created_at?->format('d M Y') ?? '-',
+        ])->all();
+
+        return view('idcore::auth.dashboard', [
+            'roleColumns' => [
+                ['key' => 'name', 'label' => 'Role', 'sortable' => true, 'align' => 'left'],
+                ['key' => 'guard_name', 'label' => 'Guard', 'sortable' => true, 'align' => 'left'],
+                ['key' => 'users_count', 'label' => 'Jumlah User', 'sortable' => true, 'align' => 'center'],
+                ['key' => 'created_at', 'label' => 'Dibuat', 'sortable' => true, 'align' => 'left'],
+            ],
+            'roleRows' => $roleRows,
+            'roleJsonUrl' => route('dashboard.roles-json'),
+        ]);
     }
 
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => 'Email atau password salah.']);
         }
@@ -65,7 +83,7 @@ class LoginController extends Controller
     {
         $validated = $request->validate(['role' => 'required|string']);
 
-        if (!ActiveRole::set($request->user(), $validated['role'])) {
+        if (! ActiveRole::set($request->user(), $validated['role'])) {
             return back()->with('error', 'Anda tidak memiliki role tersebut.');
         }
 

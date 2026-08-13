@@ -28,16 +28,16 @@ class OrdersController extends BaseCoreController
         $stores = Auth::user()->stores()->orderBy('store_name')->get();
 
         $compact = [
-            'listData'      => $orders,
-            'stores'        => $stores,
-            'statusLabels'  => StoreOrderService::STATUS_LABELS,
+            'listData' => $orders,
+            'stores' => $stores,
+            'statusLabels' => StoreOrderService::STATUS_LABELS,
 
-            'title'         => 'Pesanan',
-            'subtitle'      => 'Data Pesanan',
+            'title' => 'Pesanan',
+            'subtitle' => 'Data Pesanan',
 
-            'module'        => $this->module,
-            'rolesName'     => $this->resourceName(),
-            'breadcrumb'    => [['Beranda', route('dashboard')], ['Toko'], ['Pesanan']],
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Pesanan']],
         ];
 
         return view($this->view.'.index', $compact);

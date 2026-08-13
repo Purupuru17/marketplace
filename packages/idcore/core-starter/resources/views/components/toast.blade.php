@@ -14,7 +14,7 @@
             class="pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg bg-white dark:bg-gray-800"
             :class="{
                 'border-l-4 border-l-success-500 border-gray-200 dark:border-gray-700': item.type === 'success',
-                'border-l-4 border-l-danger-500 border-gray-200 dark:border-gray-700': item.type === 'error',
+                'border-l-4 border-l-error-500 border-gray-200 dark:border-gray-700': item.type === 'error',
                 'border-l-4 border-l-warning-500 border-gray-200 dark:border-gray-700': item.type === 'warning',
                 'border-l-4 border-l-brand-500 border-gray-200 dark:border-gray-700': item.type === 'info',
             }"
@@ -23,9 +23,9 @@
                 class="mt-0.5 shrink-0"
                 :class="{
                     'text-success-500': item.type === 'success',
-                    'text-danger-500': item.type === 'error',
+                    'text-error-500': item.type === 'error',
                     'text-warning-500': item.type === 'warning',
-                    'text-primary-500': item.type === 'info',
+                    'text-brand-500': item.type === 'info',
                 }"
             >
                 <template x-if="item.type === 'success'">@svg('heroicon-o-check-circle', 'h-5 w-5')</template>

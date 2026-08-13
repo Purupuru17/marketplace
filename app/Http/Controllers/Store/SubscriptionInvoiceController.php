@@ -23,13 +23,13 @@ class SubscriptionInvoiceController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $invoices,
+            'listData' => $invoices,
 
-            'title'      => 'Invoice Subscription',
-            'subtitle'   => 'Data Invoice Subscription',
+            'title' => 'Invoice Subscription',
+            'subtitle' => 'Data Invoice Subscription',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription']],
         ];
 
@@ -39,15 +39,15 @@ class SubscriptionInvoiceController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'              => null,
-            'subscriptionOptions'   => $this->service->subscriptionOptions(),
+            'formData' => null,
+            'subscriptionOptions' => $this->service->subscriptionOptions(),
 
-            'title'                 => 'Tambah Invoice Subscription',
-            'subtitle'              => 'Atur invoice langganan toko',
+            'title' => 'Tambah Invoice Subscription',
+            'subtitle' => 'Atur invoice langganan toko',
 
-            'action'                => route($this->module.'.store'),
-            'module'                => $this->module,
-            'breadcrumb'            => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->view.'.form', $compact);
@@ -69,15 +69,15 @@ class SubscriptionInvoiceController extends BaseCoreController
         $subscriptionInvoice->load(['subscription.store', 'subscription.storeLevel']);
 
         $compact = [
-            'formData'              => $subscriptionInvoice,
-            'subscriptionOptions'   => $this->service->subscriptionOptions(),
+            'formData' => $subscriptionInvoice,
+            'subscriptionOptions' => $this->service->subscriptionOptions(),
 
-            'title'                 => 'Edit Invoice Subscription',
-            'subtitle'              => 'Atur invoice langganan toko',
+            'title' => 'Edit Invoice Subscription',
+            'subtitle' => 'Atur invoice langganan toko',
 
-            'action'                => route($this->module.'.update', $subscriptionInvoice->id),
-            'module'                => $this->module,
-            'breadcrumb'            => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription', route($this->module.'.index')], ['Ubah Data']],
+            'action' => route($this->module.'.update', $subscriptionInvoice->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->view.'.form', $compact);

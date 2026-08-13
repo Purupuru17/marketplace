@@ -35,8 +35,8 @@ class MenuService
 
         foreach ($tree as $node) {
             $result[] = [
-                'id'    => $node['id'],
-                'label' => str_repeat('— ', $depth) . $node['name'],
+                'id' => $node['id'],
+                'label' => str_repeat('— ', $depth).$node['name'],
             ];
             $result = array_merge($result, self::flattenTreeForSelect($node['children'], $depth + 1));
         }
@@ -79,7 +79,7 @@ class MenuService
 
         foreach ($checkedActions as $action) {
             Permission::firstOrCreate([
-                'name'       => "{$module}.{$action}",
+                'name' => "{$module}.{$action}",
                 'guard_name' => 'web',
             ]);
         }
@@ -94,5 +94,4 @@ class MenuService
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
-
 }

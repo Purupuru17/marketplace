@@ -12,19 +12,19 @@
 
 @php
     $variantClasses = match($variant) {
-        'primary'   => 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/30',
-        'secondary' => 'bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500/30',
-        'danger'    => 'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500/30',
-        'success'   => 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500/30',
-        'warning'   => 'bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500/30',
-        'light'     => 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300/30 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
-        'dark'      => 'bg-gray-900 text-white hover:bg-gray-800 focus:ring-gray-700/30 dark:bg-gray-950 dark:hover:bg-gray-800',
-        'outline'   => 'border border-primary-200 text-primary-700 hover:bg-primary-50 dark:border-primary-500/40 dark:text-primary-300 dark:hover:bg-primary-500/10 focus:ring-primary-500/30',
-        'outline-danger' => 'border border-danger-200 text-danger-700 hover:bg-danger-50 dark:border-danger-500/40 dark:text-danger-300 dark:hover:bg-danger-500/10 focus:ring-danger-500/30',
+        'primary'   => 'bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 focus:ring-brand-500/30',
+        'secondary' => 'bg-blue-light-500 text-white shadow-theme-xs hover:bg-blue-light-600 focus:ring-blue-light-500/30',
+        'danger'    => 'bg-error-500 text-white shadow-theme-xs hover:bg-error-600 focus:ring-error-500/30',
+        'success'   => 'bg-success-500 text-white shadow-theme-xs hover:bg-success-600 focus:ring-success-500/30',
+        'warning'   => 'bg-warning-500 text-white shadow-theme-xs hover:bg-warning-600 focus:ring-warning-500/30',
+        'light'     => 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300/30 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10',
+        'dark'      => 'bg-gray-800 text-white hover:bg-gray-900 focus:ring-gray-700/30 dark:bg-gray-950 dark:hover:bg-gray-800',
+        'outline'   => 'border border-brand-200 text-brand-700 hover:bg-brand-50 dark:border-brand-500/40 dark:text-brand-300 dark:hover:bg-brand-500/10 focus:ring-brand-500/30',
+        'outline-danger' => 'border border-error-200 text-error-700 hover:bg-error-50 dark:border-error-500/40 dark:text-error-300 dark:hover:bg-error-500/10 focus:ring-error-500/30',
         'outline-warning' => 'border border-warning-200 text-warning-700 hover:bg-warning-50 dark:border-warning-500/40 dark:text-warning-300 dark:hover:bg-warning-500/10 focus:ring-warning-500/20',
         'outline-success' => 'border border-success-200 text-success-700 hover:bg-success-50 dark:border-success-500/40 dark:text-success-300 dark:hover:bg-success-500/10 focus:ring-success-500/30',
-        'ghost'     => 'text-primary-700 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-gray-800 focus:ring-primary-500/30',
-        default     => 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500/30',
+        'ghost'     => 'text-brand-500 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-gray-800 focus:ring-brand-500/30',
+        default     => 'bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 focus:ring-brand-500/30',
     };
 
     $sizeClasses = match($size) {

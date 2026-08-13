@@ -24,7 +24,7 @@
     <div class="flex h-16 items-center border-b border-gray-200/80 px-4 dark:border-gray-800"
         :class="$store.layout.collapsed ? 'lg:justify-center' : ''">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-sm font-bold text-white shadow-theme-sm">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-sm font-bold text-white shadow-theme-sm">
                 {{ substr(config('app.name'), 0, 1) }}
             </div>
             <span x-show="!$store.layout.collapsed" class="text-lg font-bold text-gray-900 dark:text-white truncate">{{ config('app.name') }}</span>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Navigation -->
-    <div class="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+    <div class="flex-1 overflow-y-auto px-3 py-4 custom-scrollbar">
         <nav>
             <p x-show="!$store.layout.collapsed" class="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                 Menu
@@ -45,8 +45,8 @@
                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                        :class="[
                            {{ request()->routeIs('dashboard') ? 'true' : 'false' }}
-                               ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400'
-                               : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200',
+                               ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400'
+                               : 'text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200',
                            $store.layout.collapsed ? 'lg:justify-center' : ''
                        ]">
                         <span class="shrink-0">@svg('heroicon-o-squares-2x2', 'h-5 w-5')</span>

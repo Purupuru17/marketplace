@@ -13,7 +13,7 @@ class CheckCorePermission
         $user = $request->user();
         $role = ActiveRole::get($user);
 
-        if (!$role || !$role->hasPermissionTo($permission)) {
+        if (! $role || ! $role->hasPermissionTo($permission)) {
             abort(403, "Anda tidak memiliki akses : {$permission}");
         }
 

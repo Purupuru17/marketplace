@@ -32,16 +32,16 @@ class ProductController extends BaseCoreController
         );
 
         $compact = [
-            'listData'       => $products,
-            'storeOptions'   => $this->service->storeOptions($storeIds),
+            'listData' => $products,
+            'storeOptions' => $this->service->storeOptions($storeIds),
 
-            'title'          => 'Produk',
-            'subtitle'       => 'Data Produk',
+            'title' => 'Produk',
+            'subtitle' => 'Data Produk',
 
-            'module'         => $this->module,
-            'rolesName'      => $this->resourceName(),
-            'breadcrumb'     => [['Beranda', route('dashboard')], ['Katalog'], ['Produk']],
-            
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Produk']],
+
         ];
 
         return view($this->view.'.index', $compact);
@@ -50,17 +50,17 @@ class ProductController extends BaseCoreController
     public function create(Request $request)
     {
         $compact = [
-            'formData'         => null,
-            'storeOptions'     => $this->service->storeOptions($this->allowedStoreIds($request->user())),
-            'categoryOptions'  => $this->categoryService->options(),
+            'formData' => null,
+            'storeOptions' => $this->service->storeOptions($this->allowedStoreIds($request->user())),
+            'categoryOptions' => $this->categoryService->options(),
 
-            'title'            => 'Tambah Produk',
-            'subtitle'         => 'Data produk milik toko tertentu',
+            'title' => 'Tambah Produk',
+            'subtitle' => 'Data produk milik toko tertentu',
 
-            'action'           => route($this->module.'.store'),
-            'module'           => $this->module,
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Produk', route($this->module.'.index')], ['Tambah Data']],
-            
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Produk', route($this->module.'.index')], ['Tambah Data']],
+
         ];
 
         return view($this->view.'.form', $compact);
@@ -82,16 +82,16 @@ class ProductController extends BaseCoreController
         $this->authorizeOwnership($product, $this->allowedStoreIds($request->user()));
 
         $compact = [
-            'formData'         => $product,
-            'storeOptions'     => $this->service->storeOptions($this->allowedStoreIds($request->user())),
-            'categoryOptions'  => $this->categoryService->options(),
+            'formData' => $product,
+            'storeOptions' => $this->service->storeOptions($this->allowedStoreIds($request->user())),
+            'categoryOptions' => $this->categoryService->options(),
 
-            'title'            => 'Edit Produk',
-            'subtitle'         => 'Data produk milik toko tertentu',
+            'title' => 'Edit Produk',
+            'subtitle' => 'Data produk milik toko tertentu',
 
-            'action'           => route($this->module.'.update', $product->id),
-            'module'           => $this->module,
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Produk', route($this->module.'.index')], ['Ubah Data']],
+            'action' => route($this->module.'.update', $product->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Produk', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->view.'.form', $compact);

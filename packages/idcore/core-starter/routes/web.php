@@ -1,6 +1,7 @@
 <?php
 
 use IdCore\CoreStarter\Http\Controllers\Auth\LoginController;
+use IdCore\CoreStarter\Http\Controllers\Dashboard\RoleTableController;
 use IdCore\CoreStarter\Http\Controllers\Sistem\GroupController;
 use IdCore\CoreStarter\Http\Controllers\Sistem\HakAksesController;
 use IdCore\CoreStarter\Http\Controllers\Sistem\LogController;
@@ -20,13 +21,13 @@ Route::middleware(['web', 'guest'])->group(function () {
 Route::middleware(['web', 'auth', 'active'])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('dashboard', [LoginController::class, 'dashboard'])->name('dashboard');
+    Route::get('dashboard/roles-json', [RoleTableController::class, 'index'])->name('dashboard.roles-json');
     Route::post('switch-role', [LoginController::class, 'switch'])->name('switch-role');
 });
 
 // Area admin RBAC: 'auth' DI SINI JUGA, core_permission MUNCUL OTOMATIS
 // dari BaseCoreController::middleware() milik tiap controller
 Route::middleware(['web', 'auth', 'active'])->prefix('sistem')->name('sistem.')->group(function () {
-    Route::get('group/ajax', [GroupController::class, 'ajax'])->name('group.ajax');
     Route::resource('group', GroupController::class);
 
     Route::get('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');

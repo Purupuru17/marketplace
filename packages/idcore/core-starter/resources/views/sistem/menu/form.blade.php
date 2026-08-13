@@ -58,12 +58,12 @@
             </div>
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach(config('idcore.menu_actions') as $key => $label)
-                    <div class="rounded-xl border border-gray-200/80 bg-white p-4 transition hover:border-primary-200 hover:bg-primary-50/40 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-primary-500/10">
+                    <div class="rounded-xl border border-gray-200/80 bg-white p-4 transition hover:border-brand-200 hover:bg-brand-50/40 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-brand-500/10">
                         <x-idcore::checkbox name="actions[]" :value="$key" :label="$label" :checked="in_array($key, $menu->actions ?? [])" />
                     </div>
                 @endforeach
             </div>
-            @error('actions')<p class="mt-2 text-xs text-danger-600 dark:text-danger-500">{{ $message }}</p>@enderror
+            @error('actions')<p class="mt-2 text-xs text-error-600 dark:text-error-500">{{ $message }}</p>@enderror
         </div>
 
         <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:justify-end">

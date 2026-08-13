@@ -21,13 +21,13 @@ class StoreLevelController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $storeLevels,
+            'listData' => $storeLevels,
 
-            'title'      => 'Store Level',
-            'subtitle'   => 'Data Store Level',
+            'title' => 'Store Level',
+            'subtitle' => 'Data Store Level',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Store Level']],
         ];
 
@@ -37,13 +37,13 @@ class StoreLevelController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'   => null,
+            'formData' => null,
 
-            'title'      => 'Tambah Store Level',
-            'subtitle'   => 'Atur level toko marketplace',
+            'title' => 'Tambah Store Level',
+            'subtitle' => 'Atur level toko marketplace',
 
-            'action'     => route($this->module.'.store'),
-            'module'     => $this->module,
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Store Level', route($this->module.'.index')], ['Tambah Data']],
         ];
 
@@ -74,13 +74,13 @@ class StoreLevelController extends BaseCoreController
     public function edit(StoreLevel $storeLevel)
     {
         $compact = [
-            'formData'   => $storeLevel,
+            'formData' => $storeLevel,
 
-            'title'      => 'Edit Store Level',
-            'subtitle'   => 'Atur level toko marketplace',
-            
-            'action'     => route($this->module.'.update', $storeLevel->id),
-            'module'     => $this->module,
+            'title' => 'Edit Store Level',
+            'subtitle' => 'Atur level toko marketplace',
+
+            'action' => route($this->module.'.update', $storeLevel->id),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Store Level', route($this->module.'.index')], ['Ubah Data']],
         ];
 

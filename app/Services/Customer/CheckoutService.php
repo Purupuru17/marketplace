@@ -288,7 +288,7 @@ class CheckoutService
         return $this->nextNumbered('orders', 'ORD');
     }
 
-     protected function nextNumbered(string $table, string $prefix): string
+    protected function nextNumbered(string $table, string $prefix): string
     {
         $today = now()->format('Ymd');
         $key = "{$table}:{$today}";

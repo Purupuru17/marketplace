@@ -340,6 +340,19 @@ Access at `http://localhost:8000/sistem/user`.
 | `x-idcore::alert` | `variant` (success/error/warning/info), `dismissible` |
 | `x-idcore::toast` | Auto-dismissing toast notifications via `$store.toast` |
 | `x-idcore::modal` | Alpine `x-model` based modal |
+| `x-idcore::datatable` | Client-side table: `columns`, `rows`, `perPage`, `searchable`, `actionsHeader`, slot `actions`; HTML cells via `col['html']` |
+| `x-idcore::datatable-server` | Server-driven table: `url` → `DataTableService`, `columns`, `actionsHeader`, slot `actions`, live search/sort/pagination |
+| `x-idcore::partials.dt-actions` | Action buttons (edit/hapus) untuk baris datatable — butuh `module` + `rolesName`; row harus punya `edit_url`/`delete_url`/`name` |
+| `x-idcore::form-section` | Titled card with `columns` (1/2/3) grid + footer slot |
+| `x-idcore::field` | Label + hint + error wrapper around any control (`inline` variant) |
+| `x-idcore::page-header` | `title`, `subtitle`, `breadcrumb`, slot `actions` |
+| `x-idcore::toolbar` | GET search form (`searchName`, `searchValue`, `action`) + `filters` slot |
+| `x-idcore::metric-card` | `label`, `value`, `icon`, `change`, `changeTone`, `iconVariant` |
+| `x-idcore::notification-dropdown` | `items`, `unread` count, mark-as-read |
+| `x-idcore::progress` | `value`, `max`, `variant`, `size`, `showValue` |
+| `x-idcore::empty-state` | `icon`, `title`, `message`, slot `actions` |
+| `x-idcore::status-badge` | `status` (aktif/pending/batal/...) → colored badge automatically |
+| `x-idcore::auth-layout` | Auth page shell (brand panel + theme toggle + slot) |
 
 ## Key Alpine Utilities
 

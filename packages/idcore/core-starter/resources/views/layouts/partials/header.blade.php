@@ -27,7 +27,7 @@
                             @svg('heroicon-o-magnifying-glass', 'h-5 w-5')
                         </span>
                         <input type="text" name="search" placeholder="Search..."
-                               class="block w-72 rounded-lg border border-gray-200 bg-transparent py-2.5 pl-10 pr-3 text-sm text-gray-800 placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-primary-400">
+                               class="h-11 w-72 rounded-lg border border-gray-300 bg-transparent pl-10 pr-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
                     </div>
                 </form>
             </div>
@@ -45,7 +45,7 @@
             <div x-data="{ open: false }" class="relative" @click.away="open = false">
                 <button class="flex items-center gap-2 rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800"
                         @click.prevent="open = !open" type="button">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary dark:bg-gray-800 dark:text-primary-400">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-500 dark:bg-gray-800 dark:text-brand-400">
                         {{ $initial }}
                     </span>
                     <span class="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300">{{ $user?->name ?? 'Guest' }}</span>
@@ -83,7 +83,7 @@
                                     @csrf
                                     <input type="hidden" name="role" value="{{ $role->name }}">
                                     <button type="submit"
-                                            class="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800 {{ $activeRole?->id === $role->id ? 'text-primary dark:text-primary-400' : 'text-gray-600 dark:text-gray-400' }}">
+                                            class="flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800 {{ $activeRole?->id === $role->id ? 'text-brand-500 dark:text-brand-400' : 'text-gray-700 dark:text-gray-400' }}">
                                         <span class="flex items-center gap-3">
                                             @svg('heroicon-o-shield-check', 'h-4 w-4')
                                             <span>{{ $role->name }}</span>

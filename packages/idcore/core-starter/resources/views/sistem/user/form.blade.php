@@ -33,7 +33,7 @@
             </div>
             <div class="grid gap-3 md:grid-cols-2">
                 @foreach($roles as $role)
-                    <div class="rounded-xl border border-gray-200/80 bg-white p-4 transition hover:border-primary-200 hover:bg-primary-50/40 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-primary-500/10">
+                    <div class="rounded-xl border border-gray-200/80 bg-white p-4 transition hover:border-brand-200 hover:bg-brand-50/40 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-brand-500/10">
                         <div class="flex items-start justify-between gap-4">
                             <x-idcore::checkbox name="roles[]" :value="$role->name" :label="$role->name" :checked="$formData?->hasRole($role->name)" />
                             <x-idcore::radio name="default_role" :value="$role->name" label="Default" :selected="$formData?->default_role_id === $role->id ? $role->name : null" />
@@ -41,8 +41,8 @@
                     </div>
                 @endforeach
             </div>
-            @error('roles')<p class="mt-2 text-xs text-danger-600 dark:text-danger-500">{{ $message }}</p>@enderror
-            @error('default_role')<p class="mt-2 text-xs text-danger-600 dark:text-danger-500">{{ $message }}</p>@enderror
+            @error('roles')<p class="mt-2 text-xs text-error-600 dark:text-error-500">{{ $message }}</p>@enderror
+            @error('default_role')<p class="mt-2 text-xs text-error-600 dark:text-error-500">{{ $message }}</p>@enderror
         </div>
 
         <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-800 sm:flex-row sm:justify-end">

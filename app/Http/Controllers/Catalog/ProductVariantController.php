@@ -30,16 +30,16 @@ class ProductVariantController extends BaseCoreController
         );
 
         $compact = [
-            'listData'         => $variants,
-            'storeOptions'     => $this->service->storeOptions($storeIds),
-            'productOptions'   => $this->service->productOptions($storeIds),
+            'listData' => $variants,
+            'storeOptions' => $this->service->storeOptions($storeIds),
+            'productOptions' => $this->service->productOptions($storeIds),
 
-            'title'            => 'Varian Produk',
-            'subtitle'         => 'Data Varian Produk',
+            'title' => 'Varian Produk',
+            'subtitle' => 'Data Varian Produk',
 
-            'module'           => $this->module,
-            'rolesName'        => $this->resourceName(),
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk']],
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk']],
         ];
 
         return view($this->view.'.index', $compact);
@@ -48,16 +48,16 @@ class ProductVariantController extends BaseCoreController
     public function create(Request $request)
     {
         $compact = [
-            'formData'         => null,
-            'productOptions'   => $this->service->productOptions($this->allowedStoreIds($request->user())),
-            'attributeGroups'  => $this->service->attributeGroups(),
+            'formData' => null,
+            'productOptions' => $this->service->productOptions($this->allowedStoreIds($request->user())),
+            'attributeGroups' => $this->service->attributeGroups(),
 
-            'title'            => 'Tambah Varian',
-            'subtitle'         => 'Data varian produk milik toko tertentu',
+            'title' => 'Tambah Varian',
+            'subtitle' => 'Data varian produk milik toko tertentu',
 
-            'action'           => route($this->module.'.store'),
-            'module'           => $this->module,
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk', route($this->module.'.index')], ['Tambah Data']],
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk', route($this->module.'.index')], ['Tambah Data']],
         ];
 
         return view($this->view.'.form', $compact);
@@ -81,16 +81,16 @@ class ProductVariantController extends BaseCoreController
         $productVariant->load('attributeValues');
 
         $compact = [
-            'formData'         => $productVariant,
-            'productOptions'   => $this->service->productOptions($this->allowedStoreIds($request->user())),
-            'attributeGroups'  => $this->service->attributeGroups(),
-            
-            'title'            => 'Edit Varian Produk',
-            'subtitle'         => 'Data varian produk milik toko tertentu',
+            'formData' => $productVariant,
+            'productOptions' => $this->service->productOptions($this->allowedStoreIds($request->user())),
+            'attributeGroups' => $this->service->attributeGroups(),
 
-            'action'           => route($this->module.'.update', $productVariant->id),
-            'module'           => $this->module,
-            'breadcrumb'       => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk', route($this->module.'.index')], ['Ubah Data']],
+            'title' => 'Edit Varian Produk',
+            'subtitle' => 'Data varian produk milik toko tertentu',
+
+            'action' => route($this->module.'.update', $productVariant->id),
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk', route($this->module.'.index')], ['Ubah Data']],
         ];
 
         return view($this->view.'.form', $compact);

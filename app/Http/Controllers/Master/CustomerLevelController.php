@@ -21,13 +21,13 @@ class CustomerLevelController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $customerLevels,
+            'listData' => $customerLevels,
 
-            'title'      => 'Customer Level',
-            'subtitle'   => 'Data Customer Level',
+            'title' => 'Customer Level',
+            'subtitle' => 'Data Customer Level',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Customer Level']],
         ];
 
@@ -37,13 +37,13 @@ class CustomerLevelController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'   => null,
+            'formData' => null,
 
-            'title'      => 'Tambah Customer Level',
-            'subtitle'   => 'Atur level customer marketplace',
+            'title' => 'Tambah Customer Level',
+            'subtitle' => 'Atur level customer marketplace',
 
-            'action'     => route($this->module.'.store'),
-            'module'     => $this->module,
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Customer Level', route($this->module.'.index')], ['Tambah Data']],
         ];
 
@@ -70,13 +70,13 @@ class CustomerLevelController extends BaseCoreController
     public function edit(CustomerLevel $customerLevel)
     {
         $compact = [
-            'formData'   => $customerLevel,
+            'formData' => $customerLevel,
 
-            'title'      => 'Edit Customer Level',
-            'subtitle'   => 'Atur level customer marketplace',
-            
-            'action'     => route($this->module.'.update', $customerLevel->id),
-            'module'     => $this->module,
+            'title' => 'Edit Customer Level',
+            'subtitle' => 'Atur level customer marketplace',
+
+            'action' => route($this->module.'.update', $customerLevel->id),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Customer Level', route($this->module.'.index')], ['Ubah Data']],
         ];
 

@@ -21,13 +21,13 @@ class LocationNodeController extends BaseCoreController
         );
 
         $compact = [
-            'listData'   => $locationNodes,
+            'listData' => $locationNodes,
 
-            'title'      => 'Node Lokasi',
-            'subtitle'   => 'Data Node Lokasi',
+            'title' => 'Node Lokasi',
+            'subtitle' => 'Data Node Lokasi',
 
-            'module'     => $this->module,
-            'rolesName'  => $this->resourceName(),
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Node Lokasi']],
         ];
 
@@ -37,13 +37,13 @@ class LocationNodeController extends BaseCoreController
     public function create()
     {
         $compact = [
-            'formData'   => null,
+            'formData' => null,
 
-            'title'      => 'Tambah Node Lokasi',
-            'subtitle'   => 'Titik lokasi untuk perhitungan ongkir',
+            'title' => 'Tambah Node Lokasi',
+            'subtitle' => 'Titik lokasi untuk perhitungan ongkir',
 
-            'action'     => route($this->module.'.store'),
-            'module'     => $this->module,
+            'action' => route($this->module.'.store'),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Node Lokasi', route($this->module.'.index')], ['Tambah Data']],
         ];
 
@@ -69,13 +69,13 @@ class LocationNodeController extends BaseCoreController
     public function edit(LocationNode $locationNode)
     {
         $compact = [
-            'formData'   => $locationNode,
+            'formData' => $locationNode,
 
-            'title'      => 'Edit Node Lokasi',
-            'subtitle'   => 'Titik lokasi untuk perhitungan ongkir',
-            
-            'action'     => route($this->module.'.update', $locationNode->id),
-            'module'     => $this->module,
+            'title' => 'Edit Node Lokasi',
+            'subtitle' => 'Titik lokasi untuk perhitungan ongkir',
+
+            'action' => route($this->module.'.update', $locationNode->id),
+            'module' => $this->module,
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Node Lokasi', route($this->module.'.index')], ['Ubah Data']],
         ];
 

@@ -72,28 +72,45 @@ packages/idcore/core-starter/
       checkbox, radio, toggle, badge, pagination, tabs, tab-button, tab-panel,
       breadcrumb, avatar, table-empty, alert, toast, modal, dropdown, dropdown-item,
       file-input, confirm-dialog
+- [x] Extra UI components: datatable (client-side), datatable-server (server-driven),
+      field, form-section, auth-layout, metric-card, notification-dropdown, progress,
+      empty-state, page-header, toolbar, status-badge
 - [x] Button variants: primary, secondary, danger, success, warning, light, dark,
       outline, outline-danger, outline-warning, outline-success, ghost
 - [x] Button tooltip prop (hover reveal, group relative + span)
 - [x] TailAdmin 2.0 component polish: shadow-theme-*, rounded-xl, dark backgrounds, responsive spacing, focus rings, compact sizing
 - [x] Native Alpine confirm dialog + toast notifications
 - [x] Dark mode (class strategy, full coverage on all components)
+- [x] Client-side DataTable: search, sort, pagination, per-page, HTML cell support (x-html)
+- [x] Server-driven DataTable: `x-idcore::datatable-server` → `DataTableService`, live fetch, loading overlay
+- [x] Form building blocks: `field` (label+hint+error wrapper), `form-section` (titled card with responsive grid)
+- [x] Dashboard widgets: `metric-card`, `notification-dropdown`, `progress`, `empty-state`
+- [x] Page scaffolding: `page-header` (title/subtitle/breadcrumb/actions), `toolbar` (search form)
+- [x] `status-badge` — maps status strings (aktif, pending, batal, dll) to colored badges
 
 #### CRUD Views (Sistem)
-- [x] Search + per-page filtering (User, Group, Hak Akses, Menu)
+- [x] Client-side DataTables on all index views (User, Group, Hak Akses, Menu) —
+      flat rows (menu tree di-flatten dengan indentasi), `actions` slot untuk tombol
+      edit/hapus (dt-actions partial), badges via `col['html']`
 - [x] Icon-only circular action buttons with tooltip (outline-warning edit, outline-danger delete)
 - [x] Unsaved changes warning (beforeunload + Batal confirm)
-- [x] Menu tree connector visual lines
-- [x] Standardized index views: `px-6 py-3` headers, correct numbering (`firstItem()+index`),
-      consistent align (No center, text left, Aksi right)
-- [x] Filter toolbar wrapped in `<form method="GET">` with onchange submit (all index views)
+- [x] Standardized index views: `x-idcore::page-header` + `x-idcore::datatable` (client-side)
 - [x] User detail page (show.blade.php)
 
 #### Docs & Setup
 - [x] SETUP.md with UUID support (HasUuids trait, uuid migration, Spatie uuid config)
-- [x] Component Reference section in dashboard.blade.php (18 components with live preview
+- [x] Component Reference section in dashboard.blade.php (18+ components with live preview
       + code snippets + props docs + Alpine magic reference + best practices)
 - [x] Build passes (Vite), Tailwind v4-ready CSS tokens
+
+#### Component Demo (pindah ke Dashboard)
+- [x] Demo DataTables (client-side + server-driven) dipindah ke halaman dashboard sebagai
+      bagian Component Reference (`GET /dashboard`, seksi `#ref-datatable`)
+- [x] Server-driven source: `GET /dashboard/roles-json` → `RoleTableController`
+      (auth-only, tidak pakai core_permission) via `DataTableService`
+- [x] Demo Form Section & Field dipindah ke dashboard (seksi `#ref-form-section`)
+- [x] `DemoController`, views `pages/demo/*`, `auth/signup`, grup "Demo" di sidebar, dan
+      route `demo.*`/`signup` dihapus
 
 ### Remaining / Future
 

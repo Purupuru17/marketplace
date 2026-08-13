@@ -5,10 +5,10 @@
 
 @php
     $classes = match($variant) {
-        'success' => 'border-success-200 bg-success-50 text-success-800 dark:border-success-500/20 dark:bg-success-500/10 dark:text-success-500',
-        'error' => 'border-danger-200 bg-danger-50 text-danger-800 dark:border-danger-500/20 dark:bg-danger-500/10 dark:text-danger-500',
-        'warning' => 'border-warning-200 bg-warning-50 text-warning-800 dark:border-warning-500/20 dark:bg-warning-500/10 dark:text-warning-500',
-        default => 'border-brand-200 bg-brand-50 text-brand-800 dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-300',
+        'success' => 'border-success-200 bg-success-50 text-success-700 dark:border-success-500/20 dark:bg-success-500/10 dark:text-success-500',
+        'error', 'danger' => 'border-error-200 bg-error-50 text-error-700 dark:border-error-500/20 dark:bg-error-500/10 dark:text-error-500',
+        'warning' => 'border-warning-200 bg-warning-50 text-warning-700 dark:border-warning-500/20 dark:bg-warning-500/10 dark:text-warning-500',
+        default => 'border-brand-200 bg-brand-50 text-brand-700 dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-400',
     };
 
     $iconName = match($variant) {
