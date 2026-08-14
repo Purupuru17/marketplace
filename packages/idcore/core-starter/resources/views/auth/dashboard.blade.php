@@ -171,6 +171,8 @@
         <a href="#ref-badge" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Badge</a>
         <a href="#ref-card" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Card</a>
         <a href="#ref-input" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Input</a>
+        <a href="#ref-input-states" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Input States</a>
+        <a href="#ref-input-group" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Input Group</a>
         <a href="#ref-select" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Select</a>
         <a href="#ref-textarea" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Textarea</a>
         <a href="#ref-checkbox" class="text-brand-600 hover:text-brand-800 dark:text-brand-400">Checkbox</a>
@@ -294,10 +296,40 @@
             <x-idcore::input name="ref-nama" label="Nama" placeholder="Masukkan nama" />
             <x-idcore::input name="ref-email" type="email" label="Email" value="user@example.com" hint="Email aktif" />
             <x-idcore::input name="ref-pass" type="password" label="Password" required placeholder="Min 8 karakter" />
-            <x-idcore::input class="border-error-500 focus:border-error-500" name="ref-error" label="Dengan Error" value="salah" />
+            <x-idcore::input name="ref-error" label="Dengan Error" value="salah" state="error" />
         </div>
         <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::input name="nama" label="Nama" placeholder="..." /&gt;
 &lt;x-idcore::input name="email" type="email" label="Email" value="@{{ $email }}" required /&gt;</code></pre>
+    </section>
+
+    {{-- ===== INPUT STATES ===== --}}
+    <section id="ref-input-states" class="mb-8 border-b border-gray-100 pb-6 dark:border-gray-800">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">Input States</h3>
+        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">State validasi: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">error</code> (otomatis dari <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">@@error</code>), <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">state="success"</code> dengan <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">success-message</code>, dan <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">disabled</code>.</p>
+        <div class="mb-3 grid gap-3 md:grid-cols-3">
+            <x-idcore::input name="ref-err" type="email" label="Email" value="salah@email" state="error" />
+            <x-idcore::input name="ref-ok" type="email" label="Email" value="user@example.com" state="success" success-message="Email sudah benar." />
+            <x-idcore::input name="ref-dis" type="email" label="Email" value="user@example.com" disabled />
+        </div>
+        <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::input name="email" type="email" label="Email" state="error" /&gt;
+&lt;x-idcore::input name="email" type="email" label="Email" state="success" success-message="Email sudah benar." /&gt;
+&lt;x-idcore::input name="email" type="email" label="Email" disabled /&gt;</code></pre>
+    </section>
+
+    {{-- ===== INPUT GROUP ===== --}}
+    <section id="ref-input-group" class="mb-8 border-b border-gray-100 pb-6 dark:border-gray-800">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">Input Group</h3>
+        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">Input dengan addon. Props: <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">left-icon</code>, <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">left-text</code> (prefix), <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">left-options</code> (select kiri), <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">right-icon</code>, <code class="rounded bg-gray-100 px-1 dark:bg-gray-800">right-button-text</code>.</p>
+        <div class="mb-3 grid gap-3 md:grid-cols-2">
+            <x-idcore::input-group name="ref-ig-email" type="email" label="Email" left-icon="envelope" placeholder="nama@email.com" />
+            <x-idcore::input-group name="ref-ig-phone" type="tel" label="Phone" left-options="+62=+62|+1=+1" placeholder="81234567890" />
+            <x-idcore::input-group name="ref-ig-url" type="text" label="URL" left-text="http://" placeholder="situs.com" />
+            <x-idcore::input-group name="ref-ig-copy" type="text" label="Website" value="https://contoh.com" right-icon="clipboard" right-button-text="Copy" @click="$store.toast.success('Link disalin!')" />
+        </div>
+        <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-relaxed dark:border-gray-700 dark:bg-gray-950"><code>&lt;x-idcore::input-group name="email" type="email" label="Email" left-icon="envelope" /&gt;
+&lt;x-idcore::input-group name="phone" type="tel" label="Phone" left-options="+62=+62|+1=+1" /&gt;
+&lt;x-idcore::input-group name="url" type="text" label="URL" left-text="http://" /&gt;
+&lt;x-idcore::input-group name="website" type="text" label="Website" right-icon="clipboard" right-button-text="Copy" /&gt;</code></pre>
     </section>
 
     {{-- ===== SELECT ===== --}}

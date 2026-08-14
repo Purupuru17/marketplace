@@ -1,5 +1,18 @@
+## About
 Ringkasan Project Marketplace Laravel 13 - Master Plan V2
 Dokumen ini merupakan ringkasan hasil diskusi dari awal perancangan hingga penyempurnaan arsitektur (27 poin). Dokumen ini dimaksudkan sebagai konteks awal ketika memulai chat baru.
+
+## Referensi Template Dashboard Admin
+TailAdmin : https://demo.tailadmin.com/
+1. Profile : https://demo.tailadmin.com/profile
+    - Selesai (minimal tanpa migrasi): info card, Personal Information, Change Password, logout all devices, hapus akun (super admin dilindungi)
+2. Form Elements : https://demo.tailadmin.com/form-elements
+    - Default Input (selesai: props icon/state/success-message/disabled, padding otomatis)
+    - Select (selesai: fix icon arrow-down menumpuk di width sempit)
+    - Input Group (selesai: komponen `input-group` dengan left-icon/left-text/left-options/right-icon/right-button-text)
+    - Input States (selesai: error otomatis dari `@error`, success + success-message, disabled)
+3. Data tables : https://demo.tailadmin.com/data-tables
+    - Icon button kolom Action (selesai: partial `dt-actions` gaya TailAdmin, rounded-lg tanpa border, hover subtle edit=brand / delete=error)
 
 
 1. Ringkasan Project
@@ -97,3 +110,9 @@ Dokumen ini merupakan ringkasan diskusi dan akan digunakan sebagai konteks awal 
   - `DemoController`, views `pages/demo/*`, `auth/signup`, route `demo.*` + `signup`, grup statis "Demo" di sidebar, dan DemoPagesSmokeTest dihapus; diganti `DashboardComponentReferenceTest` (4 test).
   - Fix pre-existing: route rusak `sistem.group.ajax` (GroupController tak punya method ajax) dihapus & diganti endpoint dashboard yang proper.
   - Total: 190 test passed (632 assertions), pint bersih (termasuk file yang sebelumnya pre-existing issue), Vite build OK.
+- Step 15c (Polish UI TailAdmin) Selesai:
+  - Halaman Profile (tanpa migrasi): ProfileController (edit/update/updatePassword/logoutAllDevices/destroy) + route `profile.*` + view `auth/profile.blade.php` (info card, Personal Information `#personal-info`, Change Password, Danger Zone dengan `$confirm`; akun super admin `super@gmail.com` tidak bisa dihapus). Link header diarahkan ke `route('profile')`.
+  - Form Elements: `input.blade.php` di-rewrite (prop `icon` Heroicon, `state` error/success + `successMessage`, padding otomatis pl-10/pr-10), `select.blade.php` fix arrow menumpuk (`pl-4 pr-10`, chevron `right-3`), komponen baru `input-group.blade.php` (leftIcon/leftText/leftOptions format `nilai=label|nilai=label`/rightIcon/rightButtonText).
+  - Dashboard Component Reference ditambah seksi Input States (`#ref-input-states`) dan Input Group (`#ref-input-group`); seksi input update pakai `state="error"` + demo.
+  - Icon button kolom Action `partials/dt-actions.blade.php` di-rewrite gaya TailAdmin: rounded-lg tanpa border, icon svg saja, hover subtle edit=brand / delete=error (tetap edit_url/delete_url + `$confirm`).
+  - Tests: DashboardComponentReferenceTest +7 test profile (render, auth guard, update profil, email duplikat, password salah, hapus super admin diblok). Total: 197 test passed (656 assertions), pint bersih, Vite build OK.

@@ -112,6 +112,21 @@ packages/idcore/core-starter/
 - [x] `DemoController`, views `pages/demo/*`, `auth/signup`, grup "Demo" di sidebar, dan
       route `demo.*`/`signup` dihapus
 
+#### TailAdmin Polish (Form Elements + Profile + DataTables)
+- [x] Profile page (`GET /profile`): `ProfileController` (edit/update/updatePassword/
+      logoutAllDevices/destroy), view `auth/profile.blade.php` — info card, Personal
+      Information `#personal-info`, Change Password, Danger Zone ($confirm, logout all +
+      hapus akun; super admin `super@gmail.com` dilindungi). Header links → `route('profile')`.
+- [x] `input.blade.php`: prop `icon` (Heroicon), `state` (error/success), `successMessage`,
+      auto padding (pl-10 icon kiri / pr-10 icon state kanan), error auto dari `@error`
+- [x] `select.blade.php`: fix arrow-down menumpuk di width sempit (`pl-4 pr-10`, chevron `right-3`)
+- [x] `input-group.blade.php`: left-icon/left-text/left-options (`nilai=label|nilai=label`)/
+      right-icon/right-button-text, focus-within ring, error state
+- [x] Dashboard Component Reference: seksi baru `#ref-input-states` (error/success/disabled)
+      dan `#ref-input-group` (4 variant live preview + snippet)
+- [x] `dt-actions` partial gaya TailAdmin: rounded-lg tanpa border, icon svg saja,
+      hover subtle (edit → brand, delete → error), tetap $confirm + hidden form per-row
+
 ### Remaining / Future
 
 #### High Priority

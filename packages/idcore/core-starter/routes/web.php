@@ -1,6 +1,7 @@
 <?php
 
 use IdCore\CoreStarter\Http\Controllers\Auth\LoginController;
+use IdCore\CoreStarter\Http\Controllers\Auth\ProfileController;
 use IdCore\CoreStarter\Http\Controllers\Dashboard\RoleTableController;
 use IdCore\CoreStarter\Http\Controllers\Sistem\GroupController;
 use IdCore\CoreStarter\Http\Controllers\Sistem\HakAksesController;
@@ -22,6 +23,11 @@ Route::middleware(['web', 'auth', 'active'])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('dashboard', [LoginController::class, 'dashboard'])->name('dashboard');
     Route::get('dashboard/roles-json', [RoleTableController::class, 'index'])->name('dashboard.roles-json');
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('profile/logout-all', [ProfileController::class, 'logoutAllDevices'])->name('profile.logout-all');
+    Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('switch-role', [LoginController::class, 'switch'])->name('switch-role');
 });
 

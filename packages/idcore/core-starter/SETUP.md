@@ -332,7 +332,8 @@ Access at `http://localhost:8000/sistem/user`.
 | `x-idcore::table-empty` | `colspan`, `message` — empty state row |
 | `x-idcore::breadcrumb` | `items` array of `['label','url']` |
 | `x-idcore::avatar` | `name`, `size` (sm/md/lg) |
-| `x-idcore::input` / `select` / `textarea` | Form fields with label, hint, error |
+| `x-idcore::input` / `select` / `textarea` | Form fields with label, hint, error. `input`: `icon` (Heroicon name), `state` (error/success), `successMessage`, `required`; auto padding. `select`: arrow-fix |
+| `x-idcore::input-group` | Input with addon: `leftIcon`, `leftText`, `leftOptions` (`nilai=label|nilai=label`), `rightIcon`, `rightButtonText` |
 | `x-idcore::checkbox` / `radio` / `toggle` | Form controls with Alpine state |
 | `x-idcore::badge` | `variant` for color |
 | `x-idcore::pagination` | `paginator` — Laravel paginator instance |
@@ -342,7 +343,7 @@ Access at `http://localhost:8000/sistem/user`.
 | `x-idcore::modal` | Alpine `x-model` based modal |
 | `x-idcore::datatable` | Client-side table: `columns`, `rows`, `perPage`, `searchable`, `actionsHeader`, slot `actions`; HTML cells via `col['html']` |
 | `x-idcore::datatable-server` | Server-driven table: `url` → `DataTableService`, `columns`, `actionsHeader`, slot `actions`, live search/sort/pagination |
-| `x-idcore::partials.dt-actions` | Action buttons (edit/hapus) untuk baris datatable — butuh `module` + `rolesName`; row harus punya `edit_url`/`delete_url`/`name` |
+| `x-idcore::partials.dt-actions` | Action buttons (edit/hapus) untuk baris datatable — gaya TailAdmin (rounded-lg, icon svg, hover subtle); row harus punya `edit_url`/`delete_url`/`name` |
 | `x-idcore::form-section` | Titled card with `columns` (1/2/3) grid + footer slot |
 | `x-idcore::field` | Label + hint + error wrapper around any control (`inline` variant) |
 | `x-idcore::page-header` | `title`, `subtitle`, `breadcrumb`, slot `actions` |

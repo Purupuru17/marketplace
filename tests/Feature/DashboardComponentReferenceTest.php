@@ -79,4 +79,61 @@ class DashboardComponentReferenceTest extends TestCase
                 ->assertSee('Search');
         }
     }
+
+    public function test_profile_page_renders(): void
+    {
+        $this->actingAs($this->admin())
+            ->get(route('profile'))
+            ->assertOk()
+            ->assertSee('Informasi Pribadi')
+            ->assertSee('Change Password')
+            ->assertSee('Danger Zone');
+    }
+
+    public function test_profile_requires_auth(): void
+    {
+        $this->get(route('profile'))->assertRedirect(route('login'));
+    }
+
+    public function test_profile_updates_personal_information(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->put(route('profile.update'), ['name' => 'Super Admin Baru', 'email' => $admin->email])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertSame('Super Admin Baru', $admin->fresh()->name);
+    }
+
+    public function test_profile_update_rejects_duplicate_email(): void
+    {
+        $other = User::factory()->create(['email' => 'orang@example.com']);
+
+        $this->actingAs($this->admin())
+            ->put(route('profile.update'), ['name' => 'Super Admin', 'email' => $other->email])
+            ->assertSessionHasErrors('email');
+    }
+
+    public function test_profile_password_change_requires_current_password(): void
+    {
+        $this->actingAs($this->admin())
+            ->put(route('profile.password'), [
+                'current_password' => 'password-salah',
+                'password' => 'rahasia123',
+                'password_confirmation' => 'rahasia123',
+            ])
+            ->assertSessionHasErrors('current_password');
+    }
+
+    public function test_profile_cannot_delete_super_admin(): void
+    {
+        $this->actingAs($this->admin())
+            ->delete(route('profile.destroy'))
+            ->assertSessionHas('error')
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('users', ['email' => 'super@gmail.com']);
+    }
 }

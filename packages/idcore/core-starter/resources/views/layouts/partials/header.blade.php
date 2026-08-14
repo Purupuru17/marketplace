@@ -62,12 +62,12 @@
 
                     <!-- Menu Links -->
                     <div class="py-1 border-b border-gray-100 dark:border-gray-800">
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ route('profile') }}"
                            class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
                             @svg('heroicon-o-user', 'h-4 w-4')
                             Edit Profile
                         </a>
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ route('profile') }}#personal-info"
                            class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
                             @svg('heroicon-o-cog-6-tooth', 'h-4 w-4')
                             Account Settings

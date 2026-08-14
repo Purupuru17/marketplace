@@ -13,7 +13,7 @@
 </x-idcore::page-header>
 
 <x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
-    <x-idcore::datatable :columns="$columns" :rows="$rows" :show-number="true" searchable>
+    <x-idcore::datatable :columns="$columns" :rows="$rows" :show-number="true" searchable embedded>
         <x-slot:actions>
             <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
         </x-slot:actions>

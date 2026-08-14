@@ -183,11 +183,40 @@ class UserController extends BaseCoreController
     public function ajax(Request $request)
     {
         $type = $request->input('type');
+        $source = $request->input('source');
 
         switch ($type) {
-
+            case 'table':
+                switch ($source) {
+                    case 'index':
+                        return $this->_tableIndex();
+                    default:
+                        return response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400);
+                }
             default:
                 return response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400);
         }
+    }
+
+    function _tableIndex()
+    {
+        $users = User::with('roles')->orderBy('name')->get();
+
+        $rows = $users->map(function (User $user) {
+            $rolesBadges = $user->roles->count() > 0
+                ? $user->roles->map(fn ($role) => '<span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">'.e($role->name).'</span>')->implode(' ')
+                : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Tanpa role</span>';
+
+            return [
+                'id' => $user->id,
+                'name' => '<div class="flex items-center gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-500 dark:bg-gray-800 dark:text-brand-400">'.e(strtoupper(substr($user->name, 0, 1))).'</div><div><p class="font-semibold text-gray-900 dark:text-white">'.e($user->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">ID : '.$user->id.'</p></div></div>',
+                'email' => $user->email,
+                'roles' => $rolesBadges,
+                'edit_url' => auth()->user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
+                'delete_url' => auth()->user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
+            ];
+        })->values()->all();
+
+        return response()->json(['status' => 'success', 'data' => $rows]);
     }
 }

@@ -21,9 +21,8 @@
             <x-idcore::select name="per_page" :options="[10 => '10', 25 => '25', 50 => '50']" :selected="request('per_page', 10)" placeholder="" onchange="this.form.submit()" />
             <span>entries</span>
         </div>
-        <div class="relative w-full md:max-w-xs">
-            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</span>
-            <x-idcore::input name="search" type="search" value="{{ request('search') }}" placeholder="Search..." />
+        <div class="w-full md:max-w-xs">
+            <x-idcore::input name="search" type="search" icon="magnifying-glass" value="{{ request('search') }}" placeholder="Search..." />
         </div>
     </form>
 

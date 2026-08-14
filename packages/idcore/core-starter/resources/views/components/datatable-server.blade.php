@@ -8,6 +8,7 @@
     'emptyMessage' => 'Belum ada data.',
     'method' => 'GET',
     'actionsHeader' => 'Aksi',
+    'embedded' => false,
 ])
 
 @php
@@ -135,18 +136,17 @@
     doSearch() { this.page = 1; this.fetchData(); },
     changePerPage() { this.page = 1; this.fetchData(); },
 }"
-class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]">
+class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]' }}">
 
     @if($searchable)
     <div class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Show</span>
-            <x-idcore::select name="dt-per-page" x-model="perPage" @change="changePerPage()" :options="collect($perPageOptions)->mapWithKeys(fn($o) => [$o => $o])->all()" placeholder="" class="!w-16" />
+            <x-idcore::select name="dt-per-page" x-model="perPage" @change="changePerPage()" :options="collect($perPageOptions)->mapWithKeys(fn($o) => [$o => $o])->all()" placeholder="" class="!w-20" />
             <span>entries</span>
         </div>
-        <div class="relative w-full md:max-w-xs">
-            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</span>
-            <x-idcore::input x-model.debounce.300ms="search" @change="doSearch()" type="search" name="dt-search" placeholder="Search..." class="pr-8" />
+        <div class="w-full md:max-w-xs">
+            <x-idcore::input x-model.debounce.300ms="search" @change="doSearch()" type="search" name="dt-search" icon="magnifying-glass" placeholder="Search..." class="pr-8" />
         </div>
     </div>
     @endif
@@ -170,10 +170,12 @@ class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-
                             class="px-5 py-3 {{ $col['align'] === 'center' ? 'text-center' : ($col['align'] === 'right' ? 'text-right' : 'text-left') }} text-theme-xs font-medium text-gray-500 dark:text-gray-400">
                             @if($col['sortable'])
                                 <button type="button" @click="setSort({{ Js::from($col) }})"
-                                    class="inline-flex items-center gap-1 transition hover:text-gray-800 dark:hover:text-gray-200">
-                                    <span>{{ $col['label'] }}</span>
-                                    <svg x-show="sortKey === {{ Js::from($col['key']) }} && sortDir === 'asc'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                    <svg x-show="sortKey === {{ Js::from($col['key']) }} && sortDir === 'desc'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                     class="group inline-flex w-full items-center gap-1.5 transition hover:text-brand-600 dark:hover:text-brand-400">
+                                     <span>{{ $col['label'] }}</span>
+                                     <span class="inline-flex flex-col text-gray-300 group-hover:text-brand-500 dark:text-gray-600">
+                                         <svg x-show="sortKey !== {{ Js::from($col['key']) }} || sortDir !== 'desc'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 9 4-4 4 4"></path></svg>
+                                         <svg x-show="sortKey !== {{ Js::from($col['key']) }} || sortDir !== 'asc'" class="-mt-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4"></path></svg>
+                                     </span>
                                 </button>
                             @else
                                 <span>{{ $col['label'] }}</span>
