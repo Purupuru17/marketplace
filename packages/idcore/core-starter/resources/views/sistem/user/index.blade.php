@@ -13,10 +13,12 @@
 </x-idcore::page-header>
 
 <x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
-    <x-idcore::datatable :columns="$columns" :rows="$rows" :show-number="true" searchable embedded>
+    <x-idcore::datatable-server
+        :url="route('sistem.user.ajax', ['type' => 'table', 'source' => 'index'])"
+        :columns="$columns" :show-number="true" searchable embedded>
         <x-slot:actions>
             <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
         </x-slot:actions>
-    </x-idcore::datatable>
+    </x-idcore::datatable-server>
 </x-idcore::card>
 @endsection

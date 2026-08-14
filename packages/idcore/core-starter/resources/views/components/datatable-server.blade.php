@@ -85,9 +85,10 @@
         try {
             const params = this.buildQuery();
             const opts = { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } };
+            const separator = this.url.includes('?') ? '&' : '?';
             const response = this.method === 'POST'
                 ? await fetch(this.url, { ...opts, method: 'POST', body: params })
-                : await fetch(this.url + '?' + params.toString(), { ...opts, method: 'GET' });
+                : await fetch(this.url + separator + params.toString(), { ...opts, method: 'GET' });
 
             const json = await response.json();
             this.rows = json.data ?? [];

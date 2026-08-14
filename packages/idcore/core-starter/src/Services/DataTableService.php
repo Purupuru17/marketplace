@@ -10,8 +10,11 @@ class DataTableService
 {
     /**
      * Memproses Request Ajax DataTables secara Server-Side.
+     *
+     * @param  callable(Builder):void|null  $extraFilters
+     * @param  callable(mixed):array|null  $formatter
      */
-    public static function process(Request $request, Builder $query, array $searchableColumns, ?callable $extraFilters = null): JsonResponse
+    public static function process(Request $request, Builder $query, array $searchableColumns, ?callable $extraFilters = null, ?callable $formatter = null): JsonResponse
     {
         // 1. Eksekusi Extra Filters jika tersedia
         if (is_callable($extraFilters)) {
@@ -70,7 +73,12 @@ class DataTableService
 
         $data = $query->get();
 
-        // 8. Standar Respons JSON DataTables
+        // 8. Transformasi Baris via Formatter jika disediakan
+        if (is_callable($formatter)) {
+            $data = $data->map($formatter)->values();
+        }
+
+        // 9. Standar Respons JSON DataTables
         return response()->json([
             'draw' => (int) $request->input('draw', 1),
             'recordsTotal' => $recordsTotal,
