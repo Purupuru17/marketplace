@@ -9,6 +9,7 @@
     'method' => 'GET',
     'actionsHeader' => 'Aksi',
     'embedded' => false,
+    'selectable' => false,
 ])
 
 @php
@@ -39,6 +40,8 @@
     recordsTotal: 0,
     recordsFiltered: 0,
     loading: false,
+    selectable: false,
+    selected: [],
 
     get totalPages() { return Math.max(1, Math.ceil(this.recordsFiltered / this.perPage)); },
     get from() { return this.recordsFiltered === 0 ? 0 : (this.page - 1) * this.perPage + 1; },
@@ -134,8 +137,25 @@
     },
     prev() { if (this.page > 1) { this.page--; this.fetchData(); } },
     next() { if (this.page < this.totalPages) { this.page++; this.fetchData(); } },
-    doSearch() { this.page = 1; this.fetchData(); },
+    doSearch() { 
+        const len = this.search.trim().length;
+        if (len === 0 || len >= 3) {
+            this.page = 1;
+            this.fetchData();
+        }
+    },
     changePerPage() { this.page = 1; this.fetchData(); },
+
+    toggleAll(checked) {
+        this.selected = checked ? this.rows.map(r => r.id) : [];
+    },
+    toggleRow(id) {
+        const i = this.selected.indexOf(id);
+        i === -1 ? this.selected.push(id) : this.selected.splice(i, 1);
+    },
+    isSelected(id) {
+        return this.selected.includes(id);
+    },
 }"
 class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]' }}">
 
@@ -147,7 +167,15 @@ class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 b
             <span>entries</span>
         </div>
         <div class="w-full md:max-w-xs">
-            <x-idcore::input x-model.debounce.300ms="search" @change="doSearch()" type="search" name="dt-search" icon="magnifying-glass" placeholder="Search..." class="pr-8" />
+            <x-idcore::input
+                x-model="search"
+                @input.debounce.300ms="doSearch()"
+                type="search"
+                name="dtc-search"
+                icon="magnifying-glass"
+                placeholder="Search..."
+                class="pr-8"
+            />
         </div>
     </div>
     @endif
@@ -164,7 +192,14 @@ class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 b
             <thead class="bg-gray-50 dark:bg-gray-800/50">
                 <tr>
                     @if($showNumber)
-                        <th class="px-5 py-3 text-left text-theme-xs font-medium text-gray-500 dark:text-gray-400">No</th>
+                        <th class="px-5 py-3 text-left text-theme-xs font-medium text-gray-500 dark:text-gray-400">
+                            @if($selectable)
+                                <input type="checkbox" @change="toggleAll($event.target.checked)"
+                                    :checked="rows.length > 0 && selected.length === rows.length"
+                                    class="rounded border-gray-300">
+                            @endif
+                            No
+                        </th>
                     @endif
                     @foreach($columns as $col)
                         <th @if($col['width']) style="width: {{ $col['width'] }}" @endif

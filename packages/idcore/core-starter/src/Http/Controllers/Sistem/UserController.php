@@ -23,8 +23,8 @@ class UserController extends BaseCoreController
     public function index(Request $request)
     {
         $columns = [
-            ['key' => 'name', 'label' => 'Name', 'sortable' => true, 'html' => true],
-            ['key' => 'email', 'label' => 'Email', 'sortable' => true],
+            ['key' => 'name', 'label' => 'Name', 'sortable' => true, 'align' => 'center', 'html' => true],
+            ['key' => 'email', 'label' => 'Email', 'sortable' => true, 'align' => 'center'],
             ['key' => 'roles', 'label' => 'Role', 'sortable' => false, 'html' => true],
         ];
         $compact = [
@@ -162,18 +162,49 @@ class UserController extends BaseCoreController
 
     public function ajax(Request $request)
     {
-        return match ($request->input('type')) {
-            'table' => match ($request->input('source')) {
+        $type = $request->input('type');
+        $source = $request->input('source');
+        
+        return match ($type) {
+            'table' => match ($source) {
+
                 'index' => $this->tableIndex($request),
+
+                'index_cursor' => $this->tableIndex($request, true),
+
                 default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
             },
             default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
         };
     }
 
-    private function tableIndex(Request $request)
+    private function tableIndex(Request $request, $cursor = false)
     {
+        if($cursor){
+            return DataTableService::processCursor(
+                $request,
+                User::with('roles'),
+                ['name', 'email'],
+                null,
+                function (User $user) {
+                    $rolesBadges = $user->roles->count() > 0
+                        ? $user->roles->map(fn ($role) => '<span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">'.e($role->name).'</span>')->implode(' ')
+                        : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Tanpa role</span>';
+
+                    return [
+                        'id' => $user->id,
+                        'name' => '<div class="flex items-center gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-500 dark:bg-gray-800 dark:text-brand-400">'.e(strtoupper(substr($user->name, 0, 1))).'</div><div><p class="font-semibold text-gray-900 dark:text-white">'.e($user->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">ID : '.$user->id.'</p></div></div>',
+                        'email' => $user->email,
+                        'roles' => $rolesBadges,
+                        'name_plain' => $user->name,
+                        'edit_url' => Auth::user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
+                        'delete_url' => Auth::user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
+                    ];
+                }
+            );
+        }
         return DataTableService::process(
+        // return DataTableService::processCursor(
             $request,
             User::with('roles'),
             ['name', 'email'],
@@ -189,8 +220,8 @@ class UserController extends BaseCoreController
                     'email' => $user->email,
                     'roles' => $rolesBadges,
                     'name_plain' => $user->name,
-                    'edit_url' => auth()->user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
-                    'delete_url' => auth()->user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
+                    'edit_url' => Auth::user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
+                    'delete_url' => Auth::user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
                 ];
             }
         );

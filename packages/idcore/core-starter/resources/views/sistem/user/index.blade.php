@@ -21,4 +21,15 @@
         </x-slot:actions>
     </x-idcore::datatable-server>
 </x-idcore::card>
+
+<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
+    <x-idcore::datatable-cursor
+        :url="route('sistem.user.ajax', ['type' => 'table', 'source' => 'index_cursor'])"
+        :columns="$columns" :show-number="true" searchable embedded>
+        <x-slot:actions>
+            <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
+        </x-slot:actions>
+    </x-idcore::datatable-cursor>
+</x-idcore::card>
+
 @endsection

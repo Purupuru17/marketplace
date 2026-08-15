@@ -7,7 +7,7 @@
     <a :href="row.edit_url" x-cloak x-show="row.edit_url"
        class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-brand-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-brand-400"
        title="Ubah Data">
-        @svg('heroicon-o-pencil-square', 'h-4 w-4')
+        @svg('heroicon-o-pencil-square', 'h-5 w-5')
     </a>
 @endcan
 
