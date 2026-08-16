@@ -2,6 +2,7 @@
 
 namespace IdCore\CoreStarter\Http\Controllers\Auth;
 
+use IdCore\CoreStarter\Services\ActivityLogService;
 use IdCore\CoreStarter\Support\ActiveRole;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -67,11 +68,15 @@ class LoginController extends Controller
 
         session(['active_role' => $defaultRole?->name]);
 
+        ActivityLogService::login($user->id);
+
         return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request)
     {
+        ActivityLogService::logout($request->user()?->id);
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

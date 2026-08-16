@@ -47,6 +47,9 @@ Route::middleware(['web', 'auth', 'active'])->prefix('sistem')->name('sistem.')-
     Route::resource('hak-akses', HakAksesController::class)
         ->only(['index', 'edit', 'update'])
         ->parameters(['hak-akses' => 'role']);
+
     Route::resource('setting', SettingController::class);
+    
+    Route::get('log/ajax', [LogController::class, 'ajax'])->name('log.ajax');
     Route::resource('log', LogController::class);
 });

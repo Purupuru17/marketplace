@@ -3,10 +3,101 @@
 namespace IdCore\CoreStarter\Http\Controllers\Sistem;
 
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Models\ActivityLog;
+use IdCore\CoreStarter\Services\DataTableService;
+use IdCore\CoreStarter\Support\Render;
+use Illuminate\Http\Request;
 
 class LogController extends BaseCoreController
 {
-    protected string $resourceName = 'log';
+    private $module = 'sistem.log';
 
-    public function index() {}
+    protected static function resourceName(): string
+    {
+        return 'log';
+    }
+
+    public function index()
+    {
+        $columns = [
+            ['key' => 'created_at', 'label' => 'Waktu', 'sortable' => true, 'align' => 'center'],
+            ['key' => 'user', 'label' => 'User', 'html' => true, 'align' => 'left'],
+            ['key' => 'event', 'label' => 'Event', 'sortable' => true, 'html' => true, 'align' => 'center'],
+            ['key' => 'description', 'label' => 'Keterangan', 'align' => 'left'],
+        ];
+
+        $compact = [
+            'title' => 'Activity Log',
+            'subtitle' => 'Riwayat aktivitas pengguna',
+
+            'module' => $this->module,
+            'rolesName' => $this->resourceName(),
+            'breadcrumb' => [['Beranda', route('dashboard')], [ucwords($this->resourceName())]],
+
+            'columns' => $columns,
+        ];
+
+        return view('idcore::'.$this->module.'.index', $compact);
+    }
+
+    public function destroy(ActivityLog $log)
+    {
+        $log->delete();
+
+        return redirect()
+            ->route($this->module.'.index')
+            ->with('success', 'Log berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+                'index' => $this->tableIndex($request),
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        $badgeMap = [
+            'login' => 'blue',
+            'logout' => 'gray',
+            'created' => 'success',
+            'updated' => 'warning',
+            'deleted' => 'danger',
+        ];
+
+        return DataTableService::process(
+            $request,
+            ActivityLog::query()->with('user'),
+            [
+                fn ($query, $search) => $query->orWhere('description', 'like', '%'.$search.'%')
+                    ->orWhereHas('user', fn ($q) => $q->where('name', 'like', '%'.$search.'%')),
+            ],
+            null,
+            function (ActivityLog $log) use ($badgeMap) {
+                return [
+                    'id' => $log->id,
+                    'created_at' => $log->created_at->format('d M Y H:i:s'),
+                    'user' => $log->user
+                        ? '<p class="font-semibold text-gray-900 dark:text-white">'.e($log->user->name).'</p>'
+                            .'<p class="text-xs text-gray-500 dark:text-gray-400">'.e($log->user->email).'</p>'
+                        : '<span class="text-gray-400">-</span>',
+                    'event' => Render::badge($badgeMap[$log->event] ?? 'gray', ucfirst($log->event)),
+                    'event_plain' => $log->event,
+                    'description' => '<p class="whitespace-pre-line text-gray-700 dark:text-gray-300">'.e($log->description ?? '-').'</p>',
+                    'name_plain' => $log->description,
+                    'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $log->id) : null,
+                    'edit_url' => null,
+                ];
+            },
+            ['event', 'created_at']
+        );
+    }
 }

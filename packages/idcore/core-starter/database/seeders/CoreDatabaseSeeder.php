@@ -17,6 +17,7 @@ class CoreDatabaseSeeder extends Seeder
         'group' => ['index', 'create', 'edit', 'delete', 'ajax'],
         'menu' => ['index', 'create', 'edit', 'delete', 'ajax'],
         'hak-akses' => ['index', 'edit', 'ajax'],
+        'log' => ['index', 'delete', 'ajax'],
     ];
 
     public function run(): void
@@ -71,6 +72,7 @@ class CoreDatabaseSeeder extends Seeder
             ['name' => 'Group', 'url' => '/sistem/group', 'sort_by' => 2, 'icon' => 'heroicon-o-shield-check', 'actions' => $this->permissions['group']],
             ['name' => 'Menu', 'url' => '/sistem/menu', 'sort_by' => 3, 'icon' => 'heroicon-o-list-bullet', 'actions' => $this->permissions['menu']],
             ['name' => 'Hak Akses', 'url' => '/sistem/hak-akses', 'sort_by' => 4, 'icon' => 'heroicon-o-lock-closed', 'actions' => $this->permissions['hak-akses']],
+            ['name' => 'Log', 'url' => '/sistem/log', 'sort_by' => 5, 'icon' => 'heroicon-o-clipboard-document-list', 'actions' => $this->permissions['log']],
         ];
 
         foreach ($childMenus as $menu) {
