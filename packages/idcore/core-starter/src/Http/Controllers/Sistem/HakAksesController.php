@@ -3,6 +3,8 @@
 namespace IdCore\CoreStarter\Http\Controllers\Sistem;
 
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Services\DataTableService;
+use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -18,26 +20,12 @@ class HakAksesController extends BaseCoreController
 
     public function index(Request $request)
     {
-        $roles = Role::withCount('permissions')->orderBy('name')->get();
-
-        $rows = $roles->map(function (Role $role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'permissions_count' => '<span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">'.$role->permissions_count.' permission</span>',
-                'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $role->id) : null,
-                'delete_url' => null,
-            ];
-        })->values()->all();
-
         $columns = [
             ['key' => 'name', 'label' => 'Role', 'sortable' => true],
-            ['key' => 'permissions_count', 'label' => 'Jumlah Permission', 'sortable' => true, 'html' => true, 'align' => 'center'],
+            ['key' => 'permissions_count', 'label' => 'Jumlah Permission', 'sortable' => true],
         ];
 
         $compact = [
-            'listData' => $roles,
-
             'title' => 'Hak Akses',
             'subtitle' => 'Daftar Role yang tersedia',
 
@@ -46,7 +34,6 @@ class HakAksesController extends BaseCoreController
             'breadcrumb' => [['Beranda', route('dashboard')], [ucwords($this->resourceName())]],
 
             'columns' => $columns,
-            'rows' => $rows,
         ];
 
         return view('idcore::'.$this->module.'.index', $compact);
@@ -88,5 +75,42 @@ class HakAksesController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', "Hak akses untuk role \"{$role->name}\" berhasil diperbarui.");
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+
+                'index' => $this->tableIndex($request),
+
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        return DataTableService::process(
+            $request,
+            Role::withCount('permissions'),
+            ['name'],
+            null,
+            function (Role $role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'name_plain' => $role->name,
+                    'permissions_count' => Render::badge('brand', $role->permissions_count.' permission'),
+                    'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $role->id) : null,
+                    'delete_url' => null,
+                ];
+            },
+            ['name', 'permissions_count']
+        );
     }
 }

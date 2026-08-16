@@ -7,7 +7,9 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\Catalog\ProductVariantService;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Services\DataTableService;
 use IdCore\CoreStarter\Support\ActiveRole;
+use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -23,14 +25,17 @@ class ProductVariantController extends BaseCoreController
     {
         $storeIds = $this->allowedStoreIds($request->user());
 
-        $variants = $this->service->paginate(
-            $request->only(['search', 'status', 'store_id', 'product_id']),
-            $storeIds,
-            (int) $request->input('per_page', 10)
-        );
+        $columns = [
+            ['key' => 'sku', 'label' => 'SKU', 'sortable' => true, 'searchable' => true, 'align' => 'left'],
+            ['key' => 'product', 'label' => 'Produk', 'align' => 'left'],
+            ['key' => 'attribute', 'label' => 'Atribut', 'html' => true, 'align' => 'center'],
+            ['key' => 'store', 'label' => 'Toko', 'align' => 'left'],
+            ['key' => 'price', 'label' => 'Harga', 'sortable' => true, 'html' => true, 'align' => 'right'],
+            ['key' => 'stock', 'label' => 'Stok', 'sortable' => true, 'html' => true, 'align' => 'center'],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => true, 'html' => true, 'align' => 'center'],
+        ];
 
         $compact = [
-            'listData' => $variants,
             'storeOptions' => $this->service->storeOptions($storeIds),
             'productOptions' => $this->service->productOptions($storeIds),
 
@@ -40,6 +45,8 @@ class ProductVariantController extends BaseCoreController
             'module' => $this->module,
             'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Katalog'], ['Varian Produk']],
+
+            'columns' => $columns,
         ];
 
         return view($this->view.'.index', $compact);
@@ -119,6 +126,67 @@ class ProductVariantController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', 'Varian produk berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+                'index' => $this->tableIndex($request),
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        $storeIds = $this->allowedStoreIds($request->user());
+
+        return DataTableService::process(
+            $request,
+            ProductVariant::with(['product', 'store', 'attributeValues.attribute']),
+            ['sku'],
+            function ($query) use ($request, $storeIds) {
+                if ($storeIds !== null) {
+                    $query->whereIn('store_id', $storeIds);
+                }
+                if ($request->filled('store_id')) {
+                    $query->where('store_id', $request->input('store_id'));
+                }
+                if ($request->filled('product_id')) {
+                    $query->where('product_id', $request->input('product_id'));
+                }
+                if ($request->filled('status')) {
+                    $query->where('status', $request->input('status'));
+                }
+            },
+            function (ProductVariant $item) {
+                $attrs = $item->attributeValues
+                    ->sortBy(fn ($v) => $v->attribute?->name)
+                    ->map->value
+                    ->join(' · ');
+
+                return [
+                    'id' => $item->id,
+                    'sku' => '<p class="font-semibold text-gray-900 dark:text-white">'.e($item->sku).'</p>',
+                    'sku_plain' => $item->sku,
+                    'product' => e($item->product->name ?? '-'),
+                    'attribute' => $attrs ? '<span class="text-sm text-gray-700 dark:text-gray-300">'.e($attrs).'</span>' : '<span class="text-gray-400">-</span>',
+                    'store' => e($item->store->store_name ?? '-'),
+                    'price' => '<span class="font-medium text-gray-900 dark:text-white">Rp '.number_format((float) $item->price, 0, ',', '.').'</span>',
+                    'stock' => number_format($item->stock).' <span class="text-xs text-gray-400">· '.number_format($item->weight_grams).'g</span>',
+                    'status' => $item->status === 'active' ? Render::badge('success', 'Active') : Render::badge('danger', 'Inactive'),
+                    'name_plain' => $item->sku,
+                    'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $item->id) : null,
+                    'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $item->id) : null,
+                ];
+            },
+            ['sku', 'price', 'stock', 'status']
+        );
     }
 
     protected function allowedStoreIds($user): ?array

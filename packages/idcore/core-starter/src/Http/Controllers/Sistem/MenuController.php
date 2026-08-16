@@ -6,6 +6,7 @@ use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
 use IdCore\CoreStarter\Http\Requests\Sistem\MenuRequest;
 use IdCore\CoreStarter\Models\Menu;
 use IdCore\CoreStarter\Services\MenuService;
+use Illuminate\Http\Request;
 
 class MenuController extends BaseCoreController
 {
@@ -18,69 +19,14 @@ class MenuController extends BaseCoreController
 
     public function index()
     {
-        $menus = Menu::orderBy('sort_by')->get();
-        $tree = MenuService::buildTree($menus);
-
-        $rows = [];
-        $flatten = function (array $nodes, int $depth = 0) use (&$rows, &$flatten) {
-            foreach ($nodes as $node) {
-                $isGroup = empty($node['url']) || $node['url'] === '#';
-
-                $name = '<div class="flex items-center gap-3" style="padding-left: '.($depth * 24).'px;">'
-                    .'<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg '
-                    .($isGroup ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300').'">'
-                    .'<span class="text-base leading-none">'.($isGroup ? '&#128193;' : '&#9679;').'</span>'
-                    .'</div>'
-                    .'<div class="min-w-0">'
-                    .'<p class="truncate font-semibold '.($isGroup ? 'text-gray-700 dark:text-gray-200' : 'text-gray-900 dark:text-white').'">'.e($node['name']).'</p>'
-                    .'<p class="text-xs text-gray-500 dark:text-gray-400">'.($isGroup ? 'Group menu' : 'Menu link').'</p>'
-                    .'</div>'
-                    .'</div>';
-
-                $url = $isGroup
-                    ? '<span class="text-gray-400">-</span>'
-                    : '<code class="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">'.e($node['url']).'</code>';
-
-                $status = $node['is_active']
-                    ? '<span class="inline-flex items-center rounded-full bg-success-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-success-700 dark:bg-success-500/15 dark:text-success-400">Aktif</span>'
-                    : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Nonaktif</span>';
-
-                $actions = '';
-                if (! empty($node['actions'])) {
-                    $actions = collect($node['actions'])->map(fn ($a) => '<span class="inline-flex items-center rounded-full bg-warning-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-warning-700 dark:bg-warning-500/15 dark:text-warning-400">'.e($a).'</span>'
-                    )->implode(' ');
-                } else {
-                    $actions = '<span class="text-sm text-gray-400">-</span>';
-                }
-
-                $rows[] = [
-                    'id' => $node['id'],
-                    'name' => $name,
-                    'name_plain' => $node['name'],
-                    'url' => $url,
-                    'actions' => $actions,
-                    'status' => $status,
-                    'edit_url' => auth()->user()->can('menu.edit') ? route('sistem.menu.edit', $node['id']) : null,
-                    'delete_url' => auth()->user()->can('menu.delete') ? route('sistem.menu.destroy', $node['id']) : null,
-                ];
-
-                if (count($node['children'])) {
-                    $flatten($node['children'], $depth + 1);
-                }
-            }
-        };
-        $flatten($tree);
-
         $columns = [
-            ['key' => 'name', 'label' => 'Nama Menu', 'sortable' => false, 'html' => true],
-            ['key' => 'url', 'label' => 'URL', 'sortable' => false, 'html' => true],
-            ['key' => 'actions', 'label' => 'Actions', 'sortable' => false, 'html' => true],
-            ['key' => 'status', 'label' => 'Status', 'sortable' => false, 'html' => true],
+            ['key' => 'name', 'label' => 'Nama Menu', 'searchable' => true],
+            ['key' => 'url', 'label' => 'URL'],
+            ['key' => 'actions', 'label' => 'Actions'],
+            ['key' => 'status', 'label' => 'Status'],
         ];
 
         $compact = [
-            'tree' => $tree,
-
             'title' => 'Menu',
             'subtitle' => 'Daftar Menu yang tersedia',
 
@@ -89,7 +35,6 @@ class MenuController extends BaseCoreController
             'breadcrumb' => [['Beranda', route('dashboard')], [ucwords($this->resourceName())]],
 
             'columns' => $columns,
-            'rows' => $rows,
         ];
 
         return view('idcore::'.$this->module.'.index', $compact);
@@ -187,5 +132,93 @@ class MenuController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', 'Data berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+
+                'index' => $this->tableIndex($request),
+
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private  function tableIndex(Request $request)
+    {
+        $menus = Menu::orderBy('sort_by')->get();
+        $tree = MenuService::buildTree($menus);
+
+        $rows = [];
+        $flatten = function (array $nodes, int $depth = 0) use (&$rows, &$flatten) {
+            foreach ($nodes as $node) {
+                $isGroup = empty($node['url']) || $node['url'] === '#';
+
+                $name = '<div class="flex items-center gap-3" style="padding-left: '.($depth * 24).'px;">'
+                    .'<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg '
+                    .($isGroup ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300').'">'
+                    .'<span class="text-base leading-none">'.($isGroup ? '&#128193;' : '&#9679;').'</span>'
+                    .'</div>'
+                    .'<div class="min-w-0">'
+                    .'<p class="truncate font-semibold '.($isGroup ? 'text-gray-700 dark:text-gray-200' : 'text-gray-900 dark:text-white').'">'.e($node['name']).'</p>'
+                    .'<p class="text-xs text-gray-500 dark:text-gray-400">'.($isGroup ? 'Group menu' : 'Menu link').'</p>'
+                    .'</div>'
+                    .'</div>';
+
+                $url = $isGroup
+                    ? '<span class="text-gray-400">-</span>'
+                    : '<code class="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">'.e($node['url']).'</code>';
+
+                $status = $node['is_active']
+                    ? '<span class="inline-flex items-center rounded-full bg-success-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-success-700 dark:bg-success-500/15 dark:text-success-400">Aktif</span>'
+                    : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Nonaktif</span>';
+
+                $actions = '';
+                if (! empty($node['actions'])) {
+                    $actions = collect($node['actions'])->map(fn ($a) => '<span class="inline-flex items-center rounded-full bg-warning-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-warning-700 dark:bg-warning-500/15 dark:text-warning-400">'.e($a).'</span>'
+                    )->implode(' ');
+                } else {
+                    $actions = '<span class="text-sm text-gray-400">-</span>';
+                }
+
+                $rows[] = [
+                    'id' => $node['id'],
+                    'name' => $name,
+                    'name_plain' => $node['name'],
+                    'url' => $url,
+                    'actions' => $actions,
+                    'status' => $status,
+                    'edit_url' => auth()->user()->can('menu.edit') ? route('sistem.menu.edit', $node['id']) : null,
+                    'delete_url' => auth()->user()->can('menu.delete') ? route('sistem.menu.destroy', $node['id']) : null,
+                ];
+
+                if (count($node['children'])) {
+                    $flatten($node['children'], $depth + 1);
+                }
+            }
+        };
+        $flatten($tree);
+
+        $search = trim((string) $request->input('search.value', ''));
+        if (mb_strlen($search) >= 3) {
+            $rows = array_values(array_filter($rows, fn ($row) => mb_stripos($row['name_plain'], $search) !== false));
+        }
+
+        $recordsTotal = count($rows);
+        $start = (int) $request->input('start', 0);
+        $length = (int) $request->input('length', 10);
+
+        return response()->json([
+            'draw' => (int) $request->input('draw', 1),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsTotal,
+            'data' => $length > 0 ? array_slice($rows, $start, $length) : $rows,
+        ]);
     }
 }

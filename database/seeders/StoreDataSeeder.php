@@ -20,12 +20,12 @@ use Spatie\Permission\PermissionRegistrar;
 class StoreDataSeeder extends Seeder
 {
     protected array $permissions = [
-        'store' => ['index', 'create', 'edit', 'delete'],
-        'subscription' => ['index', 'create', 'edit', 'delete'],
-        'subscription-invoice' => ['index', 'create', 'edit', 'delete'],
-        'orders' => ['index', 'detail', 'edit'],
+        'store' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'subscription' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'subscription-invoice' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'orders' => ['index', 'detail', 'edit', 'ajax'],
         'wallet' => ['index', 'create'],
-        'promotion' => ['index', 'create', 'edit', 'delete'],
+        'promotion' => ['index', 'create', 'edit', 'delete', 'ajax'],
         'chat' => ['index', 'create', 'detail'],
     ];
 

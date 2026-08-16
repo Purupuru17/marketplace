@@ -175,7 +175,7 @@
 class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]' }}">
 
      {{-- SECTION 1: Filter panel — grid terpisah, gak nyatu sama toolbar --}}
-    @if(isset($filters) && trim($filters))
+    @if(isset($filters) && $filters && trim((string) $filters))
         <div class="border-b border-gray-100 dark:border-gray-800">
             <button type="button" @click="showFilters = !showFilters"
                 class="flex w-full items-center justify-between px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -311,17 +311,17 @@ class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 b
         </div>
         <div class="flex items-center gap-1">
             <button type="button" @click="prev()" :disabled="page <= 1"
-                class="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200/80 bg-white px-3 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+                class="inline-flex h-9 items-center justify-center rounded-md border border-gray-200/80 bg-white px-3 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
                 Previous
             </button>
             <template x-for="p in pageList()" :key="p">
                 <button type="button" x-data @click="goTo(p)" x-text="p"
                     :class="p === page ? 'bg-brand-500 text-white shadow-theme-xs' : (p === '...' ? 'cursor-default border-gray-100 text-gray-400' : 'border border-gray-200/80 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800')"
-                    class="inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-3 text-xs font-semibold">
+                    class="inline-flex h-9 min-w-9 items-center justify-center rounded-md px-3 text-xs font-semibold">
                 </button>
             </template>
             <button type="button" @click="next()" :disabled="page >= totalPages"
-                class="inline-flex h-9 items-center justify-center rounded-lg border border-gray-200/80 bg-white px-3 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+                class="inline-flex h-9 items-center justify-center rounded-md border border-gray-200/80 bg-white px-3 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
                 Next
             </button>
         </div>

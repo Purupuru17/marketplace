@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Store;
 use App\Models\Store;
 use App\Services\Store\StoreService;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Services\DataTableService;
+use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
 
 class StoreController extends BaseCoreController
@@ -17,20 +19,22 @@ class StoreController extends BaseCoreController
 
     public function index(Request $request)
     {
-        $stores = $this->service->paginate(
-            $request->only(['search', 'status']),
-            (int) $request->input('per_page', 10)
-        );
+        $columns = [
+            ['key' => 'store', 'label' => 'Toko', 'html' => true, 'align' => 'left'],
+            ['key' => 'owner', 'label' => 'Pemilik', 'align' => 'left'],
+            ['key' => 'level', 'label' => 'Level', 'html' => true, 'align' => 'center'],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => true, 'html' => true, 'align' => 'center'],
+        ];
 
         $compact = [
-            'listData' => $stores,
-
             'title' => 'Toko',
             'subtitle' => 'Data Toko',
 
             'module' => $this->module,
             'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Toko']],
+
+            'columns' => $columns,
         ];
 
         return view($this->view.'.index', $compact);
@@ -107,6 +111,52 @@ class StoreController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', 'Toko berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+                'index' => $this->tableIndex($request),
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        return DataTableService::process(
+            $request,
+            Store::with(['owner', 'level', 'locationNode']),
+            ['store_name', 'store_code'],
+            function ($query) use ($request) {
+                if ($request->filled('status')) {
+                    $query->where('status', $request->input('status'));
+                }
+            },
+            function (Store $item) {
+                return [
+                    'id' => $item->id,
+                    'store' => '<div class="flex items-center gap-3">'
+                        .'<div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">'
+                        .svg('heroicon-o-building-storefront', 'h-5 w-5')->toHtml()
+                        .'</div>'
+                        .'<div><p class="font-semibold text-gray-900 dark:text-white">'.e($item->store_name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">'.e($item->store_code).' · /'.e($item->slug).'</p></div>'
+                        .'</div>',
+                    'name_plain' => $item->store_name,
+                    'owner' => e($item->owner->name ?? '-'),
+                    'level' => $item->level ? Render::badge('blue', $item->level->name) : '<span class="text-gray-400">-</span>',
+                    'status' => $item->status === 'active' ? Render::badge('success', 'Active') : Render::badge('danger', 'Inactive'),
+                    'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $item->id) : null,
+                    'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $item->id) : null,
+                ];
+            },
+            ['store_name', 'store_code', 'status']
+        );
     }
 
     protected function validateStore(Request $request): array

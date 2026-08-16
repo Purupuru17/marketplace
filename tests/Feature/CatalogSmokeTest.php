@@ -139,9 +139,14 @@ class CatalogSmokeTest extends TestCase
 
         $this->assertSame(2, $variant->attributeValues()->count());
 
-        $this->actingAs($user)->get(route('katalog.product-variant.index'))
-            ->assertOk()
-            ->assertSee('L · Merah', false);
+        $response = $this->actingAs($user)->get(route('katalog.product-variant.ajax', [
+            'type' => 'table', 'source' => 'index',
+            'search' => ['value' => 'NGS-ATTR'],
+            'start' => 0, 'length' => 10,
+        ]));
+
+        $response->assertOk();
+        $this->assertStringContainsString('L · Merah', $response->json('data.0.attribute'));
 
         $this->actingAs($user)
             ->put(route('katalog.product-variant.update', $variant->id), [
@@ -224,7 +229,10 @@ class CatalogSmokeTest extends TestCase
             'status' => 'active',
         ]);
 
-        $response = $this->actingAs($owner)->get(route('katalog.product.index'));
+        $response = $this->actingAs($owner)->get(route('katalog.product.ajax', [
+            'type' => 'table', 'source' => 'index',
+            'start' => 0, 'length' => 25,
+        ]));
 
         $response->assertOk()->assertSee('Nasi Goreng Spesial', false)->assertDontSee('Produk Toko B', false);
     }

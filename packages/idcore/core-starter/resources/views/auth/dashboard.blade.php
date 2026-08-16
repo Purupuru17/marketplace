@@ -2,6 +2,7 @@
 @section('title', 'Beranda')
 
 @section('content')
+
 @php
     $user = auth()->user();
     $activeRole = \IdCore\CoreStarter\Support\ActiveRole::get($user);

@@ -2,90 +2,51 @@
 @section('title', $title)
 
 @section('content')
-@php
-    $badgeStyles = [
-        'pending' => 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
-        'processing' => 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400',
-        'shipped' => 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400',
-        'completed' => 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400',
-        'cancelled' => 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
-    ];
-@endphp
-
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $title }}</h1>
-        <x-idcore::breadcrumb :items="$breadcrumb" />
-    </div>
-</div>
+<x-idcore::page-header :title="$title" :subtitle="$subtitle" :breadcrumb="$breadcrumb" />
 
 <x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
-    <form method="GET" action="{{ url()->current() }}" class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
-        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <span>Show</span>
-            <x-idcore::select name="per_page" :options="[10 => '10', 25 => '25', 50 => '50']" :selected="request('per_page', 10)" placeholder="" onchange="this.form.submit()" />
-            <span>entries</span>
+    <x-idcore::datatable-server
+        :url="route($module.'.ajax', ['type' => 'table', 'source' => 'index'])"
+        :columns="$columns">
+
+        <x-slot:filters>
             @if($stores->isNotEmpty())
-                <x-idcore::select name="store_id" :options="$stores->pluck('store_name', 'id')->all()" :selected="request('store_id')" placeholder="Semua Toko" onchange="this.form.submit()" />
+                <div>
+                    <x-idcore::select
+                        name="filter_store_id"
+                        label="Toko"
+                        x-model="pendingFilters.store_id"
+                        :options="$stores->pluck('store_name', 'id')->all()"
+                        placeholder="Semua Toko"
+                    />
+                </div>
             @endif
-            <x-idcore::select name="status" :options="$statusLabels" :selected="request('status')" placeholder="Semua Status" onchange="this.form.submit()" />
-        </div>
-        <div class="w-full md:max-w-xs">
-            <x-idcore::input name="search" type="search" icon="magnifying-glass" value="{{ request('search') }}" placeholder="Search..." />
-        </div>
-    </form>
+            <div>
+                <x-idcore::select
+                    name="filter_status"
+                    label="Status"
+                    x-model="pendingFilters.status"
+                    :options="$statusLabels"
+                    placeholder="Semua Status"
+                />
+            </div>
 
-    <x-idcore::table>
-        <thead class="bg-gray-50 dark:bg-gray-800/50">
-            <tr>
-                <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">No</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Pesanan</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Pembeli</th>
-                <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Item</th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Total</th>
-                <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Pembayaran</th>
-                <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
-                <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Tanggal</th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Aksi</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @forelse($listData as $order)
-                <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $listData->firstItem() + $loop->index }}</td>
-                    <td class="px-6 py-4">
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ $order->order_no }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->store->store_name }}</p>
-                    </td>
-                    <td class="px-6 py-4">
-                        <p class="text-gray-700 dark:text-gray-300">{{ $order->customer?->name ?? '-' }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->customer?->phone ?? '' }}</p>
-                    </td>
-                    <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">{{ $order->items->count() }}</td>
-                    <td class="px-6 py-4 text-right font-semibold text-gray-900 dark:text-white">
-                        Rp {{ number_format((float) $order->total, 0, ',', '.') }}
-                    </td>
-                    <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">
-                        {{ \App\Services\Customer\PaymentService::METHODS[$order->invoice->payments->first()?->payment_method] ?? '-' }}
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $badgeStyles[$order->status] ?? 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300' }}">
-                            {{ $statusLabels[$order->status] ?? ucfirst($order->status) }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">{{ $order->created_at->format('d M Y H:i') }}</td>
-                    <td class="px-6 py-4 text-right">
-                        <x-idcore::button variant="outline-primary" size="xs" circle tooltip="Detail" :href="route($module.'.show', $order->id)">
-                            @svg('heroicon-o-eye', 'h-3.5 w-3.5')
-                        </x-idcore::button>
-                    </td>
-                </tr>
-            @empty
-                <x-idcore::table-empty colspan="9" message="Belum ada pesanan." />
-            @endforelse
-        </tbody>
-    </x-idcore::table>
+            <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
+                <button type="button" @click="applyFilters()"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:border-brand-800 dark:text-brand-400 dark:hover:bg-brand-500/10">
+                    @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                    Pencarian
+                </button>
+                <button type="button" @click="pendingFilters = {}; applyFilters()"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800">
+                    Reset
+                </button>
+            </div>
+        </x-slot:filters>
 
-    <x-idcore::pagination :paginator="$listData" />
+        <x-slot:actions>
+            <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
+        </x-slot:actions>
+    </x-idcore::datatable-server>
 </x-idcore::card>
 @endsection

@@ -14,9 +14,9 @@ class CoreDatabaseSeeder extends Seeder
 {
     protected array $permissions = [
         'user' => ['index', 'create', 'edit', 'delete', 'detail', 'ajax'],
-        'group' => ['index', 'create', 'edit', 'delete'],
-        'menu' => ['index', 'create', 'edit', 'delete'],
-        'hak-akses' => ['index', 'edit'],
+        'group' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'menu' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'hak-akses' => ['index', 'edit', 'ajax'],
     ];
 
     public function run(): void

@@ -70,7 +70,10 @@ class PromotionSmokeTest extends TestCase
     public function test_owner_can_list_promotions(): void
     {
         $this->actingAs($this->owner(), 'web')
-            ->get(route('toko.promotion.index'))
+            ->get(route('toko.promotion.ajax', [
+                'type' => 'table', 'source' => 'index',
+                'start' => 0, 'length' => 25,
+            ]))
             ->assertOk()
             ->assertSee('Promo Agustus');
     }

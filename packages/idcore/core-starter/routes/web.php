@@ -34,12 +34,16 @@ Route::middleware(['web', 'auth', 'active'])->group(function () {
 // Area admin RBAC: 'auth' DI SINI JUGA, core_permission MUNCUL OTOMATIS
 // dari BaseCoreController::middleware() milik tiap controller
 Route::middleware(['web', 'auth', 'active'])->prefix('sistem')->name('sistem.')->group(function () {
+    Route::get('group/ajax', [GroupController::class, 'ajax'])->name('group.ajax');
     Route::resource('group', GroupController::class);
 
     Route::get('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');
     Route::resource('user', UserController::class);
 
+    Route::get('menu/ajax', [MenuController::class, 'ajax'])->name('menu.ajax');
     Route::resource('menu', MenuController::class);
+
+    Route::get('hak-akses/ajax', [HakAksesController::class, 'ajax'])->name('hak-akses.ajax');
     Route::resource('hak-akses', HakAksesController::class)
         ->only(['index', 'edit', 'update'])
         ->parameters(['hak-akses' => 'role']);

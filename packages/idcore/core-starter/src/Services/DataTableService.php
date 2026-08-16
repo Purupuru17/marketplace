@@ -11,17 +11,24 @@ class DataTableService
     /**
      * Memproses Request Ajax DataTables secara Server-Side.
      *
+     * @param  array<int,string|callable>  $searchableColumns  kolom DB atau callable(string $query, string $search)
      * @param  callable(Builder):void|null  $extraFilters
      * @param  callable(mixed):array|null  $formatter
+     * @param  array<int,string>  $sortableColumns  whitelist kolom sort; default = entry string dari searchableColumns
      */
     public static function process(
-        Request $request, 
-        Builder $query, 
-        array $searchableColumns, 
-        ?callable $extraFilters = null, 
-        ?callable $formatter = null
-        ): JsonResponse {
-            
+        Request $request,
+        Builder $query,
+        array $searchableColumns,
+        ?callable $extraFilters = null,
+        ?callable $formatter = null,
+        array $sortableColumns = []
+    ): JsonResponse {
+
+        $searchableColumns = array_values($searchableColumns);
+        $columnSearchables = array_filter($searchableColumns, 'is_string');
+        $sortableColumns = $sortableColumns ?: $columnSearchables;
+
         // 1. Eksekusi Extra Filters jika tersedia
         if (is_callable($extraFilters)) {
             $extraFilters($query);
@@ -35,7 +42,11 @@ class DataTableService
         if (! empty($searchValue) && mb_strlen($searchValue) >= 3) {
             $query->where(function ($q) use ($searchableColumns, $searchValue) {
                 foreach ($searchableColumns as $column) {
-                    $q->orWhere($column, 'LIKE', '%'.$searchValue.'%');
+                    if (is_callable($column)) {
+                        $column($q, $searchValue);
+                    } else {
+                        $q->orWhere($column, 'LIKE', '%'.$searchValue.'%');
+                    }
                 }
             });
         }
@@ -46,7 +57,7 @@ class DataTableService
             $columnName = $columnDto['data'] ?? '';
             $columnSearch = $columnDto['search']['value'] ?? '';
 
-            if (! empty($columnSearch) && mb_strlen($columnSearch) >= 3 && in_array($columnName, $searchableColumns)) {
+            if (! empty($columnSearch) && mb_strlen($columnSearch) >= 3 && in_array($columnName, $columnSearchables)) {
                 $query->where($columnName, 'LIKE', '%'.$columnSearch.'%');
             }
         }
@@ -62,7 +73,7 @@ class DataTableService
                 $columnName = $columns[$columnIndex]['data'] ?? null;
                 $direction = $order['dir'] === 'desc' ? 'desc' : 'asc';
 
-                if ($columnName && in_array($columnName, $searchableColumns)) {
+                if ($columnName && in_array($columnName, $sortableColumns)) {
                     $query->orderBy($columnName, $direction);
                 }
             }
@@ -93,8 +104,7 @@ class DataTableService
         ]);
     }
 
-
-     /**
+    /**
      * Versi cursor pagination — untuk tabel besar (ratusan ribu+ row).
      * Tidak ada COUNT(*) & tidak ada OFFSET, jadi stabil di kedalaman berapa pun.
      * Trade-off: frontend gak bisa nampilin nomor halaman total, cuma next/prev.

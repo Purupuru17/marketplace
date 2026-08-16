@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Store;
 use App\Models\SubscriptionInvoice;
 use App\Services\Store\SubscriptionInvoiceService;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Services\DataTableService;
+use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
 
 class SubscriptionInvoiceController extends BaseCoreController
@@ -17,20 +19,23 @@ class SubscriptionInvoiceController extends BaseCoreController
 
     public function index(Request $request)
     {
-        $invoices = $this->service->paginate(
-            $request->only(['search', 'status']),
-            (int) $request->input('per_page', 10)
-        );
+        $columns = [
+            ['key' => 'invoice_no', 'label' => 'No Invoice', 'html' => true, 'align' => 'left'],
+            ['key' => 'store', 'label' => 'Toko', 'align' => 'left'],
+            ['key' => 'amount', 'label' => 'Jumlah', 'sortable' => true, 'html' => true, 'align' => 'right'],
+            ['key' => 'due_at', 'label' => 'Jatuh Tempo', 'sortable' => true, 'align' => 'center'],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => true, 'html' => true, 'align' => 'center'],
+        ];
 
         $compact = [
-            'listData' => $invoices,
-
             'title' => 'Invoice Subscription',
             'subtitle' => 'Data Invoice Subscription',
 
             'module' => $this->module,
             'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Toko'], ['Invoice Subscription']],
+
+            'columns' => $columns,
         ];
 
         return view($this->view.'.index', $compact);
@@ -101,6 +106,57 @@ class SubscriptionInvoiceController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', 'Invoice subscription berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+                'index' => $this->tableIndex($request),
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        return DataTableService::process(
+            $request,
+            SubscriptionInvoice::with(['subscription.store', 'subscription.storeLevel']),
+            [
+                fn ($query, $search) => $query->orWhere('invoice_no', 'like', '%'.$search.'%')
+                    ->orWhereHas('subscription.store', fn ($q) => $q->where('store_name', 'like', '%'.$search.'%')),
+            ],
+            function ($query) use ($request) {
+                if ($request->filled('status')) {
+                    $query->where('status', $request->input('status'));
+                }
+            },
+            function (SubscriptionInvoice $item) {
+                $status = match ($item->status) {
+                    'paid' => Render::badge('success', 'Paid'),
+                    'overdue' => Render::badge('danger', 'Overdue'),
+                    default => Render::badge('warning', 'Pending'),
+                };
+
+                return [
+                    'id' => $item->id,
+                    'invoice_no' => '<p class="font-semibold text-gray-900 dark:text-white">'.e($item->invoice_no).'</p><p class="text-xs text-gray-500 dark:text-gray-400">'.e($item->subscription->storeLevel->name ?? '-').'</p>',
+                    'name_plain' => $item->invoice_no,
+                    'store' => e($item->subscription->store->store_name ?? '-'),
+                    'amount' => '<span class="font-semibold text-gray-900 dark:text-white">Rp '.number_format($item->amount, 0, ',', '.').'</span>',
+                    'due_at' => $item->due_at->format('d M Y'),
+                    'status' => $status,
+                    'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $item->id) : null,
+                    'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $item->id) : null,
+                ];
+            },
+            ['amount', 'due_at', 'status', 'created_at']
+        );
     }
 
     protected function validateInvoice(Request $request): array

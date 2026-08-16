@@ -15,10 +15,10 @@ use Spatie\Permission\PermissionRegistrar;
 class MasterDataSeeder extends Seeder
 {
     protected array $permissions = [
-        'store-level' => ['index', 'create', 'edit', 'delete'],
-        'customer-level' => ['index', 'create', 'edit', 'delete'],
-        'category' => ['index', 'create', 'edit', 'delete'],
-        'attribute' => ['index', 'create', 'edit', 'delete'],
+        'store-level' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'customer-level' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'category' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'attribute' => ['index', 'create', 'edit', 'delete', 'ajax'],
     ];
 
     public function run(): void

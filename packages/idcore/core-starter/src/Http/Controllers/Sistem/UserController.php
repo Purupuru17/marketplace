@@ -24,10 +24,10 @@ class UserController extends BaseCoreController
     public function index(Request $request)
     {
         $columns = [
-            ['key' => 'name', 'label' => 'Name', 'sortable' => true, 'searchable' => true, 'html' => true],
+            ['key' => 'name', 'label' => 'Nama', 'sortable' => true, 'searchable' => true, 'html' => true],
             ['key' => 'email', 'label' => 'Email', 'sortable' => true, 'searchable' => true],
-            ['key' => 'roles', 'label' => 'Role', 'html' => true],
-            ['key' => 'status', 'label' => 'Status', 'sortable' => true, 'html' => true]
+            ['key' => 'roles', 'label' => 'Role'],
+            ['key' => 'status', 'label' => 'Status'],
         ];
         $roles = Role::select('id', 'name')->orderBy('name')->get();
 
@@ -166,7 +166,7 @@ class UserController extends BaseCoreController
     public function show(User $user)
     {
         $user->load('roles');
-        
+
         $compact = [
             'detail' => $user,
 
@@ -187,7 +187,7 @@ class UserController extends BaseCoreController
     {
         $type = $request->input('type');
         $source = $request->input('source');
-        
+
         return match ($type) {
             'table' => match ($source) {
 
@@ -232,7 +232,7 @@ class UserController extends BaseCoreController
                     'email' => $user->email,
                     'roles' => $rolesBadges,
                     'status' => $statusBadge,
-                    
+
                     'detail_url' => Auth::user()->can('user.detail') ? route($this->module.'.show', $user->id) : null,
                     'edit_url' => Auth::user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
                     'delete_url' => Auth::user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,

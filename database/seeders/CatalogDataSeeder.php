@@ -19,8 +19,8 @@ use Spatie\Permission\PermissionRegistrar;
 class CatalogDataSeeder extends Seeder
 {
     protected array $permissions = [
-        'product' => ['index', 'create', 'edit', 'delete'],
-        'product-variant' => ['index', 'create', 'edit', 'delete'],
+        'product' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'product-variant' => ['index', 'create', 'edit', 'delete', 'ajax'],
     ];
 
     public function run(): void
@@ -62,7 +62,7 @@ class CatalogDataSeeder extends Seeder
 
         $storeOrderPermissions = array_filter(array_map(
             fn (string $action) => Permission::findByName("orders.{$action}", 'web'),
-            ['index', 'detail', 'edit']
+            ['index', 'detail', 'edit', 'ajax']
         ));
 
         $walletPermissions = array_filter(array_map(
@@ -72,7 +72,7 @@ class CatalogDataSeeder extends Seeder
 
         $promotionPermissions = array_filter(array_map(
             fn (string $action) => Permission::findByName("promotion.{$action}", 'web'),
-            ['index', 'create', 'edit', 'delete']
+            ['index', 'create', 'edit', 'delete', 'ajax']
         ));
 
         $chatPermissions = array_filter(array_map(

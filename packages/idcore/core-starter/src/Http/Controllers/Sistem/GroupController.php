@@ -3,6 +3,7 @@
 namespace IdCore\CoreStarter\Http\Controllers\Sistem;
 
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Services\DataTableService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
@@ -17,23 +18,13 @@ class GroupController extends BaseCoreController
 
     public function index(Request $request)
     {
-        $roles = Role::orderBy('name')->get();
-
-        $rows = $roles->map(fn (Role $role) => [
-            'id' => $role->id,
-            'name' => $role->name,
-            'guard_name' => $role->guard_name,
-            'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $role->id) : null,
-            'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $role->id) : null,
-        ])->values()->all();
-
         $columns = [
-            ['key' => 'name', 'label' => 'Nama Grup', 'sortable' => true],
-            ['key' => 'guard_name', 'label' => 'Guard', 'sortable' => true],
+            ['key' => 'name', 'label' => 'Nama', 'sortable' => true, 'searchable' => true],
+            ['key' => 'guard_name', 'label' => 'Guard'],
         ];
 
         $compact = [
-            'listData' => $roles,
+            'guards' => Role::query()->distinct()->pluck('guard_name')->sort()->values(),
 
             'title' => 'Group',
             'subtitle' => 'Daftar Role yang tersedia',
@@ -43,7 +34,6 @@ class GroupController extends BaseCoreController
             'breadcrumb' => [['Beranda', route('dashboard')], [ucwords($this->resourceName())]],
 
             'columns' => $columns,
-            'rows' => $rows,
         ];
 
         return view('idcore::'.$this->module.'.index', $compact);
@@ -118,5 +108,45 @@ class GroupController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', 'Data berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+
+                'index' => $this->tableIndex($request),
+
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        return DataTableService::process(
+            $request,
+            Role::query(),
+            ['name', 'guard_name'],
+            function ($query) use ($request) {
+                if ($request->filled('guard_name')) {
+                    $query->where('guard_name', $request->input('guard_name'));
+                }
+            },
+            function (Role $role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'name_plain' => $role->name,
+                    'guard_name' => $role->guard_name,
+                    'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $role->id) : null,
+                    'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $role->id) : null,
+                ];
+            }
+        );
     }
 }

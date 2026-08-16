@@ -13,8 +13,8 @@ use Spatie\Permission\PermissionRegistrar;
 class LocationDataSeeder extends Seeder
 {
     protected array $permissions = [
-        'location-node' => ['index', 'create', 'edit', 'delete'],
-        'location-distance' => ['index', 'create', 'edit', 'delete'],
+        'location-node' => ['index', 'create', 'edit', 'delete', 'ajax'],
+        'location-distance' => ['index', 'create', 'edit', 'delete', 'ajax'],
     ];
 
     public function run(): void

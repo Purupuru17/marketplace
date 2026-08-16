@@ -30,7 +30,7 @@ use App\Http\Controllers\Store\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('storefront.index');
 });
 
 Route::middleware(['web'])->group(function () {
@@ -82,19 +82,29 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('master')->name('master.')->group(function () {
+    Route::get('store-level/ajax', [StoreLevelController::class, 'ajax'])->name('store-level.ajax');
     Route::resource('store-level', StoreLevelController::class)->except(['show']);
+    Route::get('customer-level/ajax', [CustomerLevelController::class, 'ajax'])->name('customer-level.ajax');
     Route::resource('customer-level', CustomerLevelController::class)->except(['show']);
+    Route::get('category/ajax', [CategoryController::class, 'ajax'])->name('category.ajax');
     Route::resource('category', CategoryController::class)->except(['show']);
+    Route::get('attribute/ajax', [AttributeController::class, 'ajax'])->name('attribute.ajax');
     Route::resource('attribute', AttributeController::class)->except(['show']);
+    Route::get('location-node/ajax', [LocationNodeController::class, 'ajax'])->name('location-node.ajax');
     Route::resource('location-node', LocationNodeController::class)->except(['show']);
+    Route::get('location-distance/ajax', [LocationDistanceController::class, 'ajax'])->name('location-distance.ajax');
     Route::resource('location-distance', LocationDistanceController::class)->except(['show']);
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->group(function () {
+    Route::get('store/ajax', [StoreController::class, 'ajax'])->name('store.ajax');
     Route::resource('store', StoreController::class)->except(['show']);
+    Route::get('subscription/ajax', [SubscriptionController::class, 'ajax'])->name('subscription.ajax');
     Route::resource('subscription', SubscriptionController::class)->except(['show']);
+    Route::get('subscription-invoice/ajax', [SubscriptionInvoiceController::class, 'ajax'])->name('subscription-invoice.ajax');
     Route::resource('subscription-invoice', SubscriptionInvoiceController::class)->except(['show']);
 
+    Route::get('orders/ajax', [OrdersController::class, 'ajax'])->name('order.ajax');
     Route::get('orders', [OrdersController::class, 'index'])->name('order.index');
     Route::get('orders/{order}', [OrdersController::class, 'show'])->name('order.show');
     Route::post('orders/{order}/status', [OrdersController::class, 'update'])->name('order.update');
@@ -103,6 +113,7 @@ Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->gro
     Route::post('wallet', [WalletController::class, 'store'])->name('wallet.store');
     Route::post('wallet/withdrawal/{withdrawal}/{action}', [WalletController::class, 'process'])->name('wallet.process');
 
+    Route::get('promotion/ajax', [PromotionController::class, 'ajax'])->name('promotion.ajax');
     Route::resource('promotion', PromotionController::class)->except(['show']);
 
     Route::get('chat', [StoreChatController::class, 'index'])->name('chat.index');
@@ -111,7 +122,9 @@ Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->gro
 });
 
 Route::middleware(['web', 'auth', 'active'])->prefix('katalog')->name('katalog.')->group(function () {
+    Route::get('product/ajax', [ProductController::class, 'ajax'])->name('product.ajax');
     Route::resource('product', ProductController::class)->except(['show']);
+    Route::get('product-variant/ajax', [ProductVariantController::class, 'ajax'])->name('product-variant.ajax');
     Route::resource('product-variant', ProductVariantController::class)->except(['show']);
 });
 

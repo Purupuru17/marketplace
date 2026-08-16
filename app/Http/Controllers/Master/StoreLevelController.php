@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Master;
 use App\Models\StoreLevel;
 use App\Services\Master\StoreLevelService;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
+use IdCore\CoreStarter\Services\DataTableService;
+use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
 
 class StoreLevelController extends BaseCoreController
@@ -15,20 +17,24 @@ class StoreLevelController extends BaseCoreController
 
     public function index(Request $request)
     {
-        $storeLevels = $this->service->paginate(
-            $request->only(['search']),
-            (int) $request->input('per_page', 10)
-        );
+        $columns = [
+            ['key' => 'name', 'label' => 'Nama', 'sortable' => true, 'searchable' => true, 'align' => 'left'],
+            ['key' => 'price', 'label' => 'Harga', 'sortable' => true, 'align' => 'right'],
+            ['key' => 'max_products', 'label' => 'Maks Produk', 'sortable' => true, 'align' => 'center'],
+            ['key' => 'max_discount', 'label' => 'Maks Diskon', 'sortable' => true, 'align' => 'center'],
+            ['key' => 'campaign', 'label' => 'Campaign', 'html' => true, 'align' => 'center'],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => true, 'html' => true, 'align' => 'center'],
+        ];
 
         $compact = [
-            'listData' => $storeLevels,
-
             'title' => 'Store Level',
             'subtitle' => 'Data Store Level',
 
             'module' => $this->module,
             'rolesName' => $this->resourceName(),
             'breadcrumb' => [['Beranda', route('dashboard')], ['Master Data'], ['Store Level']],
+
+            'columns' => $columns,
         ];
 
         return view($this->module.'.index', $compact);
@@ -115,5 +121,44 @@ class StoreLevelController extends BaseCoreController
         return redirect()
             ->route($this->module.'.index')
             ->with('success', 'Store level berhasil dihapus.');
+    }
+
+    public function ajax(Request $request)
+    {
+        $type = $request->input('type');
+        $source = $request->input('source');
+
+        return match ($type) {
+            'table' => match ($source) {
+                'index' => $this->tableIndex($request),
+                default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
+            },
+            default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
+        };
+    }
+
+    private function tableIndex(Request $request)
+    {
+        return DataTableService::process(
+            $request,
+            StoreLevel::query(),
+            ['name'],
+            null,
+            function (StoreLevel $item) {
+                return [
+                    'id' => $item->id,
+                    'name' => '<p class="font-semibold text-gray-900 dark:text-white">'.e($item->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">Urutan: '.$item->sort_order.'</p>',
+                    'name_plain' => $item->name,
+                    'price' => 'Rp '.number_format($item->price, 0, ',', '.'),
+                    'max_products' => $item->max_products ?? '-',
+                    'max_discount' => $item->max_discount ? $item->max_discount.'%' : '-',
+                    'campaign' => $item->can_run_campaign ? Render::badge('success', 'Ya') : Render::badge('gray', 'Tidak'),
+                    'status' => $item->status === 'active' ? Render::badge('success', 'Active') : Render::badge('danger', 'Inactive'),
+                    'edit_url' => auth()->user()->can($this->resourceName().'.edit') ? route($this->module.'.edit', $item->id) : null,
+                    'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $item->id) : null,
+                ];
+            },
+            ['name', 'price', 'max_products', 'max_discount', 'can_run_campaign', 'sort_order', 'status']
+        );
     }
 }

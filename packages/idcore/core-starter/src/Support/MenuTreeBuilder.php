@@ -66,7 +66,10 @@ class MenuTreeBuilder
 
             $node['is_current'] = ! empty($node['url'])
                 && $node['url'] !== '#'
-                && request()->is(ltrim($node['url'], '/').'*');
+                && request()->is([
+                    ltrim($node['url'], '/'),
+                    ltrim($node['url'], '/').'/*',
+                ]);
 
             $node['has_active_child'] = collect($node['children'])
                 ->contains(fn ($c) => $c['is_current'] || $c['has_active_child']);

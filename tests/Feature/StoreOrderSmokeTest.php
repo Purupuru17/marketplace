@@ -116,19 +116,31 @@ class StoreOrderSmokeTest extends TestCase
         $order = $this->placeOrder('cod');
 
         $this->actingAs($this->owner(), 'web')
-            ->get(route('toko.order.index'))
+            ->get(route('toko.order.ajax', [
+                'type' => 'table', 'source' => 'index',
+                'search' => ['value' => $order->order_no],
+                'start' => 0, 'length' => 10,
+            ]))
             ->assertOk()
             ->assertSee($order->order_no, false);
 
         $budi = $this->createOtherOwnerStore();
 
         $this->actingAs($budi, 'web')
-            ->get(route('toko.order.index'))
+            ->get(route('toko.order.ajax', [
+                'type' => 'table', 'source' => 'index',
+                'search' => ['value' => $order->order_no],
+                'start' => 0, 'length' => 10,
+            ]))
             ->assertOk()
             ->assertDontSee($order->order_no, false);
 
         $this->actingAs($this->admin(), 'web')
-            ->get(route('toko.order.index'))
+            ->get(route('toko.order.ajax', [
+                'type' => 'table', 'source' => 'index',
+                'search' => ['value' => $order->order_no],
+                'start' => 0, 'length' => 10,
+            ]))
             ->assertOk()
             ->assertSee($order->order_no, false);
     }
