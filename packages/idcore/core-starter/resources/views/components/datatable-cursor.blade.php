@@ -4,11 +4,11 @@
     'perPage' => 20,
     'perPageOptions' => [20, 50, 100],
     'searchable' => true,
-    'showNumber' => false,
+    'showNumber' => true,
     'emptyMessage' => 'Belum ada data.',
     'method' => 'GET',
     'actionsHeader' => 'Aksi',
-    'embedded' => false,
+    'embedded' => true,
     'defaultSortBy' => 'id',
     'defaultSortDir' => 'desc',
 ])
@@ -199,7 +199,7 @@ class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 b
                 </template>
 
                 <tr x-show="!loading && rows.length === 0">
-                    <td :colspan="(showNumber ? 1 : 0) + columns.length + {{ $hasActions ? '1' : '0' }}" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">{{ $emptyMessage }}</td>
+                    <td :colspan="({{$showNumber ? 1 : 0}} + columns.length + {{ $hasActions ? '1' : '0' }})" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">{{ $emptyMessage }}</td>
                 </tr>
             </tbody>
         </table>

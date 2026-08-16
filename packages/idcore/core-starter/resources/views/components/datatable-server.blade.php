@@ -4,22 +4,23 @@
     'perPage' => 10,
     'perPageOptions' => [5, 10, 25, 50, 100],
     'searchable' => true,
-    'showNumber' => false,
+    'showNumber' => true,
     'emptyMessage' => 'Belum ada data.',
     'method' => 'GET',
     'actionsHeader' => 'Aksi',
-    'embedded' => false,
+    'embedded' => true,
     'selectable' => false,
+    'filters' => [],
 ])
 
 @php
     $columns = collect($columns)->map(fn($col) => array_merge([
         'key' => null,
         'label' => '',
-        'sortable' => true,
-        'searchable' => true,
+        'sortable' => false,
+        'searchable' => false,
         'html' => false,
-        'align' => 'left',
+        'align' => 'center',
         'width' => null,
     ], $col))->all();
     $hasActions = isset($actions);
@@ -42,6 +43,9 @@
     loading: false,
     selectable: false,
     selected: [],
+    filters: {},
+    pendingFilters: {},
+    showFilters: false,
 
     get totalPages() { return Math.max(1, Math.ceil(this.recordsFiltered / this.perPage)); },
     get from() { return this.recordsFiltered === 0 ? 0 : (this.page - 1) * this.perPage + 1; },
@@ -79,8 +83,19 @@
             params.set('order[0][column]', sortTarget);
             params.set('order[0][dir]', this.sortDir);
         }
+        Object.entries(this.filters).forEach(([key, value]) => {
+            if (value !== '' && value !== null && value !== undefined) {
+                params.set(key, value);
+            }
+        });
 
         return params;
+    },
+
+    applyFilters() {
+        this.filters = { ...this.pendingFilters }; // commit draft jadi aktif
+        this.page = 1;                              // reset ke halaman 1, penting karena hasil filter beda total data
+        this.fetchData();
     },
 
     async fetchData() {
@@ -159,6 +174,26 @@
 }"
 class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03]' }}">
 
+     {{-- SECTION 1: Filter panel — grid terpisah, gak nyatu sama toolbar --}}
+    @if(isset($filters) && trim($filters))
+        <div class="border-b border-gray-100 dark:border-gray-800">
+            <button type="button" @click="showFilters = !showFilters"
+                class="flex w-full items-center justify-between px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span class="inline-flex items-center gap-1.5">
+                    @svg('heroicon-o-funnel', 'h-4 w-4')
+                    Filter
+                </span>
+                @svg('heroicon-o-chevron-down', 'h-4 w-4')
+            </button>
+            <div x-show="showFilters" x-collapse class="px-5 pb-4">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {{ $filters }}
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- SECTION 2: Toolbar — per-page & search, TIDAK BERUBAH dari sebelumnya --}}
     @if($searchable)
     <div class="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 dark:border-gray-800 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -182,61 +217,79 @@ class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 b
 
     <div class="relative max-w-full overflow-x-auto">
         <div x-show="loading" x-cloak class="absolute inset-0 z-10 flex items-center justify-center bg-white/60 dark:bg-gray-950/60">
-            <svg class="h-6 w-6 animate-spin text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 animate-spin text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
         </div>
 
-        <table {{ $attributes->merge(['class' => 'min-w-full']) }}>
+        <table {{ $attributes->merge(['class' => 'min-w-full  border-collapse']) }}>
             <thead class="bg-gray-50 dark:bg-gray-800/50">
-                <tr>
+                <tr class="transition hover:bg-gray-200 dark:hover:bg-gray-800/60">
+                    @if($selectable)
+                        <th class="border border-gray-200 px-5 py-4 w-10 text-center dark:border-gray-800">
+                            <input type="checkbox" @change="toggleAll($event.target.checked)"
+                                :checked="rows.length > 0 && selected.length === rows.length"
+                                class="rounded border-gray-300">
+                        </th>
+                    @endif
                     @if($showNumber)
-                        <th class="px-5 py-3 text-left text-theme-xs font-medium text-gray-500 dark:text-gray-400">
-                            @if($selectable)
-                                <input type="checkbox" @change="toggleAll($event.target.checked)"
-                                    :checked="rows.length > 0 && selected.length === rows.length"
-                                    class="rounded border-gray-300">
-                            @endif
+                        <th class="border border-gray-200 px-5 py-4 text-center text-theme-xs font-medium text-gray-500 dark:border-gray-800 dark:text-gray-400">
                             No
                         </th>
                     @endif
                     @foreach($columns as $col)
-                        <th @if($col['width']) style="width: {{ $col['width'] }}" @endif
-                            class="px-5 py-3 {{ $col['align'] === 'center' ? 'text-center' : ($col['align'] === 'right' ? 'text-right' : 'text-left') }} text-theme-xs font-medium text-gray-500 dark:text-gray-400">
-                            @if($col['sortable'])
-                                <button type="button" @click="setSort({{ Js::from($col) }})"
-                                     class="group inline-flex w-full items-center gap-1.5 transition hover:text-brand-600 dark:hover:text-brand-400">
-                                     <span>{{ $col['label'] }}</span>
-                                     <span class="inline-flex flex-col text-gray-300 group-hover:text-brand-500 dark:text-gray-600">
-                                         <svg x-show="sortKey !== {{ Js::from($col['key']) }} || sortDir !== 'desc'" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 9 4-4 4 4"></path></svg>
-                                         <svg x-show="sortKey !== {{ Js::from($col['key']) }} || sortDir !== 'asc'" class="-mt-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4"></path></svg>
-                                     </span>
-                                </button>
-                            @else
-                                <span>{{ $col['label'] }}</span>
-                            @endif
-                        </th>
-                    @endforeach
+                    @php
+                        $alignClass = $col['align'] === 'center' ? 'text-center' : ($col['align'] === 'right' ? 'text-right' : 'text-left');
+                    @endphp
+                    <th @if($col['width']) style="width: {{ $col['width'] }}" @endif
+                        class="border border-gray-200 px-5 py-4 {{ $alignClass }} text-theme-xs font-medium text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                        @if($col['sortable'])
+                            <button type="button" @click="setSort({{ Js::from($col) }})"
+                                class="group inline-flex w-full items-center gap-1.5 transition hover:text-brand-600 dark:hover:text-brand-400">
+                                <span class="flex-1 {{ $alignClass }}">{{ $col['label'] }}</span>
+                                <span class="shrink-0 ml-auto h-4 w-4 text-gray-300 dark:text-gray-600">
+                                    <span x-show="sortKey === {{ Js::from($col['key']) }} && sortDir === 'asc'" class="text-brand-500 dark:text-brand-400">
+                                        @svg('heroicon-o-chevron-up', 'h-4 w-4')
+                                    </span>
+                                    <span x-show="sortKey === {{ Js::from($col['key']) }} && sortDir === 'desc'" class="text-brand-500 dark:text-brand-400">
+                                        @svg('heroicon-o-chevron-down', 'h-4 w-4')
+                                    </span>
+                                    <span x-show="sortKey !== {{ Js::from($col['key']) }}">
+                                        @svg('heroicon-m-chevron-up-down', 'h-4 w-4')
+                                    </span>
+                                </span>
+                            </button>
+                        @else
+                            <span class="block {{ $alignClass }}">{{ $col['label'] }}</span>
+                        @endif
+                    </th>
+                @endforeach
                     @if($hasActions)
-                        <th class="px-5 py-3 text-right text-theme-xs font-medium text-gray-500 dark:text-gray-400">{{ $actionsHeader }}</th>
+                        <th class="border border-gray-200 px-5 py-4 text-center text-theme-xs font-medium text-gray-500 dark:border-gray-800 dark:text-gray-400">{{ $actionsHeader }}</th>
                     @endif
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            <tbody>
                 <template x-for="(row, idx) in rows" :key="draw + '-' + idx">
-                    <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <tr class="transition hover:bg-gray-100 dark:hover:bg-gray-800/60">
+                        @if($selectable)
+                            <td class="border border-gray-200 px-5 py-4 text-center dark:border-gray-800">
+                                <input type="checkbox" :checked="isSelected(row.id)" @change="toggleRow(row.id)"
+                                    class="rounded border-gray-300">
+                            </td>
+                        @endif
                         @if($showNumber)
-                            <td class="px-5 py-4 text-theme-sm text-gray-500 dark:text-gray-400" x-text="from + idx"></td>
+                            <td class="border border-gray-200 px-5 py-4 text-center text-theme-sm text-gray-500 dark:border-gray-800 dark:text-gray-400" x-text="from + idx"></td>
                         @endif
                         <template x-for="col in columns" :key="col.key">
-                            <td class="px-5 py-4 text-theme-sm text-gray-700 dark:text-gray-300"
+                            <td class="border border-gray-200 px-5 py-4 text-theme-sm text-gray-700 dark:border-gray-800 dark:text-gray-300"
                                 :class="col.align === 'center' ? 'text-center' : (col.align === 'right' ? 'text-right' : 'text-left')"
                                 x-html="col.html ? (row[col.key] ?? '') : String(row[col.key] ?? '')"></td>
                         </template>
                         @if($hasActions)
-                            <td class="px-5 py-4 text-right">
-                                <div class="flex items-center justify-end gap-1">
+                            <td class="border border-gray-200 px-5 py-4 text-center dark:border-gray-800 dark:border-gray-800">
+                                <div class="flex items-center justify-center gap-1">
                                     {{ $actions }}
                                 </div>
                             </td>
@@ -244,7 +297,9 @@ class="overflow-hidden {{ $embedded ? '' : 'rounded-2xl border border-gray-200 b
                     </tr>
                 </template>
                 <tr x-show="!loading && recordsFiltered === 0">
-                    <td :colspan="(showNumber ? 1 : 0) + columns.length + {{ $hasActions ? '1' : '0' }}" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">{{ $emptyMessage }}</td>
+                    <td :colspan="({{ $selectable ? '1' : '0' }}) + ({{ $showNumber ? '1' : '0' }}) + columns.length + {{ $hasActions ? '1' : '0' }}" class="border border-gray-200 px-6 py-12 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                        {{ $emptyMessage }}
+                    </td>
                 </tr>
             </tbody>
         </table>

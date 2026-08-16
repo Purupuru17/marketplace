@@ -5,6 +5,7 @@ namespace IdCore\CoreStarter\Http\Controllers\Sistem;
 use App\Models\User;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
 use IdCore\CoreStarter\Services\DataTableService;
+use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -23,12 +24,16 @@ class UserController extends BaseCoreController
     public function index(Request $request)
     {
         $columns = [
-            ['key' => 'name', 'label' => 'Name', 'sortable' => true, 'align' => 'center', 'html' => true],
-            ['key' => 'email', 'label' => 'Email', 'sortable' => true, 'align' => 'center'],
-            ['key' => 'roles', 'label' => 'Role', 'sortable' => false, 'html' => true],
+            ['key' => 'name', 'label' => 'Name', 'sortable' => true, 'searchable' => true, 'html' => true],
+            ['key' => 'email', 'label' => 'Email', 'sortable' => true, 'searchable' => true],
+            ['key' => 'roles', 'label' => 'Role', 'html' => true],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => true, 'html' => true]
         ];
+        $roles = Role::select('id', 'name')->orderBy('name')->get();
+
         $compact = [
             'columns' => $columns,
+            'roles' => $roles,
 
             'title' => 'Users',
             'subtitle' => 'Daftar Akun dan Role yang tersedia',
@@ -158,7 +163,25 @@ class UserController extends BaseCoreController
             ->with('success', 'Data berhasil dihapus.');
     }
 
-    public function show(User $user) {}
+    public function show(User $user)
+    {
+        $user->load('roles');
+        
+        $compact = [
+            'detail' => $user,
+
+            'title' => 'Users',
+            'subtitle' => 'Detail informasi user',
+            'action' => null,
+
+            'module' => $this->module,
+            'breadcrumb' => [['Beranda', route('dashboard')],
+                [ucwords($this->resourceName()), route($this->module.'.index')], ['Detail Data']],
+        ];
+
+        return view('idcore::'.$this->module.'.show', $compact);
+
+    }
 
     public function ajax(Request $request)
     {
@@ -170,56 +193,47 @@ class UserController extends BaseCoreController
 
                 'index' => $this->tableIndex($request),
 
-                'index_cursor' => $this->tableIndex($request, true),
-
                 default => response()->json(['status' => 'error', 'message' => 'Sumber data tidak valid.'], 400),
             },
             default => response()->json(['status' => 'error', 'message' => 'Aksi tidak valid.'], 400),
         };
     }
 
-    private function tableIndex(Request $request, $cursor = false)
+    private function tableIndex(Request $request)
     {
-        if($cursor){
-            return DataTableService::processCursor(
-                $request,
-                User::with('roles'),
-                ['name', 'email'],
-                null,
-                function (User $user) {
-                    $rolesBadges = $user->roles->count() > 0
-                        ? $user->roles->map(fn ($role) => '<span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">'.e($role->name).'</span>')->implode(' ')
-                        : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Tanpa role</span>';
-
-                    return [
-                        'id' => $user->id,
-                        'name' => '<div class="flex items-center gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-500 dark:bg-gray-800 dark:text-brand-400">'.e(strtoupper(substr($user->name, 0, 1))).'</div><div><p class="font-semibold text-gray-900 dark:text-white">'.e($user->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">ID : '.$user->id.'</p></div></div>',
-                        'email' => $user->email,
-                        'roles' => $rolesBadges,
-                        'name_plain' => $user->name,
-                        'edit_url' => Auth::user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
-                        'delete_url' => Auth::user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
-                    ];
-                }
-            );
-        }
         return DataTableService::process(
-        // return DataTableService::processCursor(
             $request,
             User::with('roles'),
             ['name', 'email'],
-            null,
+            function ($query) use ($request) {
+                if ($request->filled('role_id')) {
+                    $query->whereHas('roles', function ($q) use ($request) {
+                        $q->where('roles.id', $request->input('role_id'));
+                    });
+                }
+                if ($request->filled('status')) {
+                    $query->where('status', $request->input('status'));
+                }
+            },
             function (User $user) {
                 $rolesBadges = $user->roles->count() > 0
-                    ? $user->roles->map(fn ($role) => '<span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">'.e($role->name).'</span>')->implode(' ')
-                    : '<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-gray-700 dark:bg-white/5 dark:text-gray-400">Tanpa role</span>';
+                    ? $user->roles->map(fn ($role) => Render::badge('brand', $role->name))->implode(' ')
+                    : Render::badge('gray', 'Tanpa role');
+
+                $statusBadge = Render::badge(
+                    $user->status === 'active' ? 'success' : 'danger',
+                    $user->status === 'active' ? 'Aktif' : 'Tidak Aktif'
+                );
 
                 return [
                     'id' => $user->id,
-                    'name' => '<div class="flex items-center gap-3"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-bold text-brand-500 dark:bg-gray-800 dark:text-brand-400">'.e(strtoupper(substr($user->name, 0, 1))).'</div><div><p class="font-semibold text-gray-900 dark:text-white">'.e($user->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">ID : '.$user->id.'</p></div></div>',
+                    'name' => '<p class="font-semibold text-gray-900 dark:text-white">'.e($user->name).'</p><p class="text-xs text-gray-500 dark:text-gray-400">ID : '.$user->id.'</p>',
+                    'name_plain' => '<strong>'.$user->name.'</strong>',
                     'email' => $user->email,
                     'roles' => $rolesBadges,
-                    'name_plain' => $user->name,
+                    'status' => $statusBadge,
+                    
+                    'detail_url' => Auth::user()->can('user.detail') ? route($this->module.'.show', $user->id) : null,
                     'edit_url' => Auth::user()->can('user.edit') ? route($this->module.'.edit', $user->id) : null,
                     'delete_url' => Auth::user()->can('user.delete') ? route($this->module.'.destroy', $user->id) : null,
                 ];

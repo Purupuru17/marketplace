@@ -3,9 +3,17 @@
     'rolesName',
 ])
 
+@can($rolesName.'.detail')
+    <a :href="row.detail_url" x-cloak x-show="row.detail_url"
+    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-brand-500 transition hover:bg-brand-100 hover:text-brand-600 dark:text-gray-400 dark:hover:bg-brand-500/10 dark:hover:text-brand-400"
+    title="Lihat Data">
+        @svg('heroicon-o-magnifying-glass-plus', 'h-5 w-5')
+    </a>
+@endcan
+
 @can($rolesName.'.edit')
     <a :href="row.edit_url" x-cloak x-show="row.edit_url"
-       class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-brand-600 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-brand-400"
+       class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-warning-500 transition hover:bg-warning-100 hover:text-warning-600 dark:text-gray-400 dark:hover:bg-warning-500/10 dark:hover:text-warning-400"
        title="Ubah Data">
         @svg('heroicon-o-pencil-square', 'h-5 w-5')
     </a>
@@ -13,7 +21,7 @@
 
 @can($rolesName.'.delete')
     <button type="button" x-cloak x-show="row.delete_url"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition hover:bg-error-50 hover:text-error-600 dark:text-gray-400 dark:hover:bg-error-500/10 dark:hover:text-error-400"
+            class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-error-500 transition hover:bg-error-100 hover:text-error-600 dark:text-gray-400 dark:hover:bg-error-500/10 dark:hover:text-error-400"
             @click.prevent="$confirm({
                 title: 'Peringatan !',
                 message: 'Apakah anda yakin akan menghapus data ' + (row.name_plain ?? row.name ?? 'ini') + ' ?',

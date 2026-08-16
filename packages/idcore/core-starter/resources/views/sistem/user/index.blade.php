@@ -6,7 +6,7 @@
     <x-slot:actions>
         @can($rolesName.'.create')
             <x-idcore::button variant="primary" :href="route($module.'.create')">
-                @svg('heroicon-o-pencil', 'h-4 w-4') Tambah Data
+                @svg('heroicon-o-plus', 'h-4 w-4') Tambah Data
             </x-idcore::button>
         @endcan
     </x-slot:actions>
@@ -15,21 +15,52 @@
 <x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
     <x-idcore::datatable-server
         :url="route('sistem.user.ajax', ['type' => 'table', 'source' => 'index'])"
-        :columns="$columns" :show-number="true" searchable embedded>
+        :columns="$columns">
+
+        <x-slot:filters>
+            <div>
+                <x-idcore::select
+                    name="filter_role_id"
+                    label="Role"
+                    x-model="pendingFilters.role_id"
+                    :options="$roles->pluck('name', 'id')->all()"
+                    placeholder="Semua Role"
+                />
+            </div>
+
+            <div>
+                <x-idcore::select
+                    name="filter_status"
+                    label="Status"
+                    x-model="pendingFilters.status"
+                    :options="[
+                        'active' => 'Aktif',
+                        'inactive' => 'Tidak Aktif',
+                    ]"
+                    placeholder="Semua Status"
+                />
+            </div>
+
+            {{-- ulangi untuk 5 filter lainnya --}}
+
+            {{-- Tombol Pencarian & Export — full width row terpisah di grid, biar gak nyempil di kolom filter --}}
+            <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
+                <button type="button" @click="applyFilters()"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:border-brand-800 dark:text-brand-400 dark:hover:bg-brand-500/10">
+                    @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                    Pencarian
+                </button>
+                <button type="button" @click="pendingFilters = {}; applyFilters()"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800">
+                    Reset
+                </button>
+            </div>
+        </x-slot:filters>
+
         <x-slot:actions>
             <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
         </x-slot:actions>
     </x-idcore::datatable-server>
-</x-idcore::card>
-
-<x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" :padding="false">
-    <x-idcore::datatable-cursor
-        :url="route('sistem.user.ajax', ['type' => 'table', 'source' => 'index_cursor'])"
-        :columns="$columns" :show-number="true" searchable embedded>
-        <x-slot:actions>
-            <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
-        </x-slot:actions>
-    </x-idcore::datatable-cursor>
 </x-idcore::card>
 
 @endsection

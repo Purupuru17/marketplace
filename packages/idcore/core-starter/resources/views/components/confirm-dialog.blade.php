@@ -13,7 +13,7 @@
                     </div>
                     <div class="min-w-0 flex-1">
                         <h2 :id="$id('confirm-title')" class="text-base font-semibold text-gray-800 dark:text-white/90" x-text="$store.confirm.options.title || 'Konfirmasi'"></h2>
-                        <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400" x-text="$store.confirm.options.message || 'Apakah kamu yakin?'"></p>
+                        <p class="mt-2 text-lg leading-6 text-gray-500 dark:text-gray-400" x-html="$store.confirm.options.message || 'Apakah kamu yakin?'"></p>
                     </div>
                 </div>
             </div>
@@ -22,7 +22,7 @@
                     <span x-text="$store.confirm.options.cancelText || 'Batal'"></span>
                 </button>
                 <button type="button" x-ref="confirmButton" x-on:click="$store.confirm.confirm()" x-init="$watch('$store.confirm.open', value => value && $nextTick(() => $refs.confirmButton.focus()))" class="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/30" :class="$store.confirm.options.variant === 'danger' ? 'bg-error-500 hover:bg-error-600 focus:ring-error-500/30' : ''">
-                    @svg('heroicon-o-check', 'h-4 w-4')
+                    @svg('heroicon-o-check', 'h-4 w-4')&nbsp;
                     <span x-text="$store.confirm.options.confirmText || 'Ya, Lanjutkan'"></span>
                 </button>
             </div>
