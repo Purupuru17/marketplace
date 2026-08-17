@@ -11,7 +11,9 @@ class BroadcastAuthController extends Controller
     public function authenticate(Request $request)
     {
         $request->setUserResolver(function () {
-            return Auth::guard('customer')->user() ?? Auth::guard('web')->user();
+            return Auth::guard('api-customer')->user()
+                ?? Auth::guard('customer')->user()
+                ?? Auth::guard('web')->user();
         });
 
         return app(BroadcastController::class)->authenticate($request);

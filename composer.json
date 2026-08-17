@@ -19,6 +19,7 @@
         "idcore/core-starter": "dev-main",
         "laravel/framework": "^13.8",
         "laravel/reverb": "^1.11",
+        "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "spatie/laravel-permission": "^7.4"
     },

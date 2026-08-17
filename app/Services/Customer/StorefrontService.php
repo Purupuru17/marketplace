@@ -2,6 +2,7 @@
 
 namespace App\Services\Customer;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
 
@@ -16,6 +17,31 @@ class StorefrontService
             ->when($filters['search'] ?? null, fn ($q, $search) => $q->where('store_name', 'like', "%{$search}%"))
             ->orderBy('store_name')
             ->paginate($perPage);
+    }
+
+    public function products(array $filters = [], int $perPage = 12)
+    {
+        return Product::query()
+            ->where('status', 'active')
+            ->with([
+                'category',
+                'store',
+                'promotions',
+                'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
+            ])
+            ->when($filters['search'] ?? null, fn ($q, $search) => $q->where('name', 'like', "%{$search}%"))
+            ->when($filters['category_id'] ?? null, fn ($q, $id) => $q->where('category_id', $id))
+            ->when($filters['store_id'] ?? null, fn ($q, $id) => $q->where('store_id', $id))
+            ->orderBy('name')
+            ->paginate($perPage);
+    }
+
+    public function categories()
+    {
+        return Category::query()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
     }
 
     public function store(string $slug): Store
