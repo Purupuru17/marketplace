@@ -62,6 +62,11 @@ class CheckoutSmokeTest extends TestCase
         return $this->customer()->addresses()->firstOrFail();
     }
 
+    protected function storeId(string $sku): string
+    {
+        return ProductVariant::where('sku', $sku)->firstOrFail()->store_id;
+    }
+
     public function test_address_crud_and_default_toggle(): void
     {
         $customer = $this->customer();
@@ -152,7 +157,10 @@ class CheckoutSmokeTest extends TestCase
         $this->assertSame(50, (int) $variant->stock);
 
         $response = $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer']);
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [$this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
+            ]);
 
         $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
 
@@ -234,13 +242,92 @@ class CheckoutSmokeTest extends TestCase
         $this->addToCart('AB-REG', 1);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [
+                    $this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer'],
+                    $this->storeId('AB-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer'],
+                ],
+            ])
             ->assertRedirect();
 
         $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
         $this->assertSame('80000.00', (string) $invoice->grand_total);
         $this->assertSame(2, $invoice->orders()->count());
         $this->assertSame(['toko-berkah', 'toko-maju'], $invoice->orders()->with('store')->get()->pluck('store.slug')->sort()->values()->all());
+    }
+
+    public function test_place_order_mixed_fulfillment_and_payment_per_store(): void
+    {
+        $customer = $this->customer();
+        $address = $this->createAddress('Kota Jakarta');
+
+        $store2 = Store::create([
+            'user_id' => User::where('email', 'super@gmail.com')->value('id'),
+            'store_code' => 'STR-DEMO2',
+            'store_name' => 'Toko Maju',
+            'slug' => 'toko-maju',
+            'location_node_id' => $this->node('Kota Jakarta')->id,
+            'rate_per_km' => 2000,
+            'min_free_distance_km' => 3,
+            'max_radius_km' => 25,
+            'status' => 'active',
+        ]);
+
+        $product2 = Product::create([
+            'store_id' => $store2->id,
+            'name' => 'Ayam Bakar',
+            'slug' => 'ayam-bakar',
+            'status' => 'active',
+        ]);
+
+        ProductVariant::create([
+            'product_id' => $product2->id,
+            'store_id' => $store2->id,
+            'sku' => 'AB-REG',
+            'price' => 30000,
+            'stock' => 20,
+            'weight_grams' => 300,
+            'status' => 'active',
+        ]);
+
+        $this->addToCart('NGS-REG', 2);
+        $this->addToCart('AB-REG', 1);
+
+        $this->actingAs($customer, 'customer')
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [
+                    $this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer'],
+                    $this->storeId('AB-REG') => ['fulfillment_type' => 'pickup', 'payment_method' => 'cash'],
+                ],
+            ])
+            ->assertRedirect();
+
+        $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
+
+        $deliveryOrder = $invoice->orders()->whereHas('store', fn ($q) => $q->where('store_code', 'STR-DEMO1'))->firstOrFail();
+        $pickupOrder = $invoice->orders()->whereHas('store', fn ($q) => $q->where('store_code', 'STR-DEMO2'))->firstOrFail();
+
+        $this->assertSame('delivery', $deliveryOrder->fulfillment_type);
+        $this->assertNotNull($deliveryOrder->address_snapshot);
+        $this->assertSame('pickup', $pickupOrder->fulfillment_type);
+        $this->assertNull($pickupOrder->address_snapshot);
+
+        $deliveryPayment = $deliveryOrder->payments()->firstOrFail();
+        $pickupPayment = $pickupOrder->payments()->firstOrFail();
+
+        $this->assertSame('bank_transfer', $deliveryPayment->payment_method);
+        $this->assertSame('manual', $deliveryPayment->provider);
+        $this->assertSame((string) $deliveryOrder->total, (string) $deliveryPayment->amount);
+
+        $this->assertSame('cash', $pickupPayment->payment_method);
+        $this->assertSame('cash', $pickupPayment->provider);
+        $this->assertSame((string) $pickupOrder->total, (string) $pickupPayment->amount);
+
+        $this->assertSame(2, $invoice->orders()->count());
+        $this->assertSame(2, $invoice->payments()->count());
+        $this->assertSame('pending', $invoice->status);
     }
 
     public function test_place_order_out_of_radius_is_rejected(): void
@@ -250,7 +337,10 @@ class CheckoutSmokeTest extends TestCase
         $this->addToCart('NGS-REG', 1);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [$this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
+            ])
             ->assertSessionHasErrors('items');
 
         $this->assertSame(0, Invoice::where('customer_id', $customer->id)->count());
@@ -267,7 +357,10 @@ class CheckoutSmokeTest extends TestCase
         ProductVariant::where('sku', 'NGS-REG')->update(['stock' => 1]);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [$this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
+            ])
             ->assertSessionHasErrors('items');
 
         $this->assertSame(0, Invoice::where('customer_id', $customer->id)->count());
@@ -287,7 +380,10 @@ class CheckoutSmokeTest extends TestCase
         ]);
 
         $this->actingAs($budi, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer'])
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [$this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
+            ])
             ->assertForbidden();
     }
 
@@ -298,7 +394,10 @@ class CheckoutSmokeTest extends TestCase
         $this->addToCart('NGS-REG', 1);
 
         $this->actingAs($customer, 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id, 'payment_method' => 'bank_transfer']);
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [$this->storeId('NGS-REG') => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
+            ]);
 
         $invoice = Invoice::where('customer_id', $customer->id)->firstOrFail();
         $order = $invoice->orders()->firstOrFail();

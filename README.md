@@ -140,18 +140,20 @@ Item cart : `id, qty, unit_price, unit_original_price, unit_discount, variant:{i
 ### Checkout (auth)
 | Method | Path | Param | Keterangan |
 |---|---|---|---|
-| GET | `/api/v1/customer/checkout/summary` | `address_id?` | `{data:{address, by_store:[{store,subtotal,discount,shipping,total}], subtotal, discount, shipping_total, grand_total, payment_methods, available_points}}` |
-| POST | `/api/v1/customer/checkout` | `address_id, payment_method, points?` | 201 `{data:{id,invoice_no,grand_total,status,orders:[{id,order_no,store,total,status}]}}` |
+| GET | `/api/v1/customer/checkout/summary` | `address_id?, stores?` | `{data:{address, by_store:[{store, fulfillment_type, payment_method, subtotal,discount,shipping,total}], subtotal, discount, shipping_total, grand_total, payment_methods, available_points}}` |
+| POST | `/api/v1/customer/checkout` | `stores[{fulfillment_type, payment_method}], address_id, points?` | 201 `{data:{id,invoice_no,grand_total,status,orders:[{id,order_no,store,fulfillment_type,total,status}]}}` |
 
-`payment_methods` = `bank_transfer | e_wallet | cod` (lihat `PaymentService::METHODS`).
+`stores` = map per toko: `{store_id: {fulfillment_type: pickup|delivery, payment_method: ...}}`.
+`payment_methods` = `cash | bank_transfer` (lihat `PaymentService::METHODS`).
+`address_id` wajib bila ada store `delivery`.
 
 ### Pesanan, Pembayaran (auth)
 | Method | Path | Keterangan |
 |---|---|---|
 | GET | `/api/v1/customer/orders` | invoice paginate (orders + items snapshot) |
 | GET | `/api/v1/customer/orders/{invoice}` | detail (harus miliknya) |
-| GET | `/api/v1/customer/payments/{invoice}` | `{data:{invoice, payment?, info?, expired?}}`; tanpa payment/cod → cukup invoice |
-| POST | `/api/v1/customer/payments/{invoice}/confirm` | konfirmasi bayar simulasi; expired → buat ulang (201) |
+| GET | `/api/v1/customer/payments/{payment}` | `{data:{invoice, order:{id,order_no,store,status}, payment:{id,provider,payment_method,amount,status,paid_at,payment_proof_path}, payment_proof_url, info, message}}` |
+| POST | `/api/v1/customer/payments/{payment}/proof` | multipart `proof` (image, max 2MB); hanya `bank_transfer` pending |
 
 ### Poin, Rating, Favorit (auth)
 | Method | Path | Param | Keterangan |
@@ -211,10 +213,10 @@ src/
   guard route redirect `/masuk` bila `401`. `/api/v1/customer/logout` revoke + hapus local.
 - **Cart** : menu wajib login; setelah add/update/remove → invalidate `['cart']` +
   refresh badge `count` (bisa via `GET /api/v1/customer/cart`).
-- **Checkout** : pilih alamat utama → `GET checkout/summary` → pilih metode → `POST checkout`;
-  properti `payment_method` dari `summary.payment_methods`.
-- **Pembayaran** : `GET payments/{invoice}` perlihatkan `info` (VA/E-wallet simulasi) → button
-  "Bayar via Bank/eWallet" panggil `POST .../confirm`. Siap diganti Snap Midtrans nanti.
+- **Checkout** : pilih alamat utama → `GET checkout/summary` → pilih fulfillment + metode **per toko**
+  → `POST checkout` dengan `stores: {store_id: {fulfillment_type, payment_method}}`.
+- **Pembayaran** : `GET payments/{payment}` perlihatkan `info` (rekening toko) → upload bukti via
+  `POST payments/{payment}/proof` (multipart `proof`). Status `paid` hanya di-set toko.
 - **Rating** : muncul hanya untuk order item dgn status order `completed` — data order → item,
   submit `POST /ratings` (`order_item_id`), invalidate detail order + product.
 - **Poin** : `GET /api/v1/customer/points`; di checkout bisa pilih redeem (kelipatan 100).
@@ -234,3 +236,26 @@ VITE_MIDTRANS_CLIENT_KEY=...                # saat integrasi Midtrans
 - Soal deployment frontend : static host (Vercel/Netlify) → proxy `/api` & `/broadcasting`
   ke backend, atau set `FRONTEND_URL` di backend CORS + konek langsung.
 - Saat Midtrans aktif : backend terbitkan Snap token (import client key), React render `window.snap.pay`.
+
+
+### Perubahan Skema 
+1. Saat checkout pilih dahulu Opsi 
+    a. Ambil Sendiri -> Berarti customer tidak perlu tentukan alamat pengiriman karena dia datang langsung ke toko
+    b. Kirim/Antar -> Tentukan alamat, hitung ongkir dan seterusnya seperti skema saat ini
+2. Opsi pembayaran ada 2
+    a. Cash -> Pembeli bayar langsung ke penjual. Ntah itu ambil sendiri atau di antar oleh penjual (tidak pakai kurir pihak ketiga)
+    b. Transfer bank manual -> Saat checkout dan pilih transfer, muncul rekening bank toko. Setelah itu d detail order, ada form upload bukti pembayaran.
+    Kedua jenis pembayaran ini hanya d validasi (LUNAS) oleh toko, customer tidak bisa melunaskan sendiri
+Dengan ada nya skema baru ini, sesuaikan untuk migrasi database, controller, view nya hingga k API. Fokus ke tenant toko dahulu, untuk customer karena frontend react terpisah jadi di kerjakan nanti saja
+
+## Perubahan Skema Baru (`2026_08_18` – `2026_08_19`)
+
+- **Checkout per‑toko**: `fulfillment_type` (pickup/delivery) & `payment_method` (cash/bank_transfer) per store, bukan per invoice.
+- **Payment per order**: `payments.order_id` FK; `payments.invoice_id` dihapus (redundan); `invoice.payments()` via `hasManyThrough` melalui `orders`; `PaymentService::createPaymentForOrder` per order.
+- **Bank snapshot per store**: `stores.bank_name/account_number/account_name` (rekening toko saat checkout); `payments.bank_snapshot` json per order.
+- **Upload bukti**: `payments.payment_proof_path` (file ke `public/payment-proofs`); `payment_proof_path` di `Payment` model + `PaymentService::uploadProof`.
+- **Customer points dihapus**: kolom `customers.points` dead (balance dari `point_transactions`); API `AuthController` kini pakai `LoyaltyService::availablePoints`.
+- **Invoice`points_used` dihapus**: kolom `invoices.points_used` tidak dibuat; `LoyaltyService::redeem` update point hanya via `PointTransaction`.
+- **Relasi** `Invoice::payments()` → `hasManyThrough(Payment::class, Order::class, 'invoice_id', 'order_id')`.
+- **Payment route**: web & API pindah ke `{payment}` (per‑order), upload proof via `POST payment/{payment}/proof`.
+- **Seeder**: `STR-DEMO1` dengan `bank_name='BCA'`, `account_number`, `account_name`.

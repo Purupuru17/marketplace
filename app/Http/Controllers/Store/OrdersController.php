@@ -54,7 +54,7 @@ class OrdersController extends BaseCoreController
     {
         abort_unless($this->service->authorize(Auth::user(), $order), 403);
 
-        $order->load(['items', 'store', 'customer', 'invoice.payments', 'statusHistories']);
+        $order->load(['items', 'store', 'customer', 'payments', 'statusHistories']);
 
         return view($this->view.'.show', [
             'order' => $order,
@@ -86,6 +86,27 @@ class OrdersController extends BaseCoreController
         return redirect()
             ->route($this->module.'.show', $order->id)
             ->with('success', 'Status pesanan diperbarui.');
+    }
+
+    public function markPaid(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'notes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        try {
+            $this->service->markPaymentPaid(
+                Auth::user(),
+                $order,
+                $validated['notes'] ?? null
+            );
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors());
+        }
+
+        return redirect()
+            ->route($this->module.'.show', $order->id)
+            ->with('success', 'Pembayaran dikonfirmasi lunas.');
     }
 
     public function ajax(Request $request)
@@ -126,7 +147,7 @@ class OrdersController extends BaseCoreController
                 }
             },
             function (Order $order) use ($statusLabels, $badgeStyles) {
-                $method = $order->invoice?->payments->first()?->payment_method;
+                $method = $order->payments->first()?->payment_method;
 
                 return [
                     'id' => $order->id,

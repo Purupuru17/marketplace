@@ -49,6 +49,16 @@
                 :preview="($formData?->banner ?? null) ? asset('storage/'.$formData->banner) : null" />
         </div>
 
+        <div>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Rekening Bank Toko</h3>
+            <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">Ditampilkan ke customer saat memilih Transfer Bank Manual.</p>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <x-idcore::input name="bank_name" label="Nama Bank" :value="$formData->bank_name ?? null" placeholder="Contoh: Bank Simulasi" />
+                <x-idcore::input name="account_number" label="No. Rekening" :value="$formData->account_number ?? null" placeholder="Nomor rekening toko" />
+                <x-idcore::input name="account_name" label="Atas Nama" :value="$formData->account_name ?? null" placeholder="Nama pemilik rekening" />
+            </div>
+        </div>
+
         <x-idcore::textarea name="description" label="Deskripsi" :value="$formData->description ?? null" placeholder="Deskripsi toko" />
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">

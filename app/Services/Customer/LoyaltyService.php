@@ -79,8 +79,6 @@ class LoyaltyService
     public function redeem(Customer $customer, Invoice $invoice, int $points): void
     {
         DB::transaction(function () use ($customer, $invoice, $points) {
-            $invoice->lockForUpdate()->update(['points_used' => $invoice->points_used + $points]);
-
             PointTransaction::create([
                 'customer_id' => $customer->id,
                 'type' => 'redeem',

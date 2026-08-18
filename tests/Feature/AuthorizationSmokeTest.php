@@ -80,7 +80,7 @@ class AuthorizationSmokeTest extends TestCase
         $this->actingAs($customer, 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
             ]);
 
         $invoice = Invoice::where('customer_id', $customer->id)->latest('created_at')->firstOrFail();
@@ -108,18 +108,20 @@ class AuthorizationSmokeTest extends TestCase
     public function test_customer_cannot_open_another_customers_payment(): void
     {
         $order = $this->placeOrder('NGS-REG');
+        $payment = $order->payments()->firstOrFail();
 
         $this->actingAs($this->makeCustomer(), 'customer')
-            ->get(route('customer.payment.show', $order->invoice_id))
+            ->get(route('customer.payment.show', $payment->id))
             ->assertForbidden();
     }
 
-    public function test_customer_cannot_pay_another_customers_invoice(): void
+    public function test_stranger_cannot_mark_order_paid(): void
     {
         $order = $this->placeOrder('NGS-REG');
+        $stranger = User::factory()->create();
 
-        $this->actingAs($this->makeCustomer(), 'customer')
-            ->post(route('customer.payment.store', $order->invoice_id))
+        $this->actingAs($stranger, 'web')
+            ->post(route('toko.order.paid', $order->id))
             ->assertForbidden();
     }
 
@@ -178,7 +180,7 @@ class AuthorizationSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [ProductVariant::where('sku', 'NGS-REG')->firstOrFail()->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
             ])
             ->assertForbidden();
     }

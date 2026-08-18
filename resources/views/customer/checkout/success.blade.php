@@ -15,40 +15,40 @@
 
         <div class="mt-6 space-y-3 text-left">
             @foreach($invoice->orders as $order)
+                @php $orderPayment = $order->payments->first(); @endphp
                 <div class="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-800/50">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $order->order_no }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->store->store_name }} · {{ $order->items()->count() }} item</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ $order->store->store_name }} · {{ $order->items()->count() }} item
+                                @if($orderPayment)
+                                    · {{ \App\Services\Customer\PaymentService::METHODS[$orderPayment->payment_method] ?? $orderPayment->payment_method }}
+                                @endif
+                            </p>
                         </div>
                         <span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
                             {{ ucfirst($order->status) }}
                         </span>
                     </div>
+                    @if($orderPayment && $orderPayment->status === 'pending' && $orderPayment->payment_method === 'bank_transfer')
+                        <div class="mt-3 flex items-center justify-between gap-3">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                @if($orderPayment->payment_proof_path)
+                                    Bukti sudah dikirim. Menunggu konfirmasi toko.
+                                @else
+                                    Upload bukti transfer agar pesanan diproses.
+                                @endif
+                            </p>
+                            <a href="{{ route('customer.payment.show', $orderPayment->id) }}"
+                               class="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500">
+                                {{ $orderPayment->payment_proof_path ? 'Lihat Pembayaran' : 'Upload Bukti' }}
+                            </a>
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>
-
-        @php
-            $payment = $invoice->payments->first();
-            $payNow = $payment
-                && $payment->status === 'pending'
-                && $payment->payment_method !== 'cod'
-                && $payment->expired_at !== null
-                && now()->lt($payment->expired_at);
-        @endphp
-        @if($payNow)
-            <div class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-left dark:border-amber-500/30 dark:bg-amber-500/10">
-                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Menunggu Pembayaran</p>
-                <p class="mt-1 text-xs text-amber-700 dark:text-amber-400">
-                    Selesaikan pembayaran sebelum <span class="font-semibold">{{ $payment->expired_at->format('d M Y H:i') }}</span>.
-                </p>
-                <a href="{{ route('customer.payment.show', $invoice->id) }}"
-                   class="mt-3 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
-                    Bayar Sekarang
-                </a>
-            </div>
-        @endif
 
         <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <a href="{{ route('customer.order.index') }}"

@@ -17,7 +17,7 @@
         'cancelled' => 'Batalkan Pesanan',
     ];
     $allowed = $transitions[$order->status] ?? [];
-    $payment = $order->invoice->payments->first();
+    $payment = $order->payments->first();
     $methodLabel = $payment ? (\App\Services\Customer\PaymentService::METHODS[$payment->payment_method] ?? $payment->payment_method) : '-';
 @endphp
 
@@ -39,6 +39,7 @@
             <dl class="space-y-2 text-sm">
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Invoice</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $order->invoice->invoice_no }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Toko</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $order->store->store_name }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Pengambilan</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Kirim / Antar' }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Dibuat</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $order->created_at->format('d M Y H:i') }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Jarak</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $order->distance_km_snapshot !== null ? $order->distance_km_snapshot.' km' : '—' }}</dd></div>
             </dl>
@@ -59,7 +60,28 @@
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Status Bayar</dt><dd class="font-medium text-gray-900 dark:text-white">{{ ucfirst($payment?->status ?? '-') }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Invoice</dt><dd class="font-medium text-gray-900 dark:text-white">{{ ucfirst($order->invoice->status) }}</dd></div>
                 <div class="flex justify-between"><dt class="text-gray-500 dark:text-gray-400">Total</dt><dd class="font-semibold text-indigo-600 dark:text-indigo-400">Rp {{ number_format((float) $order->total, 0, ',', '.') }}</dd></div>
+                @if($payment?->payment_method === 'bank_transfer' && $payment->bank_snapshot)
+                    <div class="border-t border-gray-100 pt-2 dark:border-gray-800">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">Rekening Tujuan (saat checkout)</p>
+                        <p class="mt-1 font-medium text-gray-900 dark:text-white">{{ $payment->bank_snapshot['bank_name'] }} · {{ $payment->bank_snapshot['account_number'] }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">a.n. {{ $payment->bank_snapshot['account_name'] }}</p>
+                    </div>
+                @endif
+                @if($payment?->payment_proof_path)
+                    <div class="border-t border-gray-100 pt-2 dark:border-gray-800">
+                        <p class="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">Bukti Transfer</p>
+                        <img src="{{ asset('storage/'.$payment->payment_proof_path) }}" alt="Bukti transfer" class="w-32 rounded-lg border border-gray-200 object-cover dark:border-gray-700">
+                    </div>
+                @endif
             </dl>
+            @if($payment && $payment->status === 'pending')
+                <form method="POST" action="{{ route('toko.order.paid', $order->id) }}" class="mt-4">
+                    @csrf
+                    <x-idcore::button variant="success" type="submit" size="sm">
+                        @svg('heroicon-o-check-badge', 'h-4 w-4') Tandai Lunas
+                    </x-idcore::button>
+                </form>
+            @endif
         </x-idcore::card>
     </div>
 

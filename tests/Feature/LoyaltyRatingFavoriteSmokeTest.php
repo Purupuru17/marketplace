@@ -70,7 +70,7 @@ class LoyaltyRatingFavoriteSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
                 'points' => $points,
             ]);
 
@@ -128,7 +128,6 @@ class LoyaltyRatingFavoriteSmokeTest extends TestCase
 
         $invoice = $order->invoice;
 
-        $this->assertSame(100, $invoice->points_used);
         $this->assertSame('1000.00', (string) $invoice->total_discount);
         $this->assertSame('24000.00', (string) $invoice->grand_total);
         $this->assertSame('25000.00', (string) $order->total);
@@ -153,7 +152,7 @@ class LoyaltyRatingFavoriteSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
                 'points' => 50,
             ])
             ->assertSessionHasErrors('points');
@@ -172,7 +171,7 @@ class LoyaltyRatingFavoriteSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
                 'points' => 150,
             ])
             ->assertSessionHasErrors('points');

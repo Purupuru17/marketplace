@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('banner')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('account_number')->nullable();
+            $table->string('account_name')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
             $table->decimal('rate_per_km', 15, 2)->default(0);

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\Customer\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,17 +13,17 @@ class PaymentController extends Controller
 {
     public function __construct(protected PaymentService $service) {}
 
-    public function show(Invoice $invoice)
+    public function show(Payment $payment)
     {
-        $this->authorizeOwner($invoice);
+        $this->authorizeOwner($payment);
 
-        $payment = $this->service->latestPayable($invoice);
+        $invoice = $payment->order?->invoice;
 
-        if (! $payment) {
-            return redirect()->route('customer.order.show', $invoice);
+        if (! $invoice) {
+            abort(404);
         }
 
-        if ($payment->payment_method === 'cod') {
+        if ($payment->status === 'paid') {
             return redirect()->route('customer.order.show', $invoice);
         }
 
@@ -31,45 +31,30 @@ class PaymentController extends Controller
             'invoice' => $invoice,
             'payment' => $payment,
             'info' => $this->service->payableInfo($payment),
-            'expired' => $this->service->isExpired($payment),
         ]);
     }
 
-    public function store(Request $request, Invoice $invoice)
+    public function upload(Request $request, Payment $payment)
     {
-        $this->authorizeOwner($invoice);
+        $this->authorizeOwner($payment);
 
-        $payment = $this->service->latestPayable($invoice);
-
-        if (! $payment || $payment->payment_method === 'cod') {
-            return redirect()->route('customer.order.show', $invoice);
-        }
-
-        if ($payment->status === 'paid') {
-            return redirect()->route('customer.payment.show', $invoice);
-        }
-
-        if ($this->service->isExpired($payment)) {
-            $this->service->recreate($invoice);
-
-            return redirect()->route('customer.payment.show', $invoice)
-                ->with('success', 'Pembayaran baru dibuat. Selesaikan sebelum batas waktu.');
-        }
+        $validated = $request->validate([
+            'proof' => ['required', 'file', 'image', 'max:2048'],
+        ]);
 
         try {
-            $this->service->confirmPaid($payment);
+            $payment = $this->service->uploadProof($payment, $validated['proof']);
         } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return back()->withErrors($e->errors())->withInput();
         }
 
-        return redirect()->route('customer.order.show', $invoice)
-            ->with('success', 'Pembayaran berhasil. Pesanan sedang diproses.');
+        return back()->with('status', 'Bukti pembayaran terkirim. Menunggu konfirmasi toko.');
     }
 
-    protected function authorizeOwner(Invoice $invoice): void
+    protected function authorizeOwner(Payment $payment): void
     {
         $customer = Auth::guard('customer')->user();
 
-        abort_unless($invoice->customer_id === $customer->id, 403);
+        abort_unless($payment->order?->invoice?->customer_id === $customer->id, 403);
     }
 }

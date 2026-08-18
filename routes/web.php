@@ -64,8 +64,8 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
     Route::get('orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('orders/{invoice}', [OrderController::class, 'show'])->name('order.show');
 
-    Route::get('payment/{invoice}', [PaymentController::class, 'show'])->name('payment.show');
-    Route::post('payment/{invoice}', [PaymentController::class, 'store'])->middleware('throttle:payment')->name('payment.store');
+    Route::get('payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::post('payment/{payment}/proof', [PaymentController::class, 'upload'])->middleware('throttle:action')->name('payment.proof');
 
     Route::post('ratings', [RatingController::class, 'store'])->middleware('throttle:action')->name('rating.store');
     Route::delete('ratings/{rating}', [RatingController::class, 'destroy'])->name('rating.destroy');
@@ -108,6 +108,7 @@ Route::middleware(['web', 'auth', 'active'])->prefix('toko')->name('toko.')->gro
     Route::get('orders', [OrdersController::class, 'index'])->name('order.index');
     Route::get('orders/{order}', [OrdersController::class, 'show'])->name('order.show');
     Route::post('orders/{order}/status', [OrdersController::class, 'update'])->name('order.update');
+    Route::post('orders/{order}/paid', [OrdersController::class, 'markPaid'])->name('order.paid');
 
     Route::get('wallet', [WalletController::class, 'index'])->name('wallet.index');
     Route::post('wallet', [WalletController::class, 'store'])->name('wallet.store');

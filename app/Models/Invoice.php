@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Invoice extends Model
 {
@@ -13,7 +14,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'invoice_no', 'customer_id', 'subtotal', 'total_discount',
-        'total_shipping_cost', 'grand_total', 'points_used', 'status',
+        'total_shipping_cost', 'grand_total', 'status',
     ];
 
     protected function casts(): array
@@ -23,7 +24,6 @@ class Invoice extends Model
             'total_discount' => 'decimal:2',
             'total_shipping_cost' => 'decimal:2',
             'grand_total' => 'decimal:2',
-            'points_used' => 'integer',
         ];
     }
 
@@ -37,8 +37,8 @@ class Invoice extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function payments(): HasMany
+    public function payments(): HasManyThrough
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasManyThrough(Payment::class, Order::class, 'invoice_id', 'order_id', 'id', 'id');
     }
 }

@@ -6,10 +6,12 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Invoice;
 use App\Models\LocationNode;
-use App\Models\PaymentWebhookLog;
 use App\Models\ProductVariant;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\SeedsMarketplace;
 use Tests\TestCase;
 
@@ -29,6 +31,11 @@ class PaymentSmokeTest extends TestCase
     protected function customer(): Customer
     {
         return Customer::where('email', 'dina@gmail.com')->firstOrFail();
+    }
+
+    protected function owner(): User
+    {
+        return User::where('email', 'toko@gmail.com')->firstOrFail();
     }
 
     protected function node(string $name): LocationNode
@@ -62,40 +69,60 @@ class PaymentSmokeTest extends TestCase
     {
         $this->addToCart('NGS-REG');
         $address = $this->seedAddress();
+        $storeId = $this->cartStoreId();
 
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => $method,
+                'stores' => [$storeId => ['fulfillment_type' => 'delivery', 'payment_method' => $method]],
             ]);
 
         return Invoice::where('customer_id', $this->customer()->id)->latest('created_at')->firstOrFail();
+    }
+
+    protected function cartStoreId(): string
+    {
+        return ProductVariant::where('sku', 'NGS-REG')->firstOrFail()->store_id;
+    }
+
+    protected function markPaid(Invoice $invoice): void
+    {
+        $order = $invoice->orders()->firstOrFail();
+
+        $this->actingAs($this->owner(), 'web')
+            ->post(route('toko.order.paid', $order->id))
+            ->assertRedirect();
     }
 
     public function test_checkout_requires_payment_method(): void
     {
         $this->addToCart('NGS-REG');
         $address = $this->seedAddress();
+        $storeId = $this->cartStoreId();
 
         $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.checkout.store'), ['address_id' => $address->id])
-            ->assertSessionHasErrors('payment_method');
+            ->post(route('customer.checkout.store'), [
+                'address_id' => $address->id,
+                'stores' => [$storeId => ['fulfillment_type' => 'delivery']],
+            ])
+            ->assertSessionHasErrors("stores.{$storeId}.payment_method");
     }
 
     public function test_checkout_rejects_unknown_payment_method(): void
     {
         $this->addToCart('NGS-REG');
         $address = $this->seedAddress();
+        $storeId = $this->cartStoreId();
 
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bitcoin',
+                'stores' => [$storeId => ['fulfillment_type' => 'delivery', 'payment_method' => 'bitcoin']],
             ])
-            ->assertSessionHasErrors('payment_method');
+            ->assertSessionHasErrors("stores.{$storeId}.payment_method");
     }
 
-    public function test_place_order_creates_online_pending_payment(): void
+    public function test_place_order_creates_bank_transfer_pending_payment(): void
     {
         $invoice = $this->placeOrder('bank_transfer');
 
@@ -104,43 +131,41 @@ class PaymentSmokeTest extends TestCase
         $payment = $invoice->payments()->firstOrFail();
         $this->assertEquals('pending', $payment->status);
         $this->assertEquals('bank_transfer', $payment->payment_method);
-        $this->assertEquals('simulated', $payment->provider);
+        $this->assertEquals('manual', $payment->provider);
         $this->assertEquals($invoice->grand_total, $payment->amount);
-        $this->assertNotNull($payment->expired_at);
+        $this->assertNull($payment->expired_at);
     }
 
-    public function test_place_order_creates_cod_payment_without_expiry(): void
+    public function test_place_order_creates_cash_payment(): void
     {
-        $invoice = $this->placeOrder('cod');
+        $invoice = $this->placeOrder('cash');
 
         $payment = $invoice->payments()->firstOrFail();
-        $this->assertEquals('cod', $payment->payment_method);
-        $this->assertEquals('cod', $payment->provider);
+        $this->assertEquals('cash', $payment->payment_method);
+        $this->assertEquals('cash', $payment->provider);
         $this->assertEquals('pending', $payment->status);
         $this->assertNull($payment->expired_at);
         $this->assertEquals('pending', $invoice->status);
     }
 
-    public function test_payment_page_shows_instructions(): void
+    public function test_payment_page_shows_bank_instructions(): void
     {
         $invoice = $this->placeOrder('bank_transfer');
         $payment = $invoice->payments()->firstOrFail();
 
         $this->actingAs($this->customer(), 'customer')
-            ->get(route('customer.payment.show', $invoice->id))
+            ->get(route('customer.payment.show', $payment->id))
             ->assertOk()
-            ->assertSee('Virtual Account')
-            ->assertSee(number_format((float) $payment->amount, 0, ',', '.'));
+            ->assertSee('No. Rekening')
+            ->assertSee('Menunggu konfirmasi pembayaran dari toko');
     }
 
-    public function test_confirm_payment_marks_invoice_paid_and_orders_processing(): void
+    public function test_store_marks_payment_paid_and_orders_processing(): void
     {
-        $invoice = $this->placeOrder('e_wallet');
+        $invoice = $this->placeOrder('bank_transfer');
         $payment = $invoice->payments()->firstOrFail();
 
-        $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.payment.store', $invoice->id))
-            ->assertRedirect(route('customer.order.show', $invoice->id));
+        $this->markPaid($invoice);
 
         $payment->refresh();
         $invoice->refresh();
@@ -155,34 +180,27 @@ class PaymentSmokeTest extends TestCase
                 'order_id' => $order->id,
                 'status_from' => 'pending',
                 'status_to' => 'processing',
-                'changed_by_type' => 'system',
+                'changed_by_type' => 'store',
             ]);
         }
-
-        $this->assertDatabaseHas('payment_webhook_logs', [
-            'payment_id' => $payment->id,
-            'status' => 'success',
-        ]);
     }
 
-    public function test_confirm_payment_is_idempotent(): void
+    public function test_mark_paid_is_idempotent(): void
     {
         $invoice = $this->placeOrder('bank_transfer');
         $payment = $invoice->payments()->firstOrFail();
 
-        $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.payment.store', $invoice->id));
-
-        $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.payment.store', $invoice->id));
+        $this->markPaid($invoice);
+        $this->markPaid($invoice);
 
         $this->assertEquals('paid', $payment->refresh()->status);
-        $this->assertEquals(1, PaymentWebhookLog::where('payment_id', $payment->id)->count());
+        $this->assertEquals(1, $invoice->payments()->count());
     }
 
-    public function test_cannot_pay_invoice_of_another_customer(): void
+    public function test_cannot_view_payment_of_another_customer(): void
     {
         $invoice = $this->placeOrder('bank_transfer');
+        $payment = $invoice->payments()->firstOrFail();
 
         $other = Customer::create([
             'name' => 'Budi',
@@ -193,45 +211,42 @@ class PaymentSmokeTest extends TestCase
         ]);
 
         $this->actingAs($other, 'customer')
-            ->get(route('customer.payment.show', $invoice->id))
-            ->assertForbidden();
-
-        $this->actingAs($other, 'customer')
-            ->post(route('customer.payment.store', $invoice->id))
+            ->get(route('customer.payment.show', $payment->id))
             ->assertForbidden();
     }
 
-    public function test_expired_payment_triggers_recreate(): void
+    public function test_customer_uploads_bank_transfer_proof(): void
     {
+        Storage::fake('public');
+
         $invoice = $this->placeOrder('bank_transfer');
-        $oldPayment = $invoice->payments()->firstOrFail();
-        $oldPayment->update(['expired_at' => now()->subHour()]);
+        $payment = $invoice->payments()->firstOrFail();
 
         $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.payment.store', $invoice->id))
-            ->assertRedirect(route('customer.payment.show', $invoice->id));
+            ->post(route('customer.payment.proof', $payment->id), [
+                'proof' => UploadedFile::fake()->image('bukti.jpg'),
+            ])
+            ->assertRedirect();
 
-        $oldPayment->refresh();
-        $this->assertEquals('failed', $oldPayment->status);
+        $payment->refresh();
 
-        $newPayment = $invoice->payments()->latest('created_at')->latest('id')->firstOrFail();
-        $this->assertNotEquals($oldPayment->id, $newPayment->id);
-        $this->assertEquals('pending', $newPayment->status);
-        $this->assertEquals('pending', $invoice->refresh()->status);
-
-        $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.payment.store', $invoice->id));
-
-        $this->assertEquals('paid', $newPayment->refresh()->status);
-        $this->assertEquals('paid', $invoice->refresh()->status);
+        $this->assertNotNull($payment->payment_proof_path);
+        Storage::disk('public')->assertExists($payment->payment_proof_path);
     }
 
-    public function test_cod_has_no_payment_page(): void
+    public function test_proof_upload_rejected_for_cash_payment(): void
     {
-        $invoice = $this->placeOrder('cod');
+        Storage::fake('public');
+
+        $invoice = $this->placeOrder('cash');
+        $payment = $invoice->payments()->firstOrFail();
 
         $this->actingAs($this->customer(), 'customer')
-            ->get(route('customer.payment.show', $invoice->id))
-            ->assertRedirect(route('customer.order.show', $invoice->id));
+            ->post(route('customer.payment.proof', $payment->id), [
+                'proof' => UploadedFile::fake()->image('bukti.jpg'),
+            ])
+            ->assertSessionHasErrors('proof');
+
+        $this->assertNull($payment->refresh()->payment_proof_path);
     }
 }

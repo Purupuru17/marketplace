@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\StockMovement;
 use App\Models\User;
 use App\Services\Customer\LoyaltyService;
+use App\Services\Customer\PaymentService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -16,7 +17,8 @@ class StoreOrderService
 {
     public function __construct(
         protected StoreWalletService $walletService,
-        protected LoyaltyService $loyaltyService
+        protected LoyaltyService $loyaltyService,
+        protected PaymentService $paymentService
     ) {}
 
     public const TRANSITIONS = [
@@ -38,7 +40,7 @@ class StoreOrderService
     public function query(User $user)
     {
         return Order::query()
-            ->with(['store', 'customer', 'invoice.payments', 'items'])
+            ->with(['store', 'customer', 'payments', 'items'])
             ->when(! $user->hasRole('Administrator'), function ($query) use ($user) {
                 $query->whereIn('store_id', $user->stores()->pluck('id'));
             });
@@ -84,7 +86,6 @@ class StoreOrderService
             }
 
             if ($to === 'completed') {
-                $this->settleCodIfApplicable($order);
                 $this->walletService->settle($order);
                 $this->loyaltyService->creditEarn($order);
             }
@@ -104,7 +105,7 @@ class StoreOrderService
                 $this->syncInvoiceStatus($order);
             }
 
-            return $order->refresh()->load(['invoice.payments', 'items', 'store']);
+            return $order->refresh()->load(['payments', 'items', 'store']);
         });
     }
 
@@ -132,15 +133,29 @@ class StoreOrderService
         }
     }
 
-    protected function settleCodIfApplicable(Order $order): void
+    public function markPaymentPaid(User $user, Order $order, ?string $notes = null)
     {
-        $invoice = $order->invoice;
-        $payment = $invoice->payments()->latest('created_at')->latest('id')->first();
+        abort_unless($this->authorize($user, $order), 403);
 
-        if ($payment && $payment->payment_method === 'cod' && $payment->status === 'pending' && $invoice->status !== 'paid') {
-            $payment->update(['status' => 'paid', 'paid_at' => now()]);
-            $invoice->update(['status' => 'paid']);
+        $payment = $order->payments()->latest('created_at')->latest('id')->first();
+
+        if (! $payment) {
+            throw ValidationException::withMessages([
+                'payment' => 'Belum ada pembayaran untuk pesanan ini.',
+            ]);
         }
+
+        if ($payment->status === 'paid') {
+            return $payment->refresh();
+        }
+
+        if (! in_array($payment->payment_method, array_keys(PaymentService::METHODS), true)) {
+            throw ValidationException::withMessages([
+                'payment' => 'Metode pembayaran tidak dikenali.',
+            ]);
+        }
+
+        return $this->paymentService->markPaidByStore($payment, $user, $notes);
     }
 
     protected function syncInvoiceStatus(Order $order): void

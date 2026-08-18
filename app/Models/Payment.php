@@ -12,22 +12,24 @@ class Payment extends Model
     use HasUuids;
 
     protected $fillable = [
-        'invoice_id', 'provider', 'payment_method', 'provider_order_id',
+        'order_id', 'provider', 'payment_method', 'bank_snapshot', 'provider_order_id',
         'provider_transaction_id', 'amount', 'status', 'paid_at', 'expired_at', 'raw_response',
+        'payment_proof_path',
     ];
 
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
+            'bank_snapshot' => 'array',
             'paid_at' => 'datetime',
             'expired_at' => 'datetime',
         ];
     }
 
-    public function invoice(): BelongsTo
+    public function order(): BelongsTo
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function webhookLogs(): HasMany

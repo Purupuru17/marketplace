@@ -74,16 +74,22 @@ class StoreOrderSmokeTest extends TestCase
     {
         $this->addToCart($sku, $qty);
         $address = $this->seedAddress();
+        $storeId = $this->cartStoreId($sku);
 
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => $method,
+                'stores' => [$storeId => ['fulfillment_type' => 'delivery', 'payment_method' => $method]],
             ]);
 
         $invoice = Invoice::where('customer_id', $this->customer()->id)->latest('created_at')->firstOrFail();
 
         return $invoice->orders()->firstOrFail();
+    }
+
+    protected function cartStoreId(string $sku): string
+    {
+        return ProductVariant::where('sku', $sku)->firstOrFail()->store_id;
     }
 
     protected function createOtherOwnerStore(): User
@@ -113,7 +119,7 @@ class StoreOrderSmokeTest extends TestCase
 
     public function test_owner_sees_only_own_store_orders(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
 
         $this->actingAs($this->owner(), 'web')
             ->get(route('toko.order.ajax', [
@@ -147,7 +153,7 @@ class StoreOrderSmokeTest extends TestCase
 
     public function test_owner_accepts_pending_order(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
         $this->assertSame('pending', $order->status);
 
         $this->actingAs($this->owner(), 'web')
@@ -164,32 +170,35 @@ class StoreOrderSmokeTest extends TestCase
         ]);
     }
 
-    public function test_owner_ships_and_completes_order_settles_cod(): void
+    public function test_owner_marks_cash_paid_and_completes_order(): void
     {
-        $order = $this->placeOrder('cod');
-        $payment = $order->invoice->payments()->firstOrFail();
+        $order = $this->placeOrder('cash');
+        $payment = $order->payments()->firstOrFail();
 
         $this->actingAs($this->owner(), 'web')
-            ->post(route('toko.order.update', $order->id), ['status' => 'processing']);
+            ->post(route('toko.order.paid', $order->id))
+            ->assertRedirect();
+
+        $this->assertSame('paid', $payment->refresh()->status);
+        $this->assertSame('paid', $order->invoice->refresh()->status);
+        $this->assertSame('processing', $order->refresh()->status);
 
         $this->actingAs($this->owner(), 'web')
             ->post(route('toko.order.update', $order->id), ['status' => 'shipped']);
 
         $this->assertSame('shipped', $order->refresh()->status);
-        $this->assertSame('pending', $order->invoice->status);
 
         $this->actingAs($this->owner(), 'web')
             ->post(route('toko.order.update', $order->id), ['status' => 'completed']);
 
         $this->assertSame('completed', $order->refresh()->status);
         $this->assertSame('paid', $payment->refresh()->status);
-        $this->assertNotNull($payment->paid_at);
         $this->assertSame('paid', $order->invoice->refresh()->status);
     }
 
     public function test_owner_cancels_order_restores_stock_and_cancels_invoice(): void
     {
-        $order = $this->placeOrder('cod', 'NGS-REG', 2);
+        $order = $this->placeOrder('cash', 'NGS-REG', 2);
 
         $variant = ProductVariant::where('sku', 'NGS-REG')->firstOrFail();
         $this->assertSame(48, (int) $variant->stock);
@@ -212,7 +221,7 @@ class StoreOrderSmokeTest extends TestCase
 
     public function test_invalid_transition_is_rejected(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
 
         $this->actingAs($this->owner(), 'web')
             ->post(route('toko.order.update', $order->id), ['status' => 'shipped'])
@@ -223,7 +232,7 @@ class StoreOrderSmokeTest extends TestCase
 
     public function test_cannot_manage_another_store_order(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
         $budi = $this->createOtherOwnerStore();
 
         $this->actingAs($budi, 'web')
@@ -239,7 +248,7 @@ class StoreOrderSmokeTest extends TestCase
 
     public function test_order_detail_shows_items_and_customer(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
 
         $this->actingAs($this->owner(), 'web')
             ->get(route('toko.order.show', $order->id))

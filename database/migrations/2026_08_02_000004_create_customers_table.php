@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('photo')->nullable();
             $table->foreignId('customer_level_id')->nullable()->constrained('customer_levels')->nullOnDelete();
-            $table->unsignedInteger('points')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();

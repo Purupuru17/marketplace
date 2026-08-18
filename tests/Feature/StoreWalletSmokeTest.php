@@ -73,7 +73,7 @@ class StoreWalletSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => $method,
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => $method]],
             ]);
 
         $invoice = Invoice::where('customer_id', $this->customer()->id)->latest('created_at')->firstOrFail();
@@ -83,8 +83,11 @@ class StoreWalletSmokeTest extends TestCase
 
     protected function confirmPayment(Invoice $invoice): void
     {
-        $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.payment.store', $invoice->id));
+        $order = $invoice->orders()->firstOrFail();
+
+        $this->actingAs($this->owner(), 'web')
+            ->post(route('toko.order.paid', $order->id))
+            ->assertRedirect();
     }
 
     protected function transitionToCompleted(Order $order): void
@@ -143,9 +146,10 @@ class StoreWalletSmokeTest extends TestCase
         ]);
     }
 
-    public function test_completing_cod_order_credits_funds_directly(): void
+    public function test_completing_cash_order_releases_funds_to_available(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $wallet = $order->store->wallet()->firstOrFail();
@@ -154,11 +158,11 @@ class StoreWalletSmokeTest extends TestCase
 
         $this->assertDatabaseHas('wallet_transactions', [
             'wallet_id' => $wallet->id,
-            'type' => 'credit',
+            'type' => 'release',
             'amount' => $order->total,
             'reference_id' => $order->id,
         ]);
-        $this->assertSame(0, $wallet->transactions()->where('type', 'hold')->count());
+        $this->assertSame(1, $wallet->transactions()->where('type', 'hold')->count());
     }
 
     public function test_cancelling_paid_order_reverses_held_funds(): void
@@ -185,7 +189,8 @@ class StoreWalletSmokeTest extends TestCase
 
     public function test_withdrawal_request_is_created_and_validated(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $wallet = $order->store->wallet()->firstOrFail();
@@ -219,7 +224,8 @@ class StoreWalletSmokeTest extends TestCase
 
     public function test_admin_approves_withdrawal_and_debits_balance(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $wallet = $order->store->wallet()->firstOrFail();
@@ -254,7 +260,8 @@ class StoreWalletSmokeTest extends TestCase
 
     public function test_admin_rejects_withdrawal_without_balance_change(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $wallet = $order->store->wallet()->firstOrFail();
@@ -279,7 +286,8 @@ class StoreWalletSmokeTest extends TestCase
 
     public function test_non_admin_cannot_process_withdrawal(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $wallet = $order->store->wallet()->firstOrFail();
@@ -310,7 +318,8 @@ class StoreWalletSmokeTest extends TestCase
         ]);
         $budi->assignRole('Toko');
 
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $this->actingAs($budi, 'web')
@@ -326,7 +335,8 @@ class StoreWalletSmokeTest extends TestCase
 
     public function test_wallet_index_shows_own_wallet_only(): void
     {
-        $order = $this->placeOrder('cod');
+        $order = $this->placeOrder('cash');
+        $this->confirmPayment($order->invoice);
         $this->transitionToCompleted($order);
 
         $this->actingAs($this->owner(), 'web')

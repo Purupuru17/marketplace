@@ -20,7 +20,6 @@ class CustomerDataSeeder extends Seeder
                 'password' => Hash::make('12345'),
                 'phone' => '081234567891',
                 'customer_level_id' => $bronze?->id,
-                'points' => 0,
                 'status' => 'active',
             ]
         );

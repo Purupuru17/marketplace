@@ -29,14 +29,23 @@ class CheckoutService
         protected LoyaltyService $loyaltyService
     ) {}
 
-    public function getSummary(Customer $customer, ?string $addressId = null): array
-    {
+    public function getSummary(
+        Customer $customer,
+        ?string $addressId = null,
+        array $fulfillmentByStore = [],
+        array $paymentMethodByStore = []
+    ): array {
         $items = $this->cartService->items($customer);
-        $address = $addressId ? $this->addressOf($customer, $addressId) : null;
+        $needsDelivery = $items->groupBy(fn ($item) => $item->variant->product->store_id)
+            ->keys()
+            ->contains(fn ($storeId) => ($fulfillmentByStore[$storeId] ?? 'delivery') === 'delivery');
+
+        $address = ($needsDelivery && $addressId) ? $this->addressOf($customer, $addressId) : null;
 
         $byStore = $items->groupBy(fn ($item) => $item->variant->product->store_id)
-            ->map(function ($group) use ($address) {
+            ->map(function ($group) use ($address, $fulfillmentByStore, $paymentMethodByStore) {
                 $store = $group->first()->variant->product->store;
+                $isPickup = ($fulfillmentByStore[$store->id] ?? 'delivery') === 'pickup';
                 $subtotal = 0.0;
                 $discount = 0.0;
 
@@ -50,11 +59,15 @@ class CheckoutService
                     $discount += $pricing['discount'] * $item->qty;
                 }
 
-                $shipping = $this->shippingService->estimate($store, $address?->locationNode);
+                $shipping = $isPickup
+                    ? $this->zeroShipping()
+                    : $this->shippingService->estimate($store, $address?->locationNode);
 
                 return [
                     'store' => $store,
                     'items' => $group,
+                    'fulfillment_type' => $isPickup ? 'pickup' : 'delivery',
+                    'payment_method' => $paymentMethodByStore[$store->id] ?? 'cash',
                     'subtotal' => round($subtotal, 2),
                     'discount' => round($discount, 2),
                     'shipping' => $shipping,
@@ -74,10 +87,16 @@ class CheckoutService
         ];
     }
 
-    public function placeOrder(Customer $customer, string $addressId, string $paymentMethod, int $points = 0): Invoice
-    {
-        return DB::transaction(function () use ($customer, $addressId, $paymentMethod, $points) {
-            $address = $this->addressOf($customer, $addressId);
+    public function placeOrder(
+        Customer $customer,
+        ?string $addressId,
+        array $paymentMethodByStore,
+        int $points = 0,
+        array $fulfillmentByStore = []
+    ): Invoice {
+        return DB::transaction(function () use ($customer, $addressId, $paymentMethodByStore, $points, $fulfillmentByStore) {
+            $address = $addressId ? $this->addressOf($customer, $addressId) : null;
+
             $items = $this->cartService->items($customer);
 
             if ($items->isEmpty()) {
@@ -91,7 +110,15 @@ class CheckoutService
 
             foreach ($items->groupBy(fn ($item) => $item->variant->product->store_id) as $storeId => $group) {
                 $store = $group->first()->variant->product->store;
-                $ordersPayload[] = $this->buildOrderPayload($store, $group, $address, $errors);
+                $isPickup = ($fulfillmentByStore[$store->id] ?? 'delivery') === 'pickup';
+                $ordersPayload[] = $this->buildOrderPayload(
+                    $store,
+                    $group,
+                    $isPickup ? null : $address,
+                    $isPickup,
+                    $paymentMethodByStore[$store->id] ?? 'cash',
+                    $errors
+                );
             }
 
             if ($errors !== []) {
@@ -129,19 +156,23 @@ class CheckoutService
             }
 
             foreach ($ordersPayload as $payload) {
+                $isPickup = $payload['fulfillment_type'] === 'pickup';
                 $order = Order::create([
                     'order_no' => $this->nextOrderNo(),
                     'invoice_id' => $invoice->id,
                     'store_id' => $payload['store']->id,
                     'customer_id' => $customer->id,
                     'status' => 'pending',
+                    'fulfillment_type' => $payload['fulfillment_type'],
                     'subtotal' => $payload['subtotal'],
                     'discount' => $payload['discount'],
                     'shipping_cost' => $payload['shipping_cost'],
                     'total' => $payload['total'],
-                    'address_snapshot' => json_encode($address->only([
-                        'recipient_name', 'phone', 'full_address', 'label',
-                    ])),
+                    'address_snapshot' => $isPickup || ! $payload['address']
+                        ? null
+                        : json_encode($payload['address']->only([
+                            'recipient_name', 'phone', 'full_address', 'label',
+                        ])),
                     'distance_km_snapshot' => $payload['distance_km'],
                     'origin_node_snapshot' => $payload['origin_node'],
                     'destination_node_snapshot' => $payload['destination_node'],
@@ -161,11 +192,11 @@ class CheckoutService
                     'changed_by_type' => 'system',
                     'notes' => 'Pesanan dibuat.',
                 ]);
+
+                $this->paymentService->createPaymentForOrder($order, $payload['payment_method']);
             }
 
             $this->cartService->getActiveCart($customer)->update(['status' => 'converted']);
-
-            $this->paymentService->createPayment($invoice, $paymentMethod);
 
             return $invoice->load('orders.items');
         });
@@ -173,9 +204,9 @@ class CheckoutService
 
     /**
      * @param  array<string, array<int, string>>  $errors
-     * @return array{store: Store, items: Collection<int, CartItem>, subtotal: float, discount: float, shipping_cost: float, total: float, distance_km: float|null, origin_node: string|null, destination_node: string|null, rate_per_km: float|null, free_distance: float|null, pricing: array<string, array{original: float, effective: float, discount: float}>}
+     * @return array{store: Store, items: Collection<int, CartItem>, address: CustomerAddress|null, fulfillment_type: string, payment_method: string, subtotal: float, discount: float, shipping_cost: float, total: float, distance_km: float|null, origin_node: string|null, destination_node: string|null, rate_per_km: float|null, free_distance: float|null, pricing: array<string, array{original: float, effective: float, discount: float}>}
      */
-    protected function buildOrderPayload(Store $store, $group, CustomerAddress $address, array &$errors): array
+    protected function buildOrderPayload(Store $store, $group, ?CustomerAddress $address, bool $isPickup, string $paymentMethod, array &$errors): array
     {
         $subtotal = 0.0;
         $discount = 0.0;
@@ -201,9 +232,11 @@ class CheckoutService
             $discount += $itemPricing['discount'] * $item->qty;
         }
 
-        $estimate = $this->shippingService->estimate($store, $address->locationNode);
+        $estimate = $isPickup
+            ? $this->zeroShipping()
+            : $this->shippingService->estimate($store, $address?->locationNode);
 
-        if (! $estimate['within_radius']) {
+        if (! $isPickup && ! $estimate['within_radius']) {
             $errors['items'][] = "Toko {$store->store_name} di luar jangkauan pengiriman.";
         }
 
@@ -212,17 +245,25 @@ class CheckoutService
         return [
             'store' => $store,
             'items' => $group,
+            'address' => $isPickup ? null : $address,
+            'fulfillment_type' => $isPickup ? 'pickup' : 'delivery',
+            'payment_method' => $paymentMethod,
             'subtotal' => round($subtotal, 2),
             'discount' => round($discount, 2),
             'shipping_cost' => $shippingCost,
             'total' => round($subtotal + $shippingCost, 2),
             'distance_km' => $estimate['distance_km'],
             'origin_node' => $store->locationNode?->name,
-            'destination_node' => $address->locationNode?->name,
+            'destination_node' => $isPickup ? null : $address?->locationNode?->name,
             'rate_per_km' => $store->rate_per_km,
             'free_distance' => $store->min_free_distance_km,
             'pricing' => $pricing,
         ];
+    }
+
+    protected function zeroShipping(): array
+    {
+        return ['distance_km' => null, 'cost' => 0.0, 'within_radius' => true];
     }
 
     protected function createOrderItem(Order $order, $item, ?array $pricing = null): void

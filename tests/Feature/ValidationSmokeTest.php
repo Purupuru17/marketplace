@@ -105,7 +105,9 @@ class ValidationSmokeTest extends TestCase
     public function test_checkout_requires_address_id(): void
     {
         $this->actingAs($this->customer(), 'customer')
-            ->post(route('customer.checkout.store'), ['payment_method' => 'bank_transfer'])
+            ->post(route('customer.checkout.store'), [
+                'stores' => [$this->variant('NGS-REG')->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
+            ])
             ->assertSessionHasErrors('address_id');
     }
 
@@ -116,9 +118,9 @@ class ValidationSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'cash_on_delivery_baru',
+                'stores' => [$this->variant('NGS-REG')->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'cash_on_delivery_baru']],
             ])
-            ->assertSessionHasErrors('payment_method');
+            ->assertSessionHasErrors('stores.'.$this->variant('NGS-REG')->store_id.'.payment_method');
     }
 
     public function test_customer_chat_rejects_empty_message(): void

@@ -259,7 +259,7 @@ class PromotionSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
             ])
             ->assertRedirect();
 
@@ -284,7 +284,7 @@ class PromotionSmokeTest extends TestCase
         $this->actingAs($this->customer(), 'customer')
             ->post(route('customer.checkout.store'), [
                 'address_id' => $address->id,
-                'payment_method' => 'bank_transfer',
+                'stores' => [$variant->store_id => ['fulfillment_type' => 'delivery', 'payment_method' => 'bank_transfer']],
             ])
             ->assertRedirect();
 

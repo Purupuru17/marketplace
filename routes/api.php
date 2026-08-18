@@ -47,8 +47,8 @@ Route::prefix('v1')->group(function () {
         Route::get('customer/orders', [OrderController::class, 'index']);
         Route::get('customer/orders/{invoice}', [OrderController::class, 'show']);
 
-        Route::get('customer/payments/{invoice}', [PaymentController::class, 'show']);
-        Route::post('customer/payments/{invoice}/confirm', [PaymentController::class, 'confirm'])->middleware('throttle:payment');
+        Route::get('customer/payments/{payment}', [PaymentController::class, 'show']);
+        Route::post('customer/payments/{payment}/proof', [PaymentController::class, 'upload'])->middleware('throttle:action');
 
         Route::get('customer/points', [PointController::class, 'index']);
 

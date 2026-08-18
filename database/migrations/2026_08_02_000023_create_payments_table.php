@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('invoice_id')->constrained('invoices')->cascadeOnDelete();
+            $table->foreignUuid('order_id')->nullable()->constrained('orders')->nullOnDelete();
             $table->string('provider');
             $table->string('payment_method');
+            $table->json('bank_snapshot')->nullable();
             $table->string('provider_order_id')->nullable();
             $table->string('provider_transaction_id')->nullable();
             $table->decimal('amount', 15, 2);
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('expired_at')->nullable();
             $table->longText('raw_response')->nullable();
+            $table->string('payment_proof_path')->nullable();
             $table->timestamps();
         });
     }

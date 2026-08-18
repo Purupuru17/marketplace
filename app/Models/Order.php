@@ -13,6 +13,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_no', 'invoice_id', 'store_id', 'customer_id', 'status',
+        'fulfillment_type',
         'subtotal', 'discount', 'shipping_cost', 'total',
         'address_snapshot', 'distance_km_snapshot', 'origin_node_snapshot',
         'destination_node_snapshot', 'rate_per_km_snapshot', 'free_distance_snapshot',
@@ -54,5 +55,10 @@ class Order extends Model
     public function statusHistories(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }

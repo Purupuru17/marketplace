@@ -40,7 +40,6 @@ class CustomerAuthSmokeTest extends TestCase
         $customer = Customer::where('email', 'budi@gmail.com')->firstOrFail();
 
         $this->assertSame('active', $customer->status);
-        $this->assertSame(0, $customer->points);
         $this->assertNotNull($customer->customer_level_id);
         $this->assertTrue(Auth::guard('customer')->check());
         $this->assertSame($customer->id, Auth::guard('customer')->id());

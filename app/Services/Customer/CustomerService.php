@@ -17,7 +17,6 @@ class CustomerService
             'password' => $data['password'],
             'phone' => $data['phone'] ?? null,
             'customer_level_id' => $level?->id,
-            'points' => 0,
             'status' => 'active',
         ]);
     }

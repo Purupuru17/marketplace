@@ -14,7 +14,9 @@ class Store extends Model
 
     protected $fillable = [
         'user_id', 'store_level_id', 'location_node_id', 'store_code', 'store_name',
-        'slug', 'description', 'logo', 'banner', 'phone', 'email', 'lat', 'lng',
+        'slug', 'description', 'logo', 'banner', 'phone', 'email',
+        'bank_name', 'account_number', 'account_name',
+        'lat', 'lng',
         'rate_per_km', 'min_free_distance_km', 'max_radius_km', 'status',
     ];
 

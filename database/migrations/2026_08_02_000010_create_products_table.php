@@ -14,13 +14,15 @@ return new class extends Migration
             $table->foreignUuid('category_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->string('name');
             $table->string('slug');
+            $table->string('slug_unique')->storedAs("CASE WHEN deleted_at IS NULL THEN slug ELSE CONCAT(slug, '#', id) END");
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['store_id', 'slug']);
+            $table->index('store_id', 'products_store_id_index');
+            $table->unique(['store_id', 'slug_unique'], 'products_store_id_slug_unique');
         });
     }
 

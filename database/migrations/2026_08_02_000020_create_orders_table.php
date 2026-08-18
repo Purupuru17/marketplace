@@ -15,13 +15,14 @@ return new class extends Migration
             $table->foreignUuid('store_id')->constrained('stores')->cascadeOnDelete();
             $table->foreignUuid('customer_id')->constrained('customers')->cascadeOnDelete();
             $table->enum('status', ['pending', 'processing', 'shipped', 'completed', 'cancelled'])->default('pending');
+            $table->enum('fulfillment_type', ['pickup', 'delivery'])->default('delivery');
             $table->decimal('subtotal', 15, 2)->default(0);
             $table->decimal('discount', 15, 2)->default(0);
             $table->decimal('shipping_cost', 15, 2)->default(0);
             $table->decimal('total', 15, 2)->default(0);
 
             // Snapshot fields — never recompute from live data once the order exists.
-            $table->text('address_snapshot');
+            $table->text('address_snapshot')->nullable();
             $table->decimal('distance_km_snapshot', 8, 2)->nullable();
             $table->string('origin_node_snapshot')->nullable();
             $table->string('destination_node_snapshot')->nullable();

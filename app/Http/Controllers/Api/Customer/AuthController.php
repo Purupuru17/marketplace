@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Api\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Services\Customer\CustomerService;
+use App\Services\Customer\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function __construct(protected CustomerService $service) {}
+    public function __construct(
+        protected CustomerService $service,
+        protected LoyaltyService $loyaltyService
+    ) {}
 
     public function register(Request $request)
     {
@@ -80,7 +84,7 @@ class AuthController extends Controller
             'name' => $customer->name,
             'email' => $customer->email,
             'phone' => $customer->phone,
-            'points' => $customer->points,
+            'points' => $this->loyaltyService->availablePoints($customer),
             'level' => $customer->level?->name,
         ];
     }

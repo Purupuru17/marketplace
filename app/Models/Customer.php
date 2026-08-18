@@ -16,7 +16,7 @@ class Customer extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password', 'phone', 'photo',
-        'customer_level_id', 'points', 'status',
+        'customer_level_id', 'status',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -26,7 +26,6 @@ class Customer extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'points' => 'integer',
         ];
     }
 

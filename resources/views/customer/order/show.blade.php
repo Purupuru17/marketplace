@@ -18,48 +18,8 @@
 </div>
 
 @php
-    $payment = $invoice->payments->first();
+    $methods = \App\Services\Customer\PaymentService::METHODS;
 @endphp
-@if($payment)
-    <div class="mb-6 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-900">
-        <div>
-            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ \App\Services\Customer\PaymentService::METHODS[$payment->payment_method] ?? $payment->payment_method }}</p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                @if($payment->status === 'paid')
-                    Lunas pada {{ $payment->paid_at?->format('d M Y H:i') }}
-                @elseif($payment->payment_method === 'cod')
-                    Pembayaran tunai dilakukan saat barang diterima.
-                @elseif($payment->status === 'pending' && $payment->expired_at && now()->gt($payment->expired_at))
-                    Pembayaran kedaluwarsa — buat pembayaran baru.
-                @else
-                    Menunggu pembayaran, batas {{ $payment->expired_at?->format('d M Y H:i') }}
-                @endif
-            </p>
-        </div>
-        <div>
-            @if($payment->status === 'paid')
-                <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-600 dark:bg-green-500/10 dark:text-green-400">
-                    @svg('heroicon-o-check-circle', 'h-4 w-4') Lunas
-                </span>
-            @elseif($payment->payment_method === 'cod')
-                <span class="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">COD</span>
-            @elseif($payment->status === 'pending' && $payment->expired_at && now()->gt($payment->expired_at))
-                <form method="POST" action="{{ route('customer.payment.store', $invoice->id) }}">
-                    @csrf
-                    <button type="submit"
-                            class="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                        Bayar Ulang
-                    </button>
-                </form>
-            @else
-                <a href="{{ route('customer.payment.show', $invoice->id) }}"
-                   class="inline-block rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-500">
-                    Bayar Sekarang
-                </a>
-            @endif
-        </div>
-    </div>
-@endif
 
 @if($invoice->orders->isEmpty())
     <div class="rounded-2xl border border-dashed border-gray-300 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
@@ -72,12 +32,66 @@
                 <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                     <div>
                         <p class="font-semibold text-gray-900 dark:text-white">{{ $order->order_no }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->store->store_name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $order->store->store_name }} · {{ $order->fulfillment_type === 'pickup' ? 'Ambil Sendiri' : 'Kirim / Antar' }}</p>
                     </div>
                     <span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
                         {{ ucfirst($order->status) }}
                     </span>
                 </div>
+
+                @php $orderPayment = $order->payments->first(); @endphp
+                @if($orderPayment)
+                    <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 dark:border-gray-800 dark:bg-gray-800/30">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $methods[$orderPayment->payment_method] ?? $orderPayment->payment_method }}</p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    @if($orderPayment->status === 'paid')
+                                        Lunas pada {{ $orderPayment->paid_at?->format('d M Y H:i') }}
+                                    @else
+                                        Menunggu konfirmasi pembayaran dari toko.
+                                    @endif
+                                </p>
+                            </div>
+                            @if($orderPayment->status === 'paid')
+                                <span class="inline-flex items-center gap-1 self-start rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-600 sm:self-auto dark:bg-green-500/10 dark:text-green-400">
+                                    @svg('heroicon-o-check-circle', 'h-4 w-4') Lunas
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($orderPayment->payment_method === 'bank_transfer' && $orderPayment->bank_snapshot)
+                            <dl class="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+                                <div><dt class="text-xs text-gray-500 dark:text-gray-400">Bank</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $orderPayment->bank_snapshot['bank_name'] }}</dd></div>
+                                <div><dt class="text-xs text-gray-500 dark:text-gray-400">No. Rekening</dt><dd class="font-mono font-medium text-gray-900 dark:text-white">{{ $orderPayment->bank_snapshot['account_number'] }}</dd></div>
+                                <div><dt class="text-xs text-gray-500 dark:text-gray-400">Atas Nama</dt><dd class="font-medium text-gray-900 dark:text-white">{{ $orderPayment->bank_snapshot['account_name'] }}</dd></div>
+                            </dl>
+                        @endif
+
+                        @if($orderPayment->status !== 'paid' && $orderPayment->payment_method === 'bank_transfer')
+                            @if($orderPayment->payment_proof_path)
+                                <p class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
+                                    @svg('heroicon-o-check-circle', 'h-4 w-4') Bukti sudah dikirim. Menunggu konfirmasi toko.
+                                </p>
+                            @else
+                                <form method="POST" action="{{ route('customer.payment.proof', $orderPayment->id) }}" enctype="multipart/form-data" class="mt-3">
+                                    @csrf
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                        <input type="file" name="proof" id="proof-{{ $order->id }}" accept="image/*" required
+                                               class="block w-full rounded-lg border border-gray-300 text-sm text-gray-700 file:mr-3 file:rounded-l-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 sm:w-auto dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:file:bg-indigo-500/10 dark:file:text-indigo-300">
+                                        <button type="submit"
+                                                class="shrink-0 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                            Upload Bukti
+                                        </button>
+                                    </div>
+                                    @error('proof')
+                                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </form>
+                            @endif
+                        @endif
+                    </div>
+                @endif
 
                 <div class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach($order->items as $item)

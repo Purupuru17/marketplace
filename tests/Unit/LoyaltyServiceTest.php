@@ -174,7 +174,7 @@ class LoyaltyServiceTest extends TestCase
         $service->assertRedeemable($customer, 200);
     }
 
-    public function test_redeem_persists_ledger_and_increments_invoice_points_used(): void
+    public function test_redeem_persists_ledger(): void
     {
         $service = app(LoyaltyService::class);
         $customer = $this->makeCustomer();
@@ -190,7 +190,6 @@ class LoyaltyServiceTest extends TestCase
 
         $service->redeem($customer, $invoice, 200);
 
-        $this->assertSame(200, $invoice->refresh()->points_used);
         $this->assertSame(100, $service->availablePoints($customer));
         $this->assertDatabaseHas('point_transactions', [
             'customer_id' => $customer->id,

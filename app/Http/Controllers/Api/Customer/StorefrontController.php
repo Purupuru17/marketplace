@@ -130,6 +130,11 @@ class StorefrontController extends Controller
                 'location_node' => $model->locationNode?->name,
                 'logo_url' => $this->mediaUrl($model->logo),
                 'banner_url' => $this->mediaUrl($model->banner),
+                'bank' => [
+                    'bank_name' => $model->bank_name,
+                    'account_number' => $model->account_number,
+                    'account_name' => $model->account_name,
+                ],
                 'operating_hours' => $model->operatingHours->map(fn ($hour) => [
                     'day' => $hour->day,
                     'opens_at' => $hour->opens_at,

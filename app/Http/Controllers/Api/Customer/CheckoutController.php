@@ -21,7 +21,15 @@ class CheckoutController extends Controller
     public function summary(Request $request)
     {
         $customer = $request->user('api-customer');
-        $summary = $this->service->getSummary($customer, $request->input('address_id'));
+        $fulfillmentByStore = $this->storesMap($request, 'fulfillment_type', 'delivery');
+        $paymentMethodByStore = $this->storesMap($request, 'payment_method', 'cash');
+
+        $summary = $this->service->getSummary(
+            $customer,
+            $request->input('address_id'),
+            $fulfillmentByStore,
+            $paymentMethodByStore,
+        );
 
         return response()->json([
             'data' => [
@@ -32,6 +40,8 @@ class CheckoutController extends Controller
                             'id' => $group['store']->id,
                             'name' => $group['store']->store_name,
                         ],
+                        'fulfillment_type' => $group['fulfillment_type'],
+                        'payment_method' => $group['payment_method'],
                         'subtotal' => (float) $group['subtotal'],
                         'discount' => (float) $group['discount'],
                         'shipping' => $group['shipping'],
@@ -51,21 +61,45 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'address_id' => ['required', 'uuid', 'exists:customer_addresses,id'],
-            'payment_method' => ['required', 'in:'.implode(',', array_keys(PaymentService::METHODS))],
+            'stores' => ['required', 'array', 'min:1'],
+            'stores.*.fulfillment_type' => ['required', 'in:pickup,delivery'],
+            'stores.*.payment_method' => ['required', 'in:'.implode(',', array_keys(PaymentService::METHODS))],
+            'address_id' => ['nullable', 'uuid', 'exists:customer_addresses,id'],
             'points' => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $fulfillmentByStore = [];
+        $paymentMethodByStore = [];
+
+        foreach ($validated['stores'] as $storeId => $options) {
+            $fulfillmentByStore[$storeId] = $options['fulfillment_type'];
+            $paymentMethodByStore[$storeId] = $options['payment_method'];
+        }
+
         $invoice = $this->service->placeOrder(
             $request->user('api-customer'),
-            $validated['address_id'],
-            $validated['payment_method'],
+            $validated['address_id'] ?? null,
+            $paymentMethodByStore,
             (int) ($validated['points'] ?? 0),
+            $fulfillmentByStore,
         );
 
         return response()->json([
             'data' => $this->invoicePayload($invoice),
         ], 201);
+    }
+
+    protected function storesMap(Request $request, string $key, string $default): array
+    {
+        $stores = $request->input('stores', []);
+
+        if (! is_array($stores) || $stores === []) {
+            return [];
+        }
+
+        return collect($stores)->mapWithKeys(fn ($options, $storeId) => [
+            $storeId => is_array($options) ? ($options[$key] ?? $default) : $default,
+        ])->all();
     }
 
     protected function invoicePayload(Invoice $invoice): array
@@ -79,6 +113,7 @@ class CheckoutController extends Controller
                 'id' => $order->id,
                 'order_no' => $order->order_no,
                 'store' => $order->store->store_name ?? null,
+                'fulfillment_type' => $order->fulfillment_type,
                 'total' => (float) $order->total,
                 'status' => $order->status,
             ])->values(),
