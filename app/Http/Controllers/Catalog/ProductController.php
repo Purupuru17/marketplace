@@ -73,7 +73,7 @@ class ProductController extends BaseCoreController
     {
         $validated = $this->validateProduct($request, $this->allowedStoreIds($request->user()));
 
-        $this->service->create($validated);
+        $this->service->create($validated, $request->file('images', []));
 
         return redirect()
             ->route($this->module.'.index')
@@ -107,7 +107,13 @@ class ProductController extends BaseCoreController
 
         $validated = $this->validateProduct($request, $storeIds, $product->id);
 
-        $this->service->update($product, $validated);
+        $this->service->update(
+            $product,
+            $validated,
+            $request->file('images', []),
+            $validated['primary_image'] ?? null,
+            $validated['remove_images'] ?? [],
+        );
 
         return redirect()
             ->route($this->module.'.index')
@@ -209,6 +215,13 @@ class ProductController extends BaseCoreController
             'description' => ['nullable', 'string'],
             'status' => ['required', 'in:active,inactive'],
             'is_featured' => ['nullable', 'boolean'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048', 'dimensions:min_width=640,min_height=480'],
+            'primary_image' => ['nullable', 'uuid', 'exists:product_images,id'],
+            'remove_images' => ['nullable', 'array'],
+            'remove_images.*' => ['uuid', 'exists:product_images,id'],
+        ], [
+            'images.*.dimensions' => 'Gambar produk minimal berukuran 640x480 piksel.',
         ]);
     }
 }

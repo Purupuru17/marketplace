@@ -39,6 +39,11 @@ class ProductVariant extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class, 'variant_id');
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

@@ -2,6 +2,7 @@
 
 namespace IdCore\CoreStarter\Http\Controllers\Sistem;
 
+use App\Models\User;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
 use IdCore\CoreStarter\Models\ActivityLog;
 use IdCore\CoreStarter\Services\DataTableService;
@@ -20,13 +21,17 @@ class LogController extends BaseCoreController
     public function index()
     {
         $columns = [
-            ['key' => 'created_at', 'label' => 'Waktu', 'sortable' => true, 'align' => 'center'],
-            ['key' => 'user', 'label' => 'User', 'html' => true, 'align' => 'left'],
-            ['key' => 'event', 'label' => 'Event', 'sortable' => true, 'html' => true, 'align' => 'center'],
+            ['key' => 'created_at', 'label' => 'Waktu', 'sortable' => true],
+            ['key' => 'user', 'label' => 'User', 'html' => true],
+            ['key' => 'event', 'label' => 'Event', 'sortable' => true, 'html' => true],
+            ['key' => 'ip', 'label' => 'IP', 'sortable' => true],
+            ['key' => 'device', 'label' => 'Device'],
             ['key' => 'description', 'label' => 'Keterangan', 'align' => 'left'],
         ];
 
         $compact = [
+            'users' => User::orderBy('name')->get(['id', 'name']),
+
             'title' => 'Activity Log',
             'subtitle' => 'Riwayat aktivitas pengguna',
 
@@ -75,13 +80,53 @@ class LogController extends BaseCoreController
 
         return DataTableService::process(
             $request,
-            ActivityLog::query()->with('user'),
+            ActivityLog::query()->with('user')->orderByDesc('created_at'),
             [
                 fn ($query, $search) => $query->orWhere('description', 'like', '%'.$search.'%')
                     ->orWhereHas('user', fn ($q) => $q->where('name', 'like', '%'.$search.'%')),
             ],
-            null,
+            function ($query) use ($request) {
+                if ($request->filled('user_id')) {
+                    $query->where('user_id', $request->input('user_id'));
+                }
+                if ($request->filled('event')) {
+                    $query->where('event', $request->input('event'));
+                }
+            },
             function (ActivityLog $log) use ($badgeMap) {
+                $deviceInfo = '';
+                if ($log->user_agent) {
+                    $ua = $log->user_agent;
+                    $browser = 'Unknown';
+                    $os = 'Unknown';
+
+                    if (stripos($ua, 'Firefox') !== false) {
+                        $browser = 'Firefox';
+                    } elseif (stripos($ua, 'Chrome') !== false && stripos($ua, 'Edg') === false) {
+                        $browser = 'Chrome';
+                    } elseif (stripos($ua, 'Safari') !== false && stripos($ua, 'Chrome') === false) {
+                        $browser = 'Safari';
+                    } elseif (stripos($ua, 'Edg') !== false) {
+                        $browser = 'Edge';
+                    } elseif (stripos($ua, 'MSIE') !== false || stripos($ua, 'Trident') !== false) {
+                        $browser = 'IE';
+                    }
+
+                    if (stripos($ua, 'Windows') !== false) {
+                        $os = 'Windows';
+                    } elseif (stripos($ua, 'Mac') !== false) {
+                        $os = 'macOS';
+                    } elseif (stripos($ua, 'Linux') !== false) {
+                        $os = 'Linux';
+                    } elseif (stripos($ua, 'Android') !== false) {
+                        $os = 'Android';
+                    } elseif (stripos($ua, 'iPhone') !== false || stripos($ua, 'iPad') !== false) {
+                        $os = 'iOS';
+                    }
+
+                    $deviceInfo = $browser.' / '.$os;
+                }
+
                 return [
                     'id' => $log->id,
                     'created_at' => $log->created_at->format('d M Y H:i:s'),
@@ -91,13 +136,18 @@ class LogController extends BaseCoreController
                         : '<span class="text-gray-400">-</span>',
                     'event' => Render::badge($badgeMap[$log->event] ?? 'gray', ucfirst($log->event)),
                     'event_plain' => $log->event,
+                    'ip' => $log->ip_address ?? '-',
+                    'device' => $deviceInfo
+                        ? '<span class="text-xs text-gray-700 dark:text-gray-300">'.e($deviceInfo).'</span>'
+                        : '<span class="text-gray-400">-</span>',
                     'description' => '<p class="whitespace-pre-line text-gray-700 dark:text-gray-300">'.e($log->description ?? '-').'</p>',
                     'name_plain' => $log->description,
+                    
                     'delete_url' => auth()->user()->can($this->resourceName().'.delete') ? route($this->module.'.destroy', $log->id) : null,
                     'edit_url' => null,
                 ];
             },
-            ['event', 'created_at']
+            ['created_at', 'user', 'event']
         );
     }
 }

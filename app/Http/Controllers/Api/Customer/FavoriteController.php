@@ -27,6 +27,7 @@ class FavoriteController extends Controller
                     'store' => [
                         'id' => $product->store?->id,
                         'name' => $product->store?->store_name,
+                        'slug' => $product->store?->slug,
                     ],
                 ])->values(),
             ],

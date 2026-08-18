@@ -8,6 +8,7 @@ use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
 use IdCore\CoreStarter\Services\DataTableService;
 use IdCore\CoreStarter\Support\Render;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class StoreController extends BaseCoreController
 {
@@ -64,6 +65,7 @@ class StoreController extends BaseCoreController
     {
         $validated = $this->validateStore($request);
 
+        $this->applyUploads($request, $validated);
         $this->service->create($validated, $request->input('hours', []));
 
         return redirect()
@@ -97,6 +99,7 @@ class StoreController extends BaseCoreController
     {
         $validated = $this->validateStore($request);
 
+        $this->applyUploads($request, $validated, $store);
         $this->service->update($store, $validated, $request->input('hours', []));
 
         return redirect()
@@ -167,6 +170,8 @@ class StoreController extends BaseCoreController
             'location_node_id' => ['nullable', 'uuid', 'exists:location_nodes,id'],
             'store_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048', 'dimensions:ratio=1,min_width=240,min_height=240'],
+            'banner' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048', 'dimensions:min_width=1024,min_height=768'],
             'phone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:255'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
@@ -178,6 +183,26 @@ class StoreController extends BaseCoreController
             'hours' => ['nullable', 'array'],
             'hours.*.opens_at' => ['nullable', 'date_format:H:i'],
             'hours.*.closes_at' => ['nullable', 'date_format:H:i'],
+        ], [
+            'logo.dimensions' => 'Logo harus persegi (rasio 1:1) dengan ukuran minimal 240x240 piksel.',
+            'banner.dimensions' => 'Banner minimal berukuran 1024x768 piksel.',
         ]);
+    }
+
+    protected function applyUploads(Request $request, array &$validated, ?Store $store = null): void
+    {
+        foreach (['logo', 'banner'] as $field) {
+            if (! $request->hasFile($field)) {
+                continue;
+            }
+
+            $path = Storage::disk('public')->putFile('stores', $request->file($field));
+            $validated[$field] = $path;
+
+            $oldPath = $store?->getAttribute($field);
+            if ($oldPath && $oldPath !== $path) {
+                Storage::disk('public')->delete($oldPath);
+            }
+        }
     }
 }

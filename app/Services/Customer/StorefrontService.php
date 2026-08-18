@@ -27,6 +27,7 @@ class StorefrontService
                 'category',
                 'store',
                 'promotions',
+                'images',
                 'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
             ])
             ->when($filters['search'] ?? null, fn ($q, $search) => $q->where('name', 'like', "%{$search}%"))
@@ -60,6 +61,7 @@ class StorefrontService
             ->with([
                 'category',
                 'promotions',
+                'images',
                 'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
             ])
             ->orderBy('name')
@@ -74,6 +76,7 @@ class StorefrontService
             ->with([
                 'category',
                 'promotions',
+                'images',
                 'ratings' => fn ($q) => $q->where('status', 'active')->with('customer'),
                 'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
             ])

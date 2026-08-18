@@ -13,16 +13,24 @@ class ActivityLogService
         ?string $description = null,
         ?Model $subject = null,
         ?array $properties = null,
-    ): ActivityLog {
-        return ActivityLog::create([
-            'user_id' => $userId,
-            'subject_id' => $subject?->getKey(),
-            'subject_type' => $subject ? get_class($subject) : null,
-            'event' => $event,
-            'description' => $description,
-            'properties' => $properties,
-            'ip_address' => request()?->ip(),
-        ]);
+        ): ActivityLog {
+            $userAgent = $properties['user_agent'] ?? request()?->userAgent();
+            $ipAddress = request()->header('X-Forwarded-For') 
+                ?? request()->header('X-Real-IP') 
+                ?? request()->ip() 
+                ?? $_SERVER['REMOTE_ADDR'] 
+                ?? '127.0.0.1';
+
+            return ActivityLog::create([
+                'user_id' => $userId,
+                'subject_id' => $subject?->getKey(),
+                'subject_type' => $subject ? get_class($subject) : null,
+                'event' => $event,
+                'description' => $description,
+                'properties' => $properties,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent,
+            ]);
     }
 
     public static function login(int|string $userId, ?string $description = null): ActivityLog

@@ -74,7 +74,7 @@ class ProductVariantController extends BaseCoreController
     {
         $validated = $this->validateVariant($request, $this->allowedStoreIds($request->user()));
 
-        $this->service->create($validated);
+        $this->service->create($validated, $request->file('variant_image'));
 
         return redirect()
             ->route($this->module.'.index')
@@ -85,7 +85,7 @@ class ProductVariantController extends BaseCoreController
     {
         $this->authorizeOwnership($productVariant, $this->allowedStoreIds($request->user()));
 
-        $productVariant->load('attributeValues');
+        $productVariant->load(['attributeValues', 'images']);
 
         $compact = [
             'formData' => $productVariant,
@@ -110,7 +110,7 @@ class ProductVariantController extends BaseCoreController
 
         $validated = $this->validateVariant($request, $storeIds, $productVariant->id);
 
-        $this->service->update($productVariant, $validated);
+        $this->service->update($productVariant, $validated, $request->file('variant_image'));
 
         return redirect()
             ->route($this->module.'.index')
@@ -249,6 +249,9 @@ class ProductVariantController extends BaseCoreController
                 },
             ],
             'attribute_value_ids.*' => ['uuid', 'exists:attribute_values,id'],
+            'variant_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048', 'dimensions:min_width=640,min_height=480'],
+        ], [
+            'variant_image.dimensions' => 'Gambar varian minimal berukuran 640x480 piksel.',
         ]);
     }
 }

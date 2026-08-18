@@ -103,6 +103,10 @@ class CartController extends Controller
                 'id' => $variant?->id,
                 'sku' => $variant?->sku,
                 'stock' => $variant?->stock,
+                'attributes' => $variant?->attributeValues?->map(fn ($value) => [
+                    'attribute' => $value->attribute?->name,
+                    'value' => $value->value,
+                ])->values() ?? [],
             ],
             'product' => [
                 'id' => $variant?->product?->id,

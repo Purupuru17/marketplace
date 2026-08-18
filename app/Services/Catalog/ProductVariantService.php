@@ -4,9 +4,12 @@ namespace App\Services\Catalog;
 
 use App\Models\Attribute;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Store;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ProductVariantService
 {
@@ -28,7 +31,7 @@ class ProductVariantService
             ->withQueryString();
     }
 
-    public function create(array $data): ProductVariant
+    public function create(array $data, ?UploadedFile $image = null): ProductVariant
     {
         $product = Product::findOrFail($data['product_id']);
         $data['store_id'] = $product->store_id;
@@ -43,11 +46,12 @@ class ProductVariantService
         }
 
         $this->syncAttributeValues($variant, $data['attribute_value_ids'] ?? []);
+        $this->syncVariantImage($variant, $image);
 
         return $variant->fresh();
     }
 
-    public function update(ProductVariant $variant, array $data): bool
+    public function update(ProductVariant $variant, array $data, ?UploadedFile $image = null): bool
     {
         if (isset($data['product_id']) && $data['product_id'] !== $variant->product_id) {
             $data['store_id'] = Product::findOrFail($data['product_id'])->store_id;
@@ -62,6 +66,7 @@ class ProductVariantService
         $updated = $variant->update($data);
 
         $this->syncAttributeValues($variant, $data['attribute_value_ids'] ?? []);
+        $this->syncVariantImage($variant, $image);
 
         return $updated;
     }
@@ -76,6 +81,26 @@ class ProductVariantService
         $ids = array_values(array_unique(array_filter($ids)));
 
         $variant->attributeValues()->sync($ids);
+    }
+
+    protected function syncVariantImage(ProductVariant $variant, ?UploadedFile $image): void
+    {
+        if (! $image) {
+            return;
+        }
+
+        foreach ($variant->images()->get() as $existing) {
+            Storage::disk('public')->delete($existing->path);
+            $existing->delete();
+        }
+
+        ProductImage::create([
+            'product_id' => $variant->product_id,
+            'variant_id' => $variant->id,
+            'path' => Storage::disk('public')->putFile('products', $image),
+            'position' => 0,
+            'is_primary' => false,
+        ]);
     }
 
     public function productOptions(?array $storeIds = null): array

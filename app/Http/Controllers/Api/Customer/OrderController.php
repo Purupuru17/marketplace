@@ -30,12 +30,13 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Request $request, Invoice $invoice)
+    public function show(Request $request, string $invoice)
     {
+        $invoice = Invoice::query()->where('invoice_no', $invoice)->firstOrFail();
         abort_unless($invoice->customer_id === $request->user('api-customer')->id, 403);
 
         return response()->json([
-            'data' => $this->payload($invoice->load(['orders.items.rating', 'orders.store', 'payments'])),
+            'data' => $this->payload($invoice->load(['orders.items.rating', 'orders.store', 'orders.statusHistories', 'payments'])),
         ]);
     }
 
@@ -65,6 +66,16 @@ class OrderController extends Controller
                     'sku' => $item->sku_snapshot,
                     'qty' => $item->qty,
                     'final_price' => (float) ($item->final_price_snapshot ?? $item->subtotal_snapshot),
+                    'rating' => $item->rating ? [
+                        'id' => $item->rating->id,
+                        'rating' => $item->rating->rating,
+                        'review' => $item->rating->review,
+                    ] : null,
+                ])->values(),
+                'status_history' => $order->statusHistories->sortBy('created_at')->map(fn ($history) => [
+                    'status_to' => $history->status_to,
+                    'notes' => $history->notes,
+                    'created_at' => $history->created_at?->toIso8601String(),
                 ])->values(),
             ])->values(),
         ];

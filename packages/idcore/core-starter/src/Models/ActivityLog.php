@@ -11,7 +11,7 @@ class ActivityLog extends Model
 {
     protected $fillable = [
         'user_id', 'subject_id', 'subject_type', 'event',
-        'description', 'properties', 'ip_address',
+        'description', 'properties', 'ip_address', 'user_agent',
     ];
 
     protected function casts(): array

@@ -9,6 +9,46 @@
         :url="route($module.'.ajax', ['type' => 'table', 'source' => 'index'])"
         :columns="$columns">
 
+        <x-slot:filters>
+            <div>
+                <x-idcore::select
+                    name="filter_user_id"
+                    label="User"
+                    x-model="pendingFilters.user_id"
+                    :options="$users->pluck('name', 'id')->all()"
+                    placeholder="Semua User"
+                />
+            </div>
+
+            <div>
+                <x-idcore::select
+                    name="filter_event"
+                    label="Event"
+                    x-model="pendingFilters.event"
+                    :options="[
+                        'login' => 'Login',
+                        'logout' => 'Logout',
+                        'created' => 'Created',
+                        'updated' => 'Updated',
+                        'deleted' => 'Deleted',
+                    ]"
+                    placeholder="Semua Event"
+                />
+            </div>
+
+            <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
+                <button type="button" @click="applyFilters()"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:border-brand-800 dark:text-brand-400 dark:hover:bg-brand-500/10">
+                    @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                    Pencarian
+                </button>
+                <button type="button" @click="pendingFilters = {}; applyFilters()"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800">
+                    Reset
+                </button>
+            </div>
+        </x-slot:filters>
+
         <x-slot:actions>
             <x-idcore::partials.dt-actions :module="$module" :roles-name="$rolesName" />
         </x-slot:actions>

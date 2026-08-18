@@ -23,6 +23,8 @@ Route::prefix('v1')->group(function () {
     Route::get('storefront/stores/{store}/products/{product}', [StorefrontController::class, 'product']);
     Route::get('storefront/products', [StorefrontController::class, 'products']);
     Route::get('storefront/categories', [StorefrontController::class, 'categories']);
+    Route::get('storefront/home', [StorefrontController::class, 'home']);
+    Route::get('storefront/location-nodes', [StorefrontController::class, 'locationNodes']);
 
     Route::middleware(['auth:api-customer'])->group(function () {
         Route::get('customer/me', [AuthController::class, 'me']);
@@ -50,6 +52,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('customer/points', [PointController::class, 'index']);
 
+        Route::get('customer/ratings/eligible', [RatingController::class, 'eligible']);
         Route::post('customer/ratings', [RatingController::class, 'store'])->middleware('throttle:action');
         Route::delete('customer/ratings/{rating}', [RatingController::class, 'destroy']);
 

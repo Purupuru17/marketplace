@@ -3,9 +3,12 @@
 namespace App\Services\Catalog;
 
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Store;
 use App\Services\Master\CategoryService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductService
@@ -30,25 +33,88 @@ class ProductService
             ->withQueryString();
     }
 
-    public function create(array $data): Product
+    public function create(array $data, array|UploadedFile|null $uploads = null): Product
     {
         $data['slug'] = $this->uniqueSlug($data['store_id'], $data['name']);
 
-        return Product::create($data);
+        $product = Product::create($data);
+        $this->syncUploads($product, $this->normalizeUploads($uploads));
+
+        return $product;
     }
 
-    public function update(Product $product, array $data): bool
+    public function update(Product $product, array $data, array|UploadedFile|null $uploads = null, ?string $primaryId = null, array $removeIds = []): bool
     {
         if (($data['name'] ?? null) !== $product->name) {
             $data['slug'] = $this->uniqueSlug($product->store_id, $data['name'], $product->id);
         }
 
-        return $product->update($data);
+        $updated = $product->update($data);
+
+        $this->syncUploads($product, $this->normalizeUploads($uploads));
+        $this->applyPrimary($product, $primaryId);
+        $this->removeImages($product, $removeIds);
+
+        return $updated;
     }
 
     public function delete(Product $product): ?bool
     {
+        $product->images()->each(fn (ProductImage $image) => $this->deleteUpload($image));
+
         return $product->delete();
+    }
+
+    protected function normalizeUploads(array|UploadedFile|null $uploads): array
+    {
+        if ($uploads instanceof UploadedFile) {
+            return [$uploads];
+        }
+
+        return array_values(array_filter($uploads ?? []));
+    }
+
+    protected function syncUploads(Product $product, array $files): void
+    {
+        foreach ($files as $file) {
+            $path = Storage::disk('public')->putFile('products', $file);
+
+            ProductImage::create([
+                'product_id' => $product->id,
+                'path' => $path,
+                'position' => (int) $product->images()->max('position') + 1,
+                'is_primary' => ! $product->images()->where('is_primary', true)->exists(),
+            ]);
+        }
+    }
+
+    protected function applyPrimary(Product $product, ?string $primaryId): void
+    {
+        $target = $primaryId ? $product->images()->whereNull('variant_id')->find($primaryId) : null;
+
+        if (! $target) {
+            return;
+        }
+
+        $product->images()->whereNull('variant_id')->update(['is_primary' => false]);
+        $target->update(['is_primary' => true]);
+    }
+
+    protected function removeImages(Product $product, array $removeIds): void
+    {
+        foreach ($product->images()->whereNull('variant_id')->whereIn('id', $removeIds)->get() as $image) {
+            $this->deleteUpload($image);
+        }
+
+        if (! $product->images()->whereNull('variant_id')->where('is_primary', true)->exists()) {
+            $product->images()->whereNull('variant_id')->orderBy('position')->first()?->update(['is_primary' => true]);
+        }
+    }
+
+    protected function deleteUpload(ProductImage $image): void
+    {
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
     }
 
     public function uniqueSlug(string $storeId, string $name, ?string $ignoreId = null): string

@@ -14,7 +14,7 @@
 </div>
 
 <x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" class="max-w-4xl">
-    <form action="{{ $action }}" method="POST" class="space-y-6"
+    <form action="{{ $action }}" method="POST" enctype="multipart/form-data" class="space-y-6"
           x-data="{ formDirty: false }"
           @input.debounce.500ms="formDirty = true"
           @change="formDirty = true"
@@ -24,6 +24,16 @@
         @if($formData) @method('PUT') @endif
 
         <x-idcore::select name="product_id" label="Produk" :options="$productOptions" :selected="$formData->product_id ?? null" placeholder="Pilih produk" required />
+
+        <x-idcore::file-input name="variant_image" label="Unggah Gambar" accept="image/*" hint="PNG/JPG/WebP, maks 2MB. Upload baru akan mengganti gambar varian ini" />
+        @php $formVariantImage = $formData?->images->first(); @endphp
+        @if($formVariantImage)
+            <div>
+                <span class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Gambar Varian Saat Ini</span>
+                <img src="{{ asset('storage/'.$formVariantImage->path) }}" alt="Gambar varian"
+                     class="w-40 rounded-xl border border-gray-200 object-cover dark:border-gray-800">
+            </div>
+        @endif
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
             <x-idcore::input name="sku" label="SKU" required :value="$formData->sku ?? null" placeholder="Contoh: NGS-REG-500" />

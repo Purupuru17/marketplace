@@ -21,7 +21,7 @@ class UserController extends BaseCoreController
         return 'user';
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $columns = [
             ['key' => 'name', 'label' => 'Nama', 'sortable' => true, 'searchable' => true, 'html' => true],

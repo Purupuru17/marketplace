@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(LocationDataSeeder::class);
         $this->call(StoreDataSeeder::class);
         $this->call(CatalogDataSeeder::class);
+        $this->call(ProductImageSeeder::class);
         $this->call(CustomerDataSeeder::class);
     }
 }

@@ -12,8 +12,9 @@ class PaymentController extends Controller
 {
     public function __construct(protected PaymentService $service) {}
 
-    public function show(Request $request, Invoice $invoice)
+    public function show(Request $request, string $invoice)
     {
+        $invoice = Invoice::query()->where('invoice_no', $invoice)->firstOrFail();
         abort_unless($invoice->customer_id === $request->user('api-customer')->id, 403);
 
         $payment = $this->service->latestPayable($invoice);
@@ -34,8 +35,9 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function confirm(Request $request, Invoice $invoice)
+    public function confirm(Request $request, string $invoice)
     {
+        $invoice = Invoice::query()->where('invoice_no', $invoice)->firstOrFail();
         abort_unless($invoice->customer_id === $request->user('api-customer')->id, 403);
 
         $payment = $this->service->latestPayable($invoice);

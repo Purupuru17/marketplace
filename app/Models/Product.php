@@ -49,4 +49,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Customer::class, 'favorite_products');
     }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('position');
+    }
 }

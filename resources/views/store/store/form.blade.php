@@ -22,7 +22,7 @@
 </div>
 
 <x-idcore::card title="{{ $subtitle }}" subtitle="{{ $title }}" class="max-w-4xl">
-    <form action="{{ $action }}" method="POST" class="space-y-6"
+    <form action="{{ $action }}" method="POST" enctype="multipart/form-data" class="space-y-6"
           x-data="{ formDirty: false }"
           @input.debounce.500ms="formDirty = true"
           @change="formDirty = true"
@@ -40,6 +40,13 @@
             <x-idcore::input name="email" label="Email Toko" type="email" :value="$formData->email ?? null" placeholder="toko@email.com" />
             <x-idcore::input name="lat" label="Latitude" type="number" step="any" :value="$formData->lat ?? null" placeholder="-6.9175" />
             <x-idcore::input name="lng" label="Longitude" type="number" step="any" :value="$formData->lng ?? null" placeholder="107.6191" />
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <x-idcore::file-input name="logo" label="Logo Toko" accept="image/*" hint="PNG/JPG/WebP, persegi min 240x240, maks 2MB"
+                :preview="($formData?->logo ?? null) ? asset('storage/'.$formData->logo) : null" />
+            <x-idcore::file-input name="banner" label="Banner Toko" accept="image/*" hint="PNG/JPG/WebP, min 1024x768, maks 2MB"
+                :preview="($formData?->banner ?? null) ? asset('storage/'.$formData->banner) : null" />
         </div>
 
         <x-idcore::textarea name="description" label="Deskripsi" :value="$formData->description ?? null" placeholder="Deskripsi toko" />
