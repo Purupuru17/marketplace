@@ -79,7 +79,7 @@ class CartService
         return $this->getActiveCart($customer)
             ->items()
             ->with([
-                'variant' => fn ($q) => $q->with(['product.store', 'product.promotions', 'attributeValues.attribute']),
+                'variant' => fn ($q) => $q->with(['product.store', 'product.promotions', 'product.images', 'attributeValues.attribute']),
             ])
             ->get();
     }

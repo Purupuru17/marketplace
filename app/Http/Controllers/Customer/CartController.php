@@ -32,6 +32,11 @@ class CartController extends Controller
 
         $this->service->add(Auth::guard('customer')->user(), $variant, (int) $data['qty']);
 
+        if ($request->boolean('checkout')) {
+            return redirect()->route('customer.checkout.index')
+                ->with('success', 'Item ditambahkan ke keranjang.');
+        }
+
         return redirect()->route('customer.cart.index')
             ->with('success', 'Item ditambahkan ke keranjang.');
     }

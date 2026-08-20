@@ -2,182 +2,198 @@
 @section('title', 'Checkout')
 
 @section('content')
-<h1 class="mb-8 text-2xl font-bold text-gray-900 dark:text-white">Checkout</h1>
+<div class="pb-28" x-data="{ addrOpen: false }">
 
-@error('address_id')
-    <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
-        {{ $message }}
-    </div>
-@enderror
+    <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+        <a href="{{ route('customer.cart.index') }}" class="w-8 h-8 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="font-bold text-[15px] text-gray-900">Checkout</h1>
+    </header>
 
-<div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-    <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Alamat Pengiriman</h2>
-        <a href="{{ route('customer.address.index') }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400">Kelola Alamat</a>
-    </div>
+    @error('address_id')
+        <div class="m-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ $message }}</div>
+    @enderror
 
-    @if($addresses->isEmpty())
-        <p class="rounded-2xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            Kamu belum punya alamat. Pilih <span class="font-semibold text-gray-700 dark:text-gray-200">Ambil Sendiri</span> untuk semua toko,
-            atau <a href="{{ route('customer.address.create') }}" class="font-medium text-indigo-600 dark:text-indigo-400">tambah alamat</a> dulu.
-        </p>
-    @else
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <main class="px-4">
+
+        @php $activeAddress = $addresses->firstWhere('id', $selected_address_id); @endphp
+
+        <section class="mt-3 bg-white rounded-xl border border-gray-100 p-3.5 flex items-start gap-3">
+            <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <div class="flex-1 min-w-0">
+                @if($activeAddress)
+                    <p class="text-xs font-semibold text-gray-900">{{ $activeAddress->label }} 
+                        @if($activeAddress->is_default)
+                            <span class="ml-1 text-[10px] font-medium bg-emerald-50 text-emerald-700 rounded-full px-1.5 py-0.5">Utama</span>
+                        @endif
+                    </p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">{{ $activeAddress->full_address }}</p>
+                @else
+                    <p class="text-xs font-semibold text-gray-900">Alamat pengiriman</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">
+                        Kamu belum punya alamat. Pilih <span class="font-medium text-gray-700">Ambil Sendiri</span> untuk semua toko,
+                        atau <a href="{{ route('customer.address.create') }}" class="font-medium text-emerald-700">tambah alamat</a> dulu.
+                    </p>
+                @endif
+            </div>
+            @if($addresses->isNotEmpty())
+                <button type="button" @click="addrOpen = !addrOpen" class="text-xs font-semibold text-emerald-700 shrink-0">Ganti</button>
+            @endif
+        </section>
+
+        <div x-show="addrOpen" x-cloak class="mt-2 space-y-2">
             @foreach($addresses as $address)
                 <a href="{{ route('customer.checkout.index', ['address_id' => $address->id]) }}"
-                   class="rounded-xl border p-4 transition @if($selected_address_id === $address->id) border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 @else border-gray-200 hover:border-gray-300 dark:border-gray-700 @endif">
-                    <div class="flex items-center justify-between">
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ $address->recipient_name }}</p>
-                        @if($address->is_default)
-                            <span class="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">Utama</span>
-                        @endif
+                   class="flex items-start gap-2 rounded-xl border p-3 {{ $selected_address_id === $address->id ? 'border-emerald-600 bg-emerald-50/50' : 'border-gray-200 bg-white' }}">
+                    <svg class="w-4 h-4 {{ $selected_address_id === $address->id ? 'text-emerald-700' : 'text-gray-400' }} shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <div class="min-w-0">
+                        <p class="text-xs font-semibold text-gray-900">{{ $address->recipient_name }}
+                            @if($address->is_default)
+                                <span class="ml-1 text-[10px] font-medium bg-emerald-50 text-emerald-700 rounded-full px-1.5 py-0.5">Utama</span>
+                            @endif
+                        </p>
+                        <p class="text-[11px] text-gray-500 mt-0.5">{{ $address->full_address }} · {{ $address->locationNode?->name }}</p>
                     </div>
-                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{{ $address->full_address }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $address->phone }} · {{ $address->locationNode?->name }}</p>
                 </a>
             @endforeach
         </div>
-    @endif
-</div>
 
-<form method="POST" action="{{ route('customer.checkout.store') }}">
-    @csrf
-    @if($selected_address_id)
-        <input type="hidden" name="address_id" value="{{ $selected_address_id }}">
-    @endif
+        <form method="POST" action="{{ route('customer.checkout.store') }}" id="checkout-form">
+            @csrf
+            @if($selected_address_id)
+                <input type="hidden" name="address_id" value="{{ $selected_address_id }}">
+            @endif
 
-    <div class="mb-6 space-y-4">
-        @foreach($summary['by_store'] as $group)
-            @php $storeId = $group['store']->id; @endphp
-            <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                    <p class="font-semibold text-gray-900 dark:text-white">{{ $group['store']->store_name }}</p>
-                </div>
+            <div class="space-y-3 mt-4">
+                @foreach($summary['by_store'] as $group)
+                    @php
+                        $store = $group['store'];
+                        $withinRadius = $group['shipping']['within_radius'];
+                        $violation = $group['fulfillment_type'] === 'delivery' && ! $withinRadius && $group['shipping']['distance_km'] !== null;
+                        $storeId = $store->id;
+                    @endphp
+                    <section class="bg-white rounded-xl overflow-hidden {{ $violation ? 'border border-red-200' : 'border border-gray-100' }}"
+                             x-data="{ ftype: '{{ $group['fulfillment_type'] }}' }">
 
-                <div class="divide-y divide-gray-100 dark:divide-gray-800">
-                    @foreach($group['items'] as $item)
-                        <div class="flex items-center justify-between gap-4 px-6 py-4">
-                            <div>
-                                <p class="font-medium text-gray-900 dark:text-white">{{ $item->variant->product->name }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $item->variant->sku }}
-                                    @if($item->variant->attributeValues->isNotEmpty())
-                                        · {{ $item->variant->attributeValues->sortBy(fn ($v) => $v->attribute?->name)->pluck('value')->join(' · ') }}
-                                    @endif
-                                    × {{ $item->qty }}
-                                </p>
-                                @if((float) $item->unit_discount > 0)
-                                    <p class="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                                        <span class="text-gray-400 line-through dark:text-gray-500">Rp {{ number_format((float) $item->unit_original_price, 0, ',', '.') }}</span>
-                                        <span class="rounded-full bg-red-50 px-2 py-0.5 font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                                            {{ $item->promotion?->name }}
-                                        </span>
-                                    </p>
-                                @endif
+                        <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-100">
+                            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                                {{ strtoupper(substr($store->store_name, 0, 2)) }}
                             </div>
-                            <p class="font-semibold text-gray-900 dark:text-white">
-                                Rp {{ number_format((float) $item->unit_price * $item->qty, 0, ',', '.') }}
-                            </p>
+                            <p class="text-xs font-semibold text-gray-900 truncate">{{ $store->store_name }}</p>
                         </div>
-                    @endforeach
-                </div>
 
-                <div class="grid grid-cols-1 gap-6 border-t border-gray-100 px-6 py-4 sm:grid-cols-2 dark:border-gray-800">
-                    <div>
-                        <p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Metode Pengambilan</p>
-                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            @foreach(['delivery' => 'Kirim / Antar', 'pickup' => 'Ambil Sendiri'] as $key => $label)
-                                <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-sm transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/50 dark:border-gray-700 dark:has-[:checked]:bg-indigo-500/10">
-                                    <input type="radio" name="stores[{{ $storeId }}][fulfillment_type]" value="{{ $key }}"
-                                           @checked(old("stores.{$storeId}.fulfillment_type", $group['fulfillment_type']) === $key)
-                                           class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800">
-                                    <span>{{ $label }}</span>
+                        <div class="px-3.5 pt-3">
+                            <div class="flex bg-gray-100 rounded-lg p-1">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="stores[{{ $storeId }}][fulfillment_type]" value="pickup"
+                                           @checked($group['fulfillment_type'] === 'pickup') x-model="ftype" class="peer sr-only">
+                                    <span x-bind:class="ftype === 'pickup' ? 'text-white bg-emerald-700 font-semibold' : 'text-gray-500 font-medium'"
+                                          class="block text-xs rounded-md py-2 text-center">Ambil Sendiri</span>
                                 </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="stores[{{ $storeId }}][fulfillment_type]" value="delivery"
+                                           @checked($group['fulfillment_type'] === 'delivery') x-model="ftype" class="peer sr-only">
+                                    <span x-bind:class="ftype === 'delivery' ? 'text-white bg-emerald-700 font-semibold' : 'text-gray-500 font-medium'"
+                                          class="block text-xs rounded-md py-2 text-center">Diantar</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <template x-if="ftype === 'pickup'">
+                            <div class="mx-3.5 mt-3 bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+                                <p class="text-[11px] text-emerald-800 font-medium">{{ $store->locationNode?->name ?? 'Ambil di toko' }}</p>
+                                <p class="text-[11px] text-gray-600 mt-1">Ambil sendiri langsung di toko, tanpa ongkir.</p>
+                            </div>
+                        </template>
+
+                        <template x-if="ftype === 'delivery' && {{ $violation ? 'true' : 'false' }}">
+                            <div class="mx-3.5 mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                    <p class="text-[11px] text-red-700 leading-relaxed">
+                                        Toko ini di luar jangkauan pengiriman (jarak {{ number_format($group['shipping']['distance_km'], 1, ',', '.') }} km, maks. {{ (float) $store->max_radius_km }} km). Ganti ke <span class="font-semibold">Ambil Sendiri</span> supaya pesanan tetap bisa diproses.
+                                    </p>
+                                </div>
+                                <button type="button" @click="ftype = 'pickup'"
+                                        class="w-full mt-2.5 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-2">Ganti ke Ambil Sendiri</button>
+                            </div>
+                        </template>
+
+                        <div class="px-3.5 pt-3.5">
+                            <p class="text-[13px] font-semibold text-gray-800 mb-2">Metode Pembayaran</p>
+                            <div class="flex gap-2 flex-wrap">
+                                @foreach($payment_methods as $key => $label)
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="stores[{{ $storeId }}][payment_method]" value="{{ $key }}"
+                                               @checked($group['payment_method'] === $key) class="peer sr-only">
+                                        <span class="inline-block text-xs font-medium rounded-full px-3 py-1.5 border bg-white border-gray-200 text-gray-600 peer-checked:bg-emerald-700 peer-checked:text-white peer-checked:border-emerald-700">{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-2" x-text="ftype === 'pickup' ? 'Bayar tunai saat ambil di toko' : 'Pembayaran dikonfirmasi setelah pesanan dibuat.'"></p>
+                        </div>
+
+                        <div class="px-3.5 py-3 mt-1 border-t border-gray-100 space-y-1.5">
+                            @foreach($group['items'] as $item)
+                                <div class="flex items-center justify-between text-xs text-gray-600">
+                                    <span class="line-clamp-1 pr-2">{{ $item->variant->product->name }} x{{ $item->qty }}</span>
+                                    <span class="shrink-0">Rp {{ number_format((float) $item->unit_price * $item->qty, 0, ',', '.') }}</span>
+                                </div>
                             @endforeach
                         </div>
-                    </div>
 
-                    <div>
-                        <p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Metode Pembayaran</p>
-                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            @foreach($payment_methods as $key => $label)
-                                <label class="flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-sm transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/50 dark:border-gray-700 dark:has-[:checked]:bg-indigo-500/10">
-                                    <input type="radio" name="stores[{{ $storeId }}][payment_method]" value="{{ $key }}"
-                                           @checked(old("stores.{$storeId}.payment_method", $group['payment_method']) === $key)
-                                           class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800">
-                                    <span>{{ $label }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-100 px-6 py-4 text-sm dark:border-gray-800">
-                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
-                        <span>Subtotal</span>
-                        <span>Rp {{ number_format($group['subtotal'], 0, ',', '.') }}</span>
-                    </div>
-                    @if($group['discount'] > 0)
-                        <div class="mt-1 flex justify-between text-red-600 dark:text-red-400">
-                            <span>Diskon Promo</span>
-                            <span>- Rp {{ number_format($group['discount'], 0, ',', '.') }}</span>
-                        </div>
-                    @endif
-                    <div class="mt-1 flex justify-between text-gray-600 dark:text-gray-300">
-                        <span>
-                            Ongkir
-                            @if($group['shipping']['distance_km'] !== null)
-                                ({{ number_format($group['shipping']['distance_km'], 1, ',', '.') }} km)
+                        <div class="px-3.5 py-2.5 bg-gray-50 space-y-1">
+                            <div class="flex items-center justify-between text-[11px] text-gray-500">
+                                <span>Subtotal toko</span>
+                                <span class="font-bold text-gray-900 text-xs">Rp {{ number_format($group['subtotal'], 0, ',', '.') }}</span>
+                            </div>
+                            @if($group['shipping']['cost'] > 0)
+                                <div class="flex items-center justify-between text-[11px] text-gray-500">
+                                    <span>Ongkir {{ $group['shipping']['distance_km'] !== null ? '(' . number_format($group['shipping']['distance_km'], 1, ',', '.') . ' km)' : '' }}</span>
+                                    <span>Rp {{ number_format($group['shipping']['cost'], 0, ',', '.') }}</span>
+                                </div>
+                            @elseif($group['fulfillment_type'] === 'delivery')
+                                <div class="flex items-center justify-between text-[11px] text-gray-500">
+                                    <span>Ongkir</span>
+                                    <span class="font-semibold text-emerald-700">Rp {{ number_format($group['shipping']['cost'], 0, ',', '.') }}</span>
+                                </div>
                             @endif
-                            @if($group['fulfillment_type'] === 'pickup')
-                                — gratis (ambil sendiri)
-                            @endif
-                        </span>
-                        <span>Rp {{ number_format($group['shipping']['cost'], 0, ',', '.') }}</span>
-                    </div>
-                    @if($group['fulfillment_type'] === 'delivery' && ! $group['shipping']['within_radius'])
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">
-                            Toko di luar jangkauan pengiriman — pilih alamat lain atau ambil sendiri.
-                        </p>
-                    @endif
-                    <div class="mt-2 flex justify-between font-semibold text-gray-900 dark:text-white">
-                        <span>Total Toko</span>
-                        <span>Rp {{ number_format($group['total'], 0, ',', '.') }}</span>
-                    </div>
-                </div>
+                            <div class="flex items-center justify-between pt-1 border-t border-gray-100">
+                                <span class="text-[11px] text-gray-500">Total toko</span>
+                                <span class="text-xs font-bold text-gray-900">Rp {{ number_format($group['total'], 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </section>
+                @endforeach
             </div>
-        @endforeach
-    </div>
 
-    <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Tukar Poin</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-            Saldo poin: <span class="font-semibold text-gray-900 dark:text-white">{{ number_format($available_points) }}</span> poin
-            — 100 poin = Rp 1.000.
-        </p>
+            <section class="mt-4 bg-white rounded-xl border border-gray-100 p-3.5">
+                <div class="flex items-center justify-between">
+                    <p class="text-[13px] font-semibold text-gray-800">Tukar Poin</p>
+                    <span class="text-[11px] font-semibold text-emerald-700">{{ number_format($available_points) }} poin tersedia</span>
+                </div>
+                <p class="text-[11px] text-gray-500 mt-1">100 poin = Rp 1.000.</p>
+                <div class="flex items-center gap-2 mt-2.5">
+                    <input type="number" name="points" min="0" step="100" value="{{ old('points', 0) }}" placeholder="Contoh: 100"
+                           class="flex-1 min-w-0 text-xs border border-gray-200 rounded-lg px-2.5 py-2 text-gray-700">
+                </div>
+                @error('points')
+                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </section>
 
-        <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-            <input type="number" name="points" min="0" step="100" value="{{ old('points', 0) }}"
-                   placeholder="Contoh: 100"
-                   class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 sm:w-48">
-            <span class="text-xs text-gray-500 dark:text-gray-400">Masukkan kelipatan 100.</span>
+        </form>
+    </main>
+
+    <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-between z-40">
+        <div>
+            <p class="text-[11px] text-gray-500">Total Pesanan</p>
+            <p class="text-lg font-extrabold text-gray-900">Rp {{ number_format($summary['grand_total'], 0, ',', '.') }}</p>
         </div>
-        @error('points')
-            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-        @enderror
+        <button type="submit" form="checkout-form"
+                class="text-sm font-semibold text-white bg-emerald-700 rounded-lg px-6 py-3">Buat Pesanan</button>
     </div>
 
-    <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div class="flex items-center justify-between">
-            <p class="text-lg font-bold text-gray-900 dark:text-white">Grand Total</p>
-            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Rp {{ number_format($summary['grand_total'], 0, ',', '.') }}</p>
-        </div>
-
-        <button type="submit"
-                class="mt-4 w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            Buat Pesanan
-        </button>
-        <p class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">Pesanan diproses setelah toko mengonfirmasi pembayaran.</p>
-    </div>
-</form>
+</div>
 @endsection

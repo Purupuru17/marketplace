@@ -3,6 +3,7 @@
 use App\Http\Controllers\BroadcastAuthController;
 use App\Http\Controllers\Catalog\ProductController;
 use App\Http\Controllers\Catalog\ProductVariantController;
+use App\Http\Controllers\Customer\AccountController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CartController;
@@ -37,6 +38,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('broadcasting/auth', [BroadcastAuthController::class, 'authenticate']);
 
     Route::get('storefront', [StorefrontController::class, 'index'])->name('storefront.index');
+    Route::get('storefront/search', [StorefrontController::class, 'search'])->name('storefront.search');
     Route::get('storefront/store/{store}', [StorefrontController::class, 'show'])->name('storefront.store');
     Route::get('storefront/store/{store}/product/{product}', [StorefrontController::class, 'product'])->name('storefront.product');
 
@@ -48,6 +50,8 @@ Route::middleware(['web'])->group(function () {
 
 Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer')->name('customer.')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+    Route::get('account', [AccountController::class, 'index'])->name('account');
 
     Route::get('cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('cart', [CartController::class, 'store'])->middleware('throttle:action')->name('cart.store');

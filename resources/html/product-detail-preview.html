@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — Detail Produk (Design Standard)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .line-clamp-4{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  body{font-family:'Plus Jakarta Sans',sans-serif}
+  .snap-x-mandatory{scroll-snap-type:x mandatory}
+  .snap-center{scroll-snap-align:center}
+</style>
+</head>
+<body class="bg-gray-200">
+
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative pb-24">
+
+  <!-- 1. Header overlay di atas galeri -->
+  <header class="absolute top-0 inset-x-0 z-30 px-4 pt-3 flex items-center justify-between">
+    <button class="w-9 h-9 flex items-center justify-center rounded-full bg-white/90 backdrop-blur shadow-sm">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <button class="w-9 h-9 flex items-center justify-center rounded-full bg-white/90 backdrop-blur shadow-sm">
+      <svg class="w-[18px] h-[18px] text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342a3 3 0 100-2.684m0 2.684a3 3 0 100 2.684m0-2.684l6.632 3.316m0-6l-6.632 3.316m6.632-3.316a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 6a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/></svg>
+    </button>
+  </header>
+
+  <!-- 2. Galeri gambar -->
+  <section class="relative">
+    <div class="flex overflow-x-auto no-scrollbar snap-x-mandatory">
+      <div class="w-full aspect-square bg-gray-200 shrink-0 snap-center"></div>
+      <div class="w-full aspect-square bg-gray-100 shrink-0 snap-center"></div>
+      <div class="w-full aspect-square bg-gray-200 shrink-0 snap-center"></div>
+    </div>
+    <span class="absolute bottom-3 right-3 bg-black/50 text-white text-[11px] font-medium rounded-full px-2.5 py-1">1/3</span>
+  </section>
+
+  <main class="px-4">
+
+    <!-- 3. Nama produk + harga + rating -->
+    <section class="mt-4">
+      <h1 class="text-[17px] font-bold text-gray-900 leading-snug">Beras Pandan Wangi Premium 5kg Kemasan Karung</h1>
+      <div class="flex items-baseline gap-2 mt-1.5">
+        <span class="text-sm text-gray-400 line-through">Rp62.000</span>
+        <span class="text-xl font-extrabold text-emerald-700">Rp52.700</span>
+      </div>
+      <a class="inline-flex items-center gap-1 text-xs text-gray-600 mt-1.5">
+        <span class="text-amber-500">⭐</span>
+        <span class="font-semibold text-gray-800">4.8</span>
+        <span>(23 ulasan) · Terjual 120</span>
+      </a>
+    </section>
+
+    <!-- 4. Variant selector -->
+    <section class="mt-5">
+      <p class="text-[13px] font-semibold text-gray-800 mb-2">Kemasan</p>
+      <div class="flex flex-wrap gap-2">
+        <button class="text-xs font-semibold rounded-full px-3.5 py-2 bg-emerald-700 text-white">5 kg</button>
+        <button class="text-xs font-medium rounded-full px-3.5 py-2 bg-white border border-gray-200 text-gray-700">10 kg</button>
+        <button disabled class="text-xs font-medium rounded-full px-3.5 py-2 bg-gray-50 border border-gray-200 text-gray-300 line-through cursor-not-allowed">25 kg</button>
+      </div>
+
+      <p class="text-[13px] font-semibold text-gray-800 mb-2 mt-4">Kualitas</p>
+      <div class="flex flex-wrap gap-2">
+        <button class="text-xs font-medium rounded-full px-3.5 py-2 bg-white border border-gray-200 text-gray-700">Reguler</button>
+        <button class="text-xs font-semibold rounded-full px-3.5 py-2 bg-emerald-700 text-white">Premium</button>
+      </div>
+    </section>
+
+    <!-- 5. Stok + qty stepper -->
+    <section class="mt-5 flex items-center justify-between">
+      <span class="text-xs font-medium text-amber-600 bg-amber-50 rounded-full px-2.5 py-1">Stok tersisa 5</span>
+      <div class="flex items-center border border-gray-200 rounded-full">
+        <button class="w-8 h-8 flex items-center justify-center text-gray-500 text-lg font-medium">−</button>
+        <span class="w-8 text-center text-sm font-semibold text-gray-900">1</span>
+        <button class="w-8 h-8 flex items-center justify-center text-gray-700 text-lg font-medium">+</button>
+      </div>
+    </section>
+
+    <!-- 6. Ulasan Card (ringkasan) -->
+    <section id="reviews" class="mt-6 bg-white rounded-xl border border-gray-100 p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-bold text-[15px] text-gray-900">Ulasan Produk</h2>
+        <button class="text-xs font-semibold text-emerald-700">Lihat Semua</button>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-center shrink-0">
+          <p class="text-3xl font-extrabold text-gray-900">4.8</p>
+          <p class="text-amber-500 text-xs mt-0.5">★★★★★</p>
+          <p class="text-[11px] text-gray-500 mt-0.5">23 ulasan</p>
+        </div>
+        <div class="flex-1 space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-500 w-2">5</span>
+            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:82%"></div></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-500 w-2">4</span>
+            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:12%"></div></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-500 w-2">3</span>
+            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:4%"></div></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-500 w-2">2</span>
+            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:1%"></div></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-500 w-2">1</span>
+            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:1%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-gray-100 space-y-3">
+        <div class="flex gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">R</div>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-gray-800">Rina S. <span class="text-amber-500 font-normal ml-1">★★★★★</span></p>
+            <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">Berasnya pulen dan wangi, kemasan rapi, pengiriman cepat. Recommended!</p>
+            <p class="text-[10px] text-gray-400 mt-1">2 hari lalu</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Store Card -->
+    <section class="mt-5 bg-white rounded-xl border border-gray-100 p-3.5">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0">TS</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-gray-900 flex items-center gap-1 truncate">Toko Sumber Rejeki <span class="text-amber-500 text-xs">👑</span></p>
+          <p class="text-[11px] text-gray-500 mt-0.5">⭐ 4.8 (23 ulasan) · Sejak Jan 2025</p>
+          <div class="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 text-emerald-800 rounded-full px-2 py-1">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Pasar Legi (Rp1.500/km)
+          </div>
+        </div>
+      </div>
+      <button class="w-full mt-3 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-2">Kunjungi Toko</button>
+    </section>
+
+    <!-- 8. Deskripsi (collapsible) -->
+    <section class="mt-5">
+      <h2 class="font-bold text-[15px] text-gray-900 mb-2">Deskripsi Produk</h2>
+      <p class="text-[13px] text-gray-600 leading-relaxed line-clamp-4">
+        Beras Pandan Wangi Premium hasil panen pilihan dari petani lokal. Bertekstur pulen, aroma wangi alami khas pandan, cocok untuk konsumsi sehari-hari maupun acara keluarga. Dikemas rapat dalam karung 5kg untuk menjaga kualitas dan kesegaran beras. Bebas campuran, kadar air terjaga sehingga tahan lama saat disimpan pada suhu ruang.
+      </p>
+      <button class="text-xs font-semibold text-emerald-700 mt-1.5">Lihat selengkapnya</button>
+    </section>
+
+    <!-- 9. Produk Lain dari Toko Ini -->
+    <section class="mt-6">
+      <h2 class="font-bold text-[15px] text-gray-900 mb-2.5">Produk Lain dari Toko Ini</h2>
+      <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+        <div class="shrink-0 w-36 bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div class="aspect-square bg-gray-100"></div>
+          <div class="p-2">
+            <p class="text-[13px] leading-tight line-clamp-2">Minyak Goreng 2L</p>
+            <p class="text-sm font-bold text-emerald-700 mt-1">Rp30.600</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">⭐4.7 · Terjual 60</p>
+          </div>
+        </div>
+        <div class="shrink-0 w-36 bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div class="aspect-square bg-gray-100"></div>
+          <div class="p-2">
+            <p class="text-[13px] leading-tight line-clamp-2">Gula Pasir 1kg</p>
+            <p class="text-sm font-bold text-emerald-700 mt-1">Rp16.000</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">⭐4.9 · Terjual 98</p>
+          </div>
+        </div>
+        <div class="shrink-0 w-36 bg-white rounded-xl border border-gray-100 overflow-hidden">
+          <div class="aspect-square bg-gray-100"></div>
+          <div class="p-2">
+            <p class="text-[13px] leading-tight line-clamp-2">Telur Ayam Negeri 1kg</p>
+            <p class="text-sm font-bold text-emerald-700 mt-1">Rp28.500</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">⭐4.8 · Terjual 120</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 10. Sticky bottom bar -->
+  <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-3 py-2.5 flex items-center gap-2 z-30">
+    <button class="w-11 h-11 shrink-0 flex items-center justify-center rounded-full border border-gray-200 text-gray-500">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+    </button>
+    <button class="w-11 h-11 shrink-0 flex items-center justify-center rounded-full border border-emerald-700 text-emerald-700">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+    </button>
+    <button class="flex-1 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-3">Tambah ke Keranjang</button>
+    <button class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3">Beli Sekarang</button>
+  </div>
+
+</div>
+
+</body>
+</html>

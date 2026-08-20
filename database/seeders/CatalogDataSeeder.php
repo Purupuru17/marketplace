@@ -191,7 +191,7 @@ class CatalogDataSeeder extends Seeder
         );
 
         $storePromo = Promotion::firstOrCreate(
-            ['name' => 'Diskon Minuman', 'source' => 'store'],
+            ['name' => 'Diskon Minuman', 'source' => 'store', 'store_id' => $store->id],
             [
                 'store_id' => $store->id,
                 'type' => 'fixed',

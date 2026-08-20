@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — Checkout (Design Standard)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  body{font-family:'Plus Jakarta Sans',sans-serif}
+</style>
+</head>
+<body class="bg-gray-200">
+
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative pb-28">
+
+  <!-- Header simpel back-button -->
+  <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+    <button class="w-8 h-8 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <h1 class="font-bold text-[15px] text-gray-900">Checkout</h1>
+  </header>
+
+  <main class="px-4">
+
+    <!-- 2. Card alamat aktif -->
+    <section class="mt-3 bg-white rounded-xl border border-gray-100 p-3.5 flex items-start gap-3">
+      <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-gray-900">Rumah <span class="ml-1 text-[10px] font-medium bg-emerald-50 text-emerald-700 rounded-full px-1.5 py-0.5">Utama</span></p>
+        <p class="text-[11px] text-gray-500 mt-0.5">Jl. Merdeka No.12, RT03/RW05, Ciranjang</p>
+      </div>
+      <button class="text-xs font-semibold text-emerald-700 shrink-0">Ganti</button>
+    </section>
+
+    <!-- 3. Grup Toko 1: RADIUS VIOLATION -->
+    <section class="mt-4 bg-white rounded-xl border border-red-200 overflow-hidden">
+      <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-100">
+        <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">WB</div>
+        <p class="text-xs font-semibold text-gray-900">Warung Bu Nani</p>
+      </div>
+
+      <!-- Toggle Fulfillment -->
+      <div class="px-3.5 pt-3">
+        <div class="flex bg-gray-100 rounded-lg p-1">
+          <button class="flex-1 text-xs font-medium text-gray-500 rounded-md py-2">Ambil Sendiri</button>
+          <button class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-md py-2">Diantar</button>
+        </div>
+      </div>
+
+      <!-- Alert radius violation -->
+      <div class="mx-3.5 mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+        <div class="flex items-start gap-2">
+          <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+          <p class="text-[11px] text-red-700 leading-relaxed">
+            Toko ini di luar jangkauan pengiriman (jarak 8.4 km, maks. 5 km). Ganti ke <span class="font-semibold">Ambil Sendiri</span> supaya pesanan tetap bisa diproses, atau hapus item dari toko ini.
+          </p>
+        </div>
+        <div class="flex gap-2 mt-2.5">
+          <button class="flex-1 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-2">Ganti ke Ambil Sendiri</button>
+          <button class="flex-1 text-[11px] font-semibold text-red-600 border border-red-300 rounded-lg py-2">Hapus Item Toko Ini</button>
+        </div>
+      </div>
+
+      <!-- Metode pembayaran (disabled selama radius belum resolve, ditampilkan redup) -->
+      <div class="px-3.5 pt-3.5 opacity-40 pointer-events-none">
+        <p class="text-[13px] font-semibold text-gray-800 mb-2">Metode Pembayaran</p>
+        <div class="flex gap-2">
+          <button class="text-xs font-medium rounded-full px-3 py-1.5 border border-gray-200 text-gray-600">Cash</button>
+          <button class="text-xs font-medium rounded-full px-3 py-1.5 border border-gray-200 text-gray-600">Transfer Manual</button>
+          <button class="text-xs font-medium rounded-full px-3 py-1.5 border border-gray-100 text-gray-300">Midtrans</button>
+        </div>
+      </div>
+
+      <!-- Ringkasan item -->
+      <div class="px-3.5 py-3 mt-1 border-t border-gray-100">
+        <div class="flex items-center justify-between text-xs text-gray-600">
+          <span>Sabun Cuci Piring 800ml x1</span>
+          <span>Rp14.500</span>
+        </div>
+      </div>
+      <div class="px-3.5 py-2.5 bg-gray-50 flex items-center justify-between">
+        <span class="text-[11px] text-gray-500">Subtotal toko</span>
+        <span class="text-xs font-bold text-gray-900">Rp14.500</span>
+      </div>
+    </section>
+
+    <!-- 3. Grup Toko 2: RESOLVED (pickup, sudah aman) -->
+    <section class="mt-3 bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-100">
+        <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">TS</div>
+        <p class="text-xs font-semibold text-gray-900 flex items-center gap-1">Toko Sumber Rejeki <span class="text-amber-500 text-[10px]">👑</span></p>
+      </div>
+
+      <div class="px-3.5 pt-3">
+        <div class="flex bg-gray-100 rounded-lg p-1">
+          <button class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-md py-2">Ambil Sendiri</button>
+          <button class="flex-1 text-xs font-medium text-gray-500 rounded-md py-2">Diantar</button>
+        </div>
+      </div>
+
+      <div class="mx-3.5 mt-3 bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+        <p class="text-[11px] text-emerald-800 font-medium">Jl. Pasar Legi No.8, Ciranjang</p>
+        <p class="text-[11px] text-gray-600 mt-1">Jam operasional: Senin–Sabtu, 07.00–20.00</p>
+      </div>
+
+      <div class="px-3.5 pt-3.5">
+        <p class="text-[13px] font-semibold text-gray-800 mb-2">Metode Pembayaran</p>
+        <div class="flex gap-2">
+          <button class="text-xs font-semibold rounded-full px-3 py-1.5 bg-emerald-700 text-white">Cash</button>
+          <button class="text-xs font-medium rounded-full px-3 py-1.5 border border-gray-200 text-gray-600">Transfer Manual</button>
+          <button disabled class="text-xs font-medium rounded-full px-3 py-1.5 border border-gray-100 text-gray-300 cursor-not-allowed">Midtrans</button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-2">Bayar tunai saat ambil di toko</p>
+      </div>
+
+      <div class="px-3.5 py-3 mt-2 border-t border-gray-100 space-y-1.5">
+        <div class="flex items-center justify-between text-xs text-gray-600">
+          <span>Beras Pandan Wangi 5kg x1</span>
+          <span>Rp52.700</span>
+        </div>
+        <div class="flex items-center justify-between text-xs text-gray-600">
+          <span>Minyak Goreng 2L x2</span>
+          <span>Rp61.200</span>
+        </div>
+      </div>
+      <div class="px-3.5 py-2.5 bg-gray-50 flex items-center justify-between">
+        <span class="text-[11px] text-gray-500">Subtotal toko</span>
+        <span class="text-xs font-bold text-gray-900">Rp113.900</span>
+      </div>
+    </section>
+
+    <!-- Contoh: Transfer Manual dipilih (referensi visual terpisah) -->
+    <section class="mt-3 bg-white rounded-xl border border-gray-100 overflow-hidden opacity-90">
+      <div class="px-3.5 py-2.5 bg-gray-50 border-b border-gray-100">
+        <p class="text-[10px] text-gray-400 font-medium">— Contoh: kalau pilih Transfer Manual —</p>
+      </div>
+      <div class="px-3.5 py-3">
+        <div class="bg-gray-50 rounded-lg p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-gray-500">Bank</span>
+            <span class="text-xs font-semibold text-gray-900">BCA</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-gray-500">No. Rekening</span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-semibold text-gray-900">1234567890</span>
+              <button class="text-emerald-700"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-gray-500">Atas Nama</span>
+            <span class="text-xs font-semibold text-gray-900">Sri Wahyuni</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-2">Upload bukti pembayaran setelah pesanan dibuat, dari Detail Pesanan.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 4. Sticky bottom -->
+  <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-between z-30">
+    <div>
+      <p class="text-[11px] text-gray-500">Total Pesanan</p>
+      <p class="text-lg font-extrabold text-gray-900">Rp128.400</p>
+    </div>
+    <button disabled class="text-sm font-semibold text-white bg-gray-300 rounded-lg px-6 py-3 cursor-not-allowed">Buat Pesanan</button>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -4,20 +4,25 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\Customer\StorefrontService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
+    public function __construct(protected StorefrontService $storefrontService) {}
+
     public function index()
     {
         $customer = Auth::guard('customer')->user();
 
-        $products = Product::query()
-            ->whereHas('favoritedBy', fn ($q) => $q->whereKey($customer->id))
-            ->with(['store', 'variants', 'promotions'])
-            ->orderBy('name')
-            ->get();
+        $products = $this->storefrontService->decorateProducts(
+            Product::query()
+                ->whereHas('favoritedBy', fn ($q) => $q->whereKey($customer->id))
+                ->with(['store.locationNode', 'store.level', 'images', 'variants' => fn ($q) => $q->where('status', 'active')])
+                ->orderBy('name')
+                ->get()
+        );
 
         return view('customer.favorite.index', compact('products'));
     }

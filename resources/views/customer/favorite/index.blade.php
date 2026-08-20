@@ -2,59 +2,26 @@
 @section('title', 'Favorit Saya')
 
 @section('content')
-<div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Favorit Saya</h1>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Produk yang kamu simpan untuk dibeli nanti.</p>
-</div>
+<header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3">
+    <h1 class="font-bold text-[15px] text-gray-900">Favorit Saya</h1>
+</header>
 
-@if($products->isEmpty())
-    <div class="rounded-2xl border border-dashed border-gray-300 p-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        Belum ada produk favorit.
-        <a href="{{ route('storefront.index') }}" class="mt-4 block font-medium text-indigo-600 dark:text-indigo-400">Jelajahi toko</a>
-    </div>
-@else
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        @foreach($products as $product)
-            @php
-                $pricingService = app(\App\Services\Pricing\PromotionPricingService::class);
-                $minPrice = $product->variants->map(fn ($v) => $pricingService->pricing($v)['effective'])->min();
-                $hasPromo = $product->variants->contains(fn ($v) => $pricingService->pricing($v)['promotion'] !== null);
-            @endphp
-            <div class="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-indigo-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-indigo-700">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">
-                        @svg('heroicon-o-shopping-bag', 'h-6 w-6')
-                    </div>
-                    <div class="flex flex-wrap items-center justify-end gap-1.5">
-                        @if($hasPromo)
-                            <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">Promo</span>
-                        @endif
-                        <form method="POST" action="{{ route('customer.favorite.toggle') }}">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <button type="submit" title="Hapus dari favorit"
-                                    class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20">
-                                @svg('heroicon-s-heart', 'h-3.5 w-3.5') Hapus
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <a href="{{ route('storefront.product', [$product->store->slug, $product->slug]) }}" class="mt-4 flex-1">
-                    <h2 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400">
-                        {{ $product->name }}
-                    </h2>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ $product->store->store_name }}</p>
-                    <p class="mt-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                        @if($product->variants->isNotEmpty())
-                            Rp {{ number_format($minPrice, 0, ',', '.') }}+
-                        @else
-                            Belum ada varian
-                        @endif
-                    </p>
-                </a>
+<main class="px-4">
+    @if($products->isEmpty())
+        <div class="flex flex-col items-center justify-center text-center px-8 py-24">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <svg class="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </div>
-        @endforeach
-    </div>
-@endif
+            <p class="text-sm font-semibold text-gray-800">Belum ada produk favorit</p>
+            <p class="text-xs text-gray-500 mt-1.5">Produk yang kamu simpan akan muncul di sini</p>
+            <a href="{{ route('storefront.index') }}" class="mt-4 text-xs font-semibold text-white bg-emerald-700 rounded-lg px-5 py-2.5">Jelajahi Produk</a>
+        </div>
+    @else
+        <div class="grid grid-cols-2 gap-3 mt-4">
+            @foreach($products as $product)
+                @include('customer.storefront.partials.product-card', ['product' => $product, 'showStore' => true])
+            @endforeach
+        </div>
+    @endif
+</main>
 @endsection

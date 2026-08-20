@@ -2,50 +2,40 @@
 @section('title', 'Masuk')
 
 @section('content')
-<div class="mx-auto max-w-md">
-    <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Masuk</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Selamat datang kembali, silakan masuk.</p>
-
-        <form method="POST" action="{{ route('customer.auth.login.store') }}" class="mt-6 space-y-4">
-            @csrf
-
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                       class="mt-1 w-full rounded-lg border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                @error('email')
-                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kata Sandi</label>
-                <input id="password" type="password" name="password" required
-                       class="mt-1 w-full rounded-lg border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                @error('password')
-                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="flex items-center justify-between">
-                <label class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <input type="checkbox" name="remember" value="1"
-                           class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800">
-                    <span class="ml-2">Ingat saya</span>
-                </label>
-            </div>
-
-            <button type="submit"
-                    class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                Masuk
-            </button>
-        </form>
-
-        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-            Belum punya akun?
-            <a href="{{ route('customer.auth.register') }}" class="font-medium text-indigo-600 hover:text-indigo-500">Daftar</a>
-        </p>
+<main class="px-4 pt-8">
+    <div class="text-center">
+        <span class="text-xl font-extrabold text-emerald-800">{{ config('app.name') }}</span>
+        <h1 class="mt-4 text-lg font-bold text-gray-900">Masuk</h1>
+        <p class="mt-1 text-xs text-gray-500">Selamat datang kembali, silakan masuk.</p>
     </div>
-</div>
+
+    <form method="POST" action="{{ route('customer.auth.login.store') }}" class="mt-6 bg-white rounded-xl border border-gray-100 p-4 space-y-4">
+        @csrf
+        <div>
+            <label for="email" class="block text-xs font-medium text-gray-700">Email</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                   class="mt-1 w-full rounded-lg border-gray-200 bg-white px-3 py-2.5 text-sm focus:ring-0 focus:border-emerald-600">
+            @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label for="password" class="block text-xs font-medium text-gray-700">Kata Sandi</label>
+            <input id="password" type="password" name="password" required
+                   class="mt-1 w-full rounded-lg border-gray-200 bg-white px-3 py-2.5 text-sm focus:ring-0 focus:border-emerald-600">
+            @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+
+        <label class="flex items-center text-[13px] text-gray-600">
+            <input type="checkbox" name="remember" value="1" class="rounded border-gray-300 text-emerald-700 focus:ring-emerald-600">
+            <span class="ml-2">Ingat saya</span>
+        </label>
+
+        <button type="submit" class="w-full text-sm font-semibold text-white bg-emerald-700 rounded-lg py-3">Masuk</button>
+    </form>
+
+    <p class="mt-4 text-center text-xs text-gray-500">
+        Belum punya akun?
+        <a href="{{ route('customer.auth.register') }}" class="font-semibold text-emerald-700">Daftar</a>
+    </p>
+</main>
 @endsection
