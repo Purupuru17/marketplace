@@ -127,7 +127,7 @@
             <section class="mt-2 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <template x-if="selected">
-                        <span x-bind:class="selected.stock === 0 ? 'text-red-600 bg-red-50' : (selected.stock <= 5 ? 'text-amber-600 bg-amber-50' : '')"
+                        <span x-bind:class="selected.stock < 5 ? 'text-red-600 bg-red-50' : (selected.stock < 10 ? 'text-amber-600 bg-amber-50' : 'text-green-600 bg-green-50')"
                               class="text-xs font-medium rounded-full px-2.5 py-1"
                               x-text="selected.stock === 0 ? 'Stok habis' : 'Stok tersisa ' + selected.stock"></span>
                     </template>
@@ -255,7 +255,7 @@
 
     </main>
 
-    @unless($product->variants->isEmpty())
+
     <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-3 py-2.5 flex items-center gap-2 z-40">
         @auth('customer')
             <form method="POST" action="{{ route('customer.favorite.toggle') }}">
@@ -280,7 +280,7 @@
                 <button type="submit" x-bind:disabled="!selected || selected.stock === 0"
                         class="flex-1 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-3 disabled:opacity-40">Tambah ke Keranjang</button>
             </form>
-            <form method="POST" action="{{ route('customer.cart.store') }}" class="flex-1" @submit="if (!selected || selected.stock === 0) { $event.preventDefault(); }">
+            <form method="POST" action="{{ route('customer.cart.store') }}" class="flex-1 flex" @submit="if (!selected || selected.stock === 0) { $event.preventDefault(); }">
                 @csrf
                 <input type="hidden" name="variant_id" :value="selected ? selected.id : ''">
                 <input type="hidden" name="qty" :value="qty">
@@ -292,7 +292,7 @@
             <a href="{{ route('customer.auth.login') }}" class="flex-1 block text-center text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3">Masuk untuk membeli</a>
         @endauth
     </div>
-    @endunless
+
 
 </div>
 
@@ -310,21 +310,27 @@ document.addEventListener('alpine:init', () => {
             groups: get('group-data'),
             selection: get('selection-data'),
             gallery: get('gallery-data'),
+            get defaultVariant() { return this.variants[0] || null; },
             qty: 1,
             descOpen: false,
             reviewsOpen: false,
             idx: 0,
             fmt(n){ return 'Rp ' + Math.round(n).toLocaleString('id-ID'); },
             get selected() {
-                return this.variants.find(v => v.attrs.every(a => this.selection[a.name] === a.value_id)) || null;
+                const match = this.variants.find(v => v.attrs.every(a => this.selection[a.name] === a.value_id));
+                return match || this.defaultVariant;
             },
             select(name, valueId) {
-                this.selection[name] = valueId;
+                if (this.selection[name] === valueId) {
+                    this.selection[name] = null;
+                } else {
+                    this.selection[name] = valueId;
+                }
                 this.idx = 0;
             },
             usable(name, valueId) {
                 const trial = Object.assign({}, this.selection, { [name]: valueId });
-                return this.variants.some(v => v.attrs.every(a => trial[a.name] === a.value_id));
+                return this.variants.some(v => v.attrs.every(a => trial[a.name] === null || trial[a.name] === a.value_id));
             },
             get galleryImages() {
                 const s = this.selected;

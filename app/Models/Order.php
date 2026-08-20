@@ -61,4 +61,9 @@ class Order extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function hasBeenReviewed(): bool
+    {
+        return $this->items->isNotEmpty() && $this->items->every(fn ($item) => (bool) $item->rating);
+    }
 }

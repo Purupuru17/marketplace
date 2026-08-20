@@ -2,17 +2,10 @@
 @section('title', 'Keranjang')
 
 @section('content')
-<div class="pb-40"
-     x-data='{
-        stores: @js($by_store->map(fn ($g) => ["id" => $g["store"]->id, "subtotal" => (float) $g["subtotal"], "selected" => true])->values()->all()),
-        fmt(n){ return "Rp " + Math.round(n).toLocaleString("id-ID"); },
-        toggle(id){ const s = this.stores.find(x => x.id === id); if (s) s.selected = !s.selected; },
-        get storeCount(){ return this.stores.filter(s => s.selected).length; },
-        get total(){ return this.stores.filter(s => s.selected).reduce((a, s) => a + Number(s.subtotal), 0); },
-     }'>
+<div class="pb-56">
 
     <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
-        <a href="{{ url()->previous() ?: route('storefront.index') }}" class="w-8 h-8 flex items-center justify-center shrink-0">
+        <a href="{{ url()->previous() && url()->previous() !== url()->current() ? url()->previous() : route('storefront.index') }}" class="w-8 h-8 flex items-center justify-center shrink-0">
             <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         </a>
         <h1 class="font-bold text-[15px] text-gray-900">Keranjang</h1>
@@ -37,22 +30,23 @@
         @else
             @foreach($by_store as $group)
                 @php $store = $group['store']; @endphp
-                <section class="mt-4 bg-white rounded-xl border border-gray-100 overflow-hidden" x-data="{ sel: true }">
+                <section class="mt-4 bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-100">
-                        <input type="checkbox" @change="sel = !sel; toggle('{{ $store->id }}')" @checked(true)
-                               class="w-4 h-4 rounded border-gray-300 text-emerald-700 focus:ring-emerald-600 shrink-0">
                         <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
                             {{ strtoupper(substr($store->store_name, 0, 2)) }}
                         </div>
                         <a href="{{ route('storefront.store', $store->slug) }}" class="min-w-0">
-                            <p class="text-xs font-semibold text-gray-900 truncate">{{ $store->store_name }}</p>
+                            <p class="text-xs font-semibold text-gray-900 truncate flex items-center gap-1">{{ $store->store_name }}
+                                @if(str_contains(strtolower($store->level?->name ?? ''), 'premium'))
+                                    <span class="text-amber-500 text-[10px]">👑</span>
+                                @endif
+                            </p>
                         </a>
                     </div>
 
                     @foreach($group['items'] as $item)
                         @php $variant = $item->variant; @endphp
                         <div class="px-3.5 py-3 flex gap-3 {{ ! $loop->last ? 'border-b border-gray-50' : '' }}">
-                            <input type="checkbox" @checked(true) class="w-4 h-4 mt-1 rounded border-gray-300 text-emerald-700 focus:ring-emerald-600 shrink-0">
                             @php $productImage = $variant->product->images->first()?->path; @endphp
                             <a href="{{ route('storefront.product', [$store->slug, $variant->product->slug]) }}"
                                class="w-16 h-16 rounded-lg bg-gray-100 shrink-0 overflow-hidden">
@@ -82,18 +76,23 @@
                                         @csrf @method('PUT')
                                         <input type="hidden" name="qty" :value="q">
                                         <div class="flex items-center border border-gray-200 rounded-full">
-                                            <button type="submit" @click.prevent="q = q > 1 ? q - 1 : q; $el.closest('form').requestSubmit()"
-                                                    class="w-7 h-7 flex items-center justify-center text-gray-500 text-base font-medium">−</button>
+                                            <button type="button" @click="q = q > 1 ? q - 1 : q; $nextTick(() => $el.closest('form').requestSubmit())"
+                                                    :disabled="q === 1"
+                                                    :class="q === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500'"
+                                                    class="w-7 h-7 flex items-center justify-center text-base font-medium">−</button>
                                             <span class="w-6 text-center text-xs font-semibold text-gray-900" x-text="q">{{ $item->qty }}</span>
-                                            <button type="submit" @click.prevent="q = q < {{ $variant->stock }} ? q + 1 : q; $el.closest('form').requestSubmit()"
+                                            <button type="button" @click="q = q < {{ $variant->stock }} ? q + 1 : q; $nextTick(() => $el.closest('form').requestSubmit())"
                                                     class="w-7 h-7 flex items-center justify-center text-gray-700 text-base font-medium">+</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                            <form method="POST" action="{{ route('customer.cart.destroy', $item->id) }}" class="shrink-0 self-start">
+                            <form method="POST" action="{{ route('customer.cart.destroy', $item->id) }}" class="shrink-0 self-start"
+                                      x-ref="deleteForm{{ $item->id }}">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-gray-400">
+                                <button type="button"
+                                        @click="$customerConfirm({ title: 'Hapus item?', message: @js($variant->product->name . ' akan dihapus dari keranjang.'), confirmText: 'Ya, Hapus', variant: 'danger' }).then(ok => { if (ok) $refs['deleteForm{{ $item->id }}'].submit(); })"
+                                        class="text-gray-400">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
@@ -102,29 +101,20 @@
 
                     <div class="px-3.5 py-2.5 bg-gray-50 flex items-center justify-between">
                         <span class="text-[11px] text-gray-500">Subtotal toko</span>
-                        <span class="text-xs font-bold text-gray-900" x-show="sel" style="display:none">Rp {{ number_format($group['subtotal'], 0, ',', '.') }}</span>
+                        <span class="text-xs font-bold text-gray-900">Rp {{ number_format($group['subtotal'], 0, ',', '.') }}</span>
                     </div>
                 </section>
             @endforeach
-
-            <div class="mt-4 bg-white rounded-xl border border-gray-100 p-3">
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    <input disabled placeholder="Masukkan kode promo" class="flex-1 text-xs border border-gray-200 rounded-lg px-2.5 py-2 bg-gray-50 text-gray-400">
-                    <button disabled class="text-xs font-semibold text-gray-300 border border-gray-200 rounded-lg px-3 py-2 shrink-0">Pakai</button>
-                </div>
-                <p class="text-[10px] text-gray-400 mt-1.5" title="Voucher promo belum tersedia">Promo diterapkan otomatis (diskon langsung di produk).</p>
-            </div>
         @endif
 
     </main>
 
     @unless($items->isEmpty())
-    <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 z-40">
+    <div class="fixed bottom-14 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 z-40">
         <div class="px-4 pt-3 pb-3 flex items-center justify-between">
             <div>
-                <p class="text-[11px] text-gray-500" x-text="'Total (' + storeCount + ' toko dipilih)'">Total</p>
-                <p class="text-lg font-extrabold text-gray-900" x-text="fmt(total)"></p>
+                <p class="text-[11px] text-gray-500">Total ({{ $by_store->count() }} toko)</p>
+                <p class="text-lg font-extrabold text-gray-900">Rp {{ number_format($total, 0, ',', '.') }}</p>
             </div>
             <a href="{{ route('customer.checkout.index') }}"
                class="text-sm font-semibold text-white bg-emerald-700 rounded-lg px-6 py-3">Lanjut ke Checkout</a>

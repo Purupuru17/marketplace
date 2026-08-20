@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — Alamat (Design Standard)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  body{font-family:'Plus Jakarta Sans',sans-serif}
+  .map-pattern{
+    background-image: repeating-linear-gradient(0deg, #e5e7eb 0 1px, transparent 1px 40px),
+                       repeating-linear-gradient(90deg, #e5e7eb 0 1px, transparent 1px 40px);
+    background-color:#eef1ee;
+  }
+</style>
+</head>
+<body class="bg-gray-200">
+
+<!-- ======================= STATE A: LIST ALAMAT ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative pb-24 mb-6">
+
+  <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+    <button class="w-8 h-8 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <h1 class="font-bold text-[15px] text-gray-900">Alamat Tersimpan</h1>
+  </header>
+
+  <main class="px-4">
+
+    <!-- Alamat utama -->
+    <section class="mt-3 bg-white rounded-xl border-2 border-emerald-600 p-3.5 relative">
+      <span class="absolute -top-2.5 left-3.5 bg-emerald-700 text-white text-[10px] font-semibold rounded-full px-2 py-0.5">Alamat Utama</span>
+      <div class="flex items-start gap-3 mt-1.5">
+        <svg class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <div class="min-w-0 flex-1">
+          <p class="text-[13px] font-bold text-gray-900">Rumah</p>
+          <p class="text-xs text-gray-500 mt-0.5">Puru Widiarto · +62 812-3456-7890</p>
+          <p class="text-xs text-gray-600 mt-1 leading-relaxed">Jl. Merdeka No.12, RT03/RW05, Kel. Ciranjang Hilir, Kec. Ciranjang, Kab. Cianjur, Jawa Barat 43282</p>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-3 pl-8">
+        <button class="text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5">Ubah</button>
+        <button class="text-[11px] font-semibold text-red-600 border border-red-200 rounded-lg px-3 py-1.5">Hapus</button>
+      </div>
+    </section>
+
+    <!-- Alamat lain -->
+    <section class="mt-3 bg-white rounded-xl border border-gray-100 p-3.5">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-gray-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <div class="min-w-0 flex-1">
+          <p class="text-[13px] font-bold text-gray-900">Kantor</p>
+          <p class="text-xs text-gray-500 mt-0.5">Puru Widiarto · +62 812-3456-7890</p>
+          <p class="text-xs text-gray-600 mt-1 leading-relaxed">Jl. Raya Industri No.45, Cikarang Selatan, Bekasi, Jawa Barat 17530</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-3 pl-8">
+        <div class="flex gap-2">
+          <button class="text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5">Ubah</button>
+          <button class="text-[11px] font-semibold text-red-600 border border-red-200 rounded-lg px-3 py-1.5">Hapus</button>
+        </div>
+        <button class="text-[11px] font-medium text-emerald-700">Jadikan Utama</button>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 z-30">
+    <button class="w-full flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 rounded-lg py-3">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      Tambah Alamat Baru
+    </button>
+  </div>
+
+</div>
+
+<!-- ======================= STATE B: TAMBAH/EDIT ALAMAT (map pin) ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative pb-24 mb-6">
+  <p class="text-center text-xs text-gray-400 pt-4 pb-2 font-medium">— Contoh: Tambah/Edit Alamat —</p>
+
+  <header class="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+    <button class="w-8 h-8 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <h1 class="font-bold text-[15px] text-gray-900">Tambah Alamat</h1>
+  </header>
+
+  <!-- Node Picker (sesuai skema Dijkstra: alamat terikat ke node terdekat, bukan koordinat GPS bebas) -->
+  <section class="px-4 pt-3.5">
+    <label class="text-[11px] font-medium text-gray-500">Titik Acuan Terdekat</label>
+    <button class="w-full mt-1.5 flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2.5">
+      <span class="flex items-center gap-2 min-w-0">
+        <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span class="text-sm font-semibold text-gray-800 truncate">Pasar Legi</span>
+      </span>
+      <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    <p class="text-[11px] text-gray-500 mt-1.5 leading-relaxed">Jarak & ongkir ke tiap toko dihitung dari titik acuan ini, bukan lokasi GPS-mu — pilih node yang paling dekat dengan alamatmu.</p>
+  </section>
+
+  <main class="px-4">
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Label Alamat</label>
+        <div class="flex gap-2 mt-1.5">
+          <button class="text-xs font-semibold rounded-full px-3.5 py-2 bg-emerald-700 text-white">Rumah</button>
+          <button class="text-xs font-medium rounded-full px-3.5 py-2 bg-white border border-gray-200 text-gray-700">Kantor</button>
+          <button class="text-xs font-medium rounded-full px-3.5 py-2 bg-white border border-gray-200 text-gray-700">Lainnya</button>
+        </div>
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Nama Penerima</label>
+        <input value="Puru Widiarto" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5">
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Nomor HP Penerima</label>
+        <input value="+62 812-3456-7890" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5">
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Alamat Lengkap</label>
+        <textarea rows="3" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 resize-none">Jl. Merdeka No.12, RT03/RW05, Kel. Ciranjang Hilir</textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-[11px] font-medium text-gray-500">Kecamatan</label>
+          <input value="Ciranjang" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5">
+        </div>
+        <div>
+          <label class="text-[11px] font-medium text-gray-500">Kode Pos</label>
+          <input value="43282" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5">
+        </div>
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Catatan untuk Kurir (opsional)</label>
+        <input placeholder="Cth: Pagar hijau, dekat warung" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 placeholder:text-gray-400">
+      </div>
+
+      <label class="flex items-center gap-2 text-[13px] text-gray-700">
+        <input type="checkbox" checked class="w-4 h-4 rounded border-gray-300 text-emerald-700 focus:ring-emerald-600">
+        Jadikan sebagai alamat utama
+      </label>
+    </div>
+
+  </main>
+
+  <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 z-30">
+    <button class="w-full text-sm font-semibold text-white bg-emerald-700 rounded-lg py-3">Simpan Alamat</button>
+  </div>
+
+</div>
+
+<!-- ======================= STATE C: EMPTY ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative pb-6">
+  <p class="text-center text-xs text-gray-400 pt-4 pb-2 font-medium">— Contoh: Belum Ada Alamat —</p>
+
+  <header class="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+    <button class="w-8 h-8 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <h1 class="font-bold text-[15px] text-gray-900">Alamat Tersimpan</h1>
+  </header>
+
+  <div class="flex flex-col items-center justify-center text-center px-8 py-24">
+    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+      <svg class="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <p class="text-sm font-semibold text-gray-800">Belum ada alamat tersimpan</p>
+    <p class="text-xs text-gray-500 mt-1.5">Tambahkan alamat supaya belanja lebih cepat</p>
+    <button class="mt-4 text-xs font-semibold text-white bg-emerald-700 rounded-lg px-5 py-2.5">Tambah Alamat</button>
+  </div>
+</div>
+
+<!-- ======================= STATE D: BOTTOMSHEET PILIH TITIK ACUAN (NODE) ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative pb-6">
+  <p class="text-center text-xs text-gray-400 pt-4 pb-2 font-medium">— Contoh: Pilih Titik Acuan (Node) —</p>
+
+  <div class="absolute inset-0 bg-black/40 flex items-end">
+    <div class="w-full bg-white rounded-t-2xl max-h-[80%] flex flex-col">
+
+      <div class="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100 shrink-0">
+        <h2 class="font-bold text-[15px] text-gray-900">Pilih Titik Acuan</h2>
+        <button class="w-7 h-7 flex items-center justify-center">
+          <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="px-4 pt-3 shrink-0">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 10-10.6 0 7.5 7.5 0 0010.6 0z"/></svg>
+          <input placeholder="Cari nama titik acuan..." class="w-full bg-gray-100 border-0 rounded-full pl-9 pr-3 py-2.5 text-sm text-gray-800">
+        </div>
+        <p class="text-[11px] text-gray-500 mt-2 leading-relaxed">Pilih titik yang paling dekat dengan lokasi tinggalmu. Belum menemukan titik yang cocok? Hubungi Pusat Bantuan untuk menambahkan titik baru.</p>
+      </div>
+
+      <div class="overflow-y-auto py-2">
+        <button class="w-full flex items-center gap-3 px-4 py-3 bg-emerald-50">
+          <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="flex-1 text-left text-[13px] font-semibold text-emerald-800">Pasar Legi</span>
+          <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </button>
+        <button class="w-full flex items-center gap-3 px-4 py-3">
+          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="flex-1 text-left text-[13px] text-gray-700">Terminal Ciranjang</span>
+        </button>
+        <button class="w-full flex items-center gap-3 px-4 py-3">
+          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="flex-1 text-left text-[13px] text-gray-700">Kantor Kecamatan Ciranjang</span>
+        </button>
+        <button class="w-full flex items-center gap-3 px-4 py-3">
+          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="flex-1 text-left text-[13px] text-gray-700">SPBU Ciranjang</span>
+        </button>
+        <button class="w-full flex items-center gap-3 px-4 py-3">
+          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="flex-1 text-left text-[13px] text-gray-700">Alun-alun Cianjur</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

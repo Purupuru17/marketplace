@@ -17,18 +17,20 @@ class PaymentController extends Controller
     {
         $this->authorizeOwner($payment);
 
-        $invoice = $payment->order?->invoice;
+        $order = $payment->order;
 
-        if (! $invoice) {
+        if (! $order) {
             abort(404);
         }
 
         if ($payment->status === 'paid') {
-            return redirect()->route('customer.order.show', $invoice);
+            return redirect()->route('customer.order.show', $order);
         }
 
+        $order->load(['store.level', 'store.locationNode', 'items.product.images']);
+
         return view('customer.payment.show', [
-            'invoice' => $invoice,
+            'order' => $order,
             'payment' => $payment,
             'info' => $this->service->payableInfo($payment),
         ]);

@@ -66,7 +66,7 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
     Route::get('checkout/success/{invoice}', [CheckoutController::class, 'success'])->name('checkout.success');
 
     Route::get('orders', [OrderController::class, 'index'])->name('order.index');
-    Route::get('orders/{invoice}', [OrderController::class, 'show'])->name('order.show');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('order.show');
 
     Route::get('payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('payment/{payment}/proof', [PaymentController::class, 'upload'])->middleware('throttle:action')->name('payment.proof');

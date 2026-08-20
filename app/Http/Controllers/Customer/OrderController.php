@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,24 +14,27 @@ class OrderController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
+        $status = $request->query('status');
+
         $invoices = Invoice::query()
             ->where('customer_id', $customer->id)
-            ->with(['orders.store', 'orders.items'])
-            ->when($request->filled('search'), fn ($q, $search) => $q->where('invoice_no', 'like', "%{$search}%"))
+            ->with(['orders.store', 'orders.items.product.images', 'orders.items.rating', 'orders.payments'])
+            ->when($status, fn ($q) => $q->whereHas('orders', fn ($oq) => $oq->where('status', $status)))
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('customer.order.index', compact('invoices'));
+        return view('customer.order.index', compact('invoices', 'status'));
     }
 
-    public function show(Invoice $invoice)
+    public function show(Order $order)
     {
         $customer = Auth::guard('customer')->user();
 
-        abort_unless($invoice->customer_id === $customer->id, 403);
+        abort_unless($order->customer_id === $customer->id, 403);
 
-        return view('customer.order.show', [
-            'invoice' => $invoice->load(['orders.items.rating', 'orders.store', 'orders.payments', 'payments']),
-        ]);
+        $order->load(['items.product.images', 'items.rating', 'store.level', 'store.locationNode', 'payments', 'statusHistories', 'invoice.orders.store', 'invoice.orders.items']);
+
+        return view('customer.order.show', compact('order'));
     }
 }

@@ -14,7 +14,7 @@ class FavoriteController extends Controller
 
         $products = Product::query()
             ->whereHas('favoritedBy', fn ($q) => $q->whereKey($customer->id))
-            ->with(['store', 'variants', 'promotions'])
+            ->with(['store.locationNode', 'store.level', 'images', 'variants' => fn ($q) => $q->where('status', 'active')])
             ->orderBy('name')
             ->get();
 
@@ -24,10 +24,16 @@ class FavoriteController extends Controller
                     'id' => $product->id,
                     'name' => $product->name,
                     'slug' => $product->slug,
+                    'primary_image_url' => $product->images->first()
+                        ? url(\Illuminate\Support\Facades\Storage::disk('public')->url($product->images->first()->path))
+                        : null,
+                    'min_price' => $product->variants->min('price'),
                     'store' => [
                         'id' => $product->store?->id,
                         'name' => $product->store?->store_name,
                         'slug' => $product->store?->slug,
+                        'level' => $product->store?->level?->name,
+                        'location_node' => $product->store?->locationNode?->name,
                     ],
                 ])->values(),
             ],

@@ -77,6 +77,47 @@ class AuthController extends Controller
         ]);
     }
 
+    public function update(Request $request)
+    {
+        $customer = $request->user('api-customer');
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:customers,email,' . $customer->id],
+            'phone' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $customer->update($data);
+
+        return response()->json([
+            'data' => $this->payload($customer->fresh()),
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $customer = $request->user('api-customer');
+
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        if (! Hash::check($data['current_password'], $customer->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => 'Kata sandi saat ini salah.',
+            ]);
+        }
+
+        $customer->update([
+            'password' => Hash::make($data['password']),
+        ]);
+
+        return response()->json([
+            'data' => ['message' => 'Kata sandi diperbarui.'],
+        ]);
+    }
+
     protected function payload(Customer $customer): array
     {
         return [

@@ -115,8 +115,14 @@ class StorefrontController extends Controller
 
     public function store(Request $request, string $store)
     {
-        $model = $this->service->store($store);
-        $products = $this->service->storeProducts($model, $request->input('search'));
+        $customer = $request->user('api-customer');
+        $data = $this->service->store($store, $customer);
+        $model = $data['store'];
+        $products = $this->service->storeProducts(
+            $model,
+            $request->input('search'),
+            ['category_id' => $request->input('category_id'), 'sort' => $request->input('sort', 'default')]
+        );
 
         return response()->json([
             'data' => [
@@ -127,6 +133,7 @@ class StorefrontController extends Controller
                 'phone' => $model->phone,
                 'email' => $model->email,
                 'status' => $model->status,
+                'level' => $model->level?->name,
                 'location_node' => $model->locationNode?->name,
                 'logo_url' => $this->mediaUrl($model->logo),
                 'banner_url' => $this->mediaUrl($model->banner),
@@ -140,6 +147,16 @@ class StorefrontController extends Controller
                     'opens_at' => $hour->opens_at,
                     'closes_at' => $hour->closes_at,
                 ])->values(),
+                'shipping' => $data['shipping'],
+                'avg_rating' => $model->avg_rating,
+                'rating_count' => $model->rating_count,
+                'store_ratings' => $data['store_ratings']->map(fn ($r) => [
+                    'id' => $r->id,
+                    'rating' => $r->rating,
+                    'review' => $r->review,
+                    'customer' => $r->customer?->name,
+                    'created_at' => $r->created_at?->toIso8601String(),
+                ])->values(),
                 'products' => [
                     'items' => $products->map(fn (Product $product) => $this->productPayload($product))->values(),
                     'pagination' => $this->pagination($products),
@@ -148,12 +165,34 @@ class StorefrontController extends Controller
         ]);
     }
 
-    public function product(string $store, string $product)
+    public function product(Request $request, string $store, string $product)
     {
-        $model = $this->service->store($store);
+        $customer = $request->user('api-customer');
+        $data = $this->service->product(
+            $this->service->store($store, $customer)['store'],
+            $product,
+            $customer
+        );
+
+        $payload = $this->productDetailPayload($data['product']);
+        $payload['store'] = array_merge($payload['store'] ?? [], [
+            'level' => $data['store']->level?->name,
+            'location_node' => $data['store']->locationNode?->name,
+            'avg_rating' => $data['store']->avg_rating,
+            'rating_count' => $data['store']->rating_count,
+        ]);
+        $payload['shipping'] = $data['shipping'];
+        $payload['store_ratings'] = $data['store_ratings']->map(fn ($r) => [
+            'id' => $r->id,
+            'rating' => $r->rating,
+            'review' => $r->review,
+            'customer' => $r->customer?->name,
+            'created_at' => $r->created_at?->toIso8601String(),
+        ])->values();
+        $payload['other_products'] = $data['other_products']->map(fn (Product $p) => $this->productPayload($p))->values();
 
         return response()->json([
-            'data' => $this->productDetailPayload($this->service->product($model, $product)),
+            'data' => $payload,
         ]);
     }
 
@@ -263,6 +302,59 @@ class StorefrontController extends Controller
                 'value' => $value->value,
             ])->values(),
         ];
+    }
+
+    public function search(Request $request)
+    {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'category_ids' => ['nullable', 'array'],
+            'category_ids.*' => ['uuid', 'exists:categories,id'],
+            'min_price' => ['nullable', 'numeric', 'min:0'],
+            'max_price' => ['nullable', 'numeric', 'min:0'],
+            'radius' => ['nullable', 'numeric', 'min:0'],
+            'sort' => ['nullable', 'in:default,price_asc,price_desc,latest,sold'],
+        ]);
+
+        $customer = $request->user('api-customer');
+
+        if (!empty($filters['radius']) && $customer) {
+            $filters['store_ids'] = $this->filterStoresByRadius((float) $filters['radius'], $customer);
+        }
+
+        $products = $this->service->search($filters, $customer);
+
+        return response()->json([
+            'data' => [
+                'items' => $products->map(fn (Product $product) => $this->productPayload($product))->values(),
+                'pagination' => $this->pagination($products),
+            ],
+        ]);
+    }
+
+    protected function filterStoresByRadius(float $radius, $customer): array
+    {
+        $destination = $customer->addresses()
+            ->with('locationNode')
+            ->orderByDesc('is_default')
+            ->first()
+            ?->locationNode;
+
+        if (!$destination) {
+            return [];
+        }
+
+        return Store::query()
+            ->where('status', 'active')
+            ->whereNotNull('location_node_id')
+            ->get()
+            ->filter(function ($store) use ($destination, $radius) {
+                $distance = app(\App\Services\Shipping\ShippingService::class)
+                    ->estimate($store, $destination)['distance_km'];
+                return $distance !== null && $distance <= $radius;
+            })
+            ->pluck('id')
+            ->all();
     }
 
     protected function pagination($paginator): array

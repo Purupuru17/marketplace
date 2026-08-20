@@ -408,7 +408,7 @@ class CheckoutSmokeTest extends TestCase
             ->assertSee($invoice->invoice_no, false);
 
         $this->actingAs($customer, 'customer')
-            ->get(route('customer.order.show', $invoice->id))
+            ->get(route('customer.order.show', $order->id))
             ->assertOk()
             ->assertSee($order->order_no, false)
             ->assertSee('Nasi Goreng Spesial', false);

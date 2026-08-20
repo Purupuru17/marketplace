@@ -101,7 +101,7 @@ class AuthorizationSmokeTest extends TestCase
         $order = $this->placeOrder('NGS-REG');
 
         $this->actingAs($this->makeCustomer(), 'customer')
-            ->get(route('customer.order.show', $order->invoice_id))
+            ->get(route('customer.order.show', $order->id))
             ->assertForbidden();
     }
 

@@ -21,18 +21,33 @@ class CheckoutController extends Controller
     public function summary(Request $request)
     {
         $customer = $request->user('api-customer');
+        $addresses = $customer->addresses()->with('locationNode')->orderByDesc('is_default')->get();
+        $selectedAddressId = $request->input('address_id')
+            ?? $addresses->firstWhere('is_default', true)?->id
+            ?? $addresses->first()?->id;
+
         $fulfillmentByStore = $this->storesMap($request, 'fulfillment_type', 'delivery');
         $paymentMethodByStore = $this->storesMap($request, 'payment_method', 'cash');
 
         $summary = $this->service->getSummary(
             $customer,
-            $request->input('address_id'),
+            $selectedAddressId,
             $fulfillmentByStore,
             $paymentMethodByStore,
         );
 
         return response()->json([
             'data' => [
+                'addresses' => $addresses->map(fn ($a) => [
+                    'id' => $a->id,
+                    'label' => $a->label,
+                    'recipient_name' => $a->recipient_name,
+                    'phone' => $a->phone,
+                    'full_address' => $a->full_address,
+                    'location_node' => $a->locationNode?->name,
+                    'is_default' => (bool) $a->is_default,
+                ])->values(),
+                'selected_address_id' => $selectedAddressId,
                 'address' => $summary['address']?->only(['id', 'label', 'recipient_name', 'phone', 'full_address']),
                 'by_store' => $summary['by_store']->map(function ($group) {
                     return [

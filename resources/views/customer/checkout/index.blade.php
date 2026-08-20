@@ -2,7 +2,7 @@
 @section('title', 'Checkout')
 
 @section('content')
-<div class="pb-28" x-data="{ addrOpen: false }">
+<div class="pb-40" x-data="{ addrOpen: false }">
 
     <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
         <a href="{{ route('customer.cart.index') }}" class="w-8 h-8 flex items-center justify-center shrink-0">
@@ -74,7 +74,7 @@
                         $storeId = $store->id;
                     @endphp
                     <section class="bg-white rounded-xl overflow-hidden {{ $violation ? 'border border-red-200' : 'border border-gray-100' }}"
-                             x-data="{ ftype: '{{ $group['fulfillment_type'] }}' }">
+                             x-data="{ ftype: '{{ $group['fulfillment_type'] }}', pm: '{{ $group['payment_method'] }}' }">
 
                         <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-100">
                             <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
@@ -126,12 +126,29 @@
                                 @foreach($payment_methods as $key => $label)
                                     <label class="cursor-pointer">
                                         <input type="radio" name="stores[{{ $storeId }}][payment_method]" value="{{ $key }}"
-                                               @checked($group['payment_method'] === $key) class="peer sr-only">
+                                               @checked($group['payment_method'] === $key) x-model="pm" class="peer sr-only">
                                         <span class="inline-block text-xs font-medium rounded-full px-3 py-1.5 border bg-white border-gray-200 text-gray-600 peer-checked:bg-emerald-700 peer-checked:text-white peer-checked:border-emerald-700">{{ $label }}</span>
                                     </label>
                                 @endforeach
                             </div>
                             <p class="text-[11px] text-gray-500 mt-2" x-text="ftype === 'pickup' ? 'Bayar tunai saat ambil di toko' : 'Pembayaran dikonfirmasi setelah pesanan dibuat.'"></p>
+
+                            <div x-show="pm === 'bank_transfer'" x-cloak class="mt-3 rounded-xl border {{ $store->account_number ? 'border-emerald-100 bg-emerald-50' : 'border-amber-200 bg-amber-50' }} p-3.5">
+                                @if($store->account_number)
+                                    <p class="text-[11px] font-semibold {{ $store->account_number ? 'text-emerald-800' : 'text-amber-800' }}">Transfer ke rekening toko</p>
+                                    <div class="mt-2 space-y-1.5 text-[11px]">
+                                        <div class="flex justify-between"><span class="text-gray-500">Bank</span><span class="font-semibold text-gray-900">{{ $store->bank_name }}</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-500">No. Rekening</span><span class="font-mono font-semibold text-gray-900">{{ $store->account_number }}</span></div>
+                                        <div class="flex justify-between"><span class="text-gray-500">Atas Nama</span><span class="font-semibold text-gray-900">{{ $store->account_name }}</span></div>
+                                    </div>
+                                    <p class="mt-2.5 text-[11px] text-gray-500 leading-relaxed">Setelah transfer, upload bukti dari halaman pesanan agar toko dapat mengonfirmasi.</p>
+                                @else
+                                    <div class="flex items-start gap-2">
+                                        <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                        <p class="text-[11px] text-amber-800 leading-relaxed">Toko belum melengkapi data rekening. Pilih metode lain atau hubungi toko untuk info pembayaran.</p>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="px-3.5 py-3 mt-1 border-t border-gray-100 space-y-1.5">
@@ -186,7 +203,7 @@
         </form>
     </main>
 
-    <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-between z-40">
+    <div class="fixed bottom-14 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-between z-40">
         <div>
             <p class="text-[11px] text-gray-500">Total Pesanan</p>
             <p class="text-lg font-extrabold text-gray-900">Rp {{ number_format($summary['grand_total'], 0, ',', '.') }}</p>

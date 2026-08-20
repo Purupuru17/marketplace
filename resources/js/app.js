@@ -100,6 +100,56 @@ document.addEventListener('alpine:init', () => {
     Alpine.magic('confirm', () => (options = {}) => new Promise(resolve => {
         Alpine.store('confirm').show(options, resolve);
     }));
+
+    Alpine.store('customerConfirm', {
+        open: false,
+        options: {},
+        resolver: null,
+
+        show(options, resolver) {
+            this.options = options;
+            this.resolver = resolver;
+            this.open = true;
+        },
+
+        close(result) {
+            const resolver = this.resolver;
+            this.open = false;
+            this.resolver = null;
+            if (resolver) resolver(result);
+        },
+
+        confirm() { this.close(true); },
+        cancel() { this.close(false); },
+    });
+
+    Alpine.magic('customerConfirm', () => (options = {}) => new Promise(resolve => {
+        Alpine.store('customerConfirm').show(options, resolve);
+    }));
+
+    Alpine.store('customerViewer', {
+        open: false,
+        src: '',
+        alt: '',
+        status: '',
+        downloadUrl: '',
+
+        show(options = {}) {
+            this.src = options.src ?? '';
+            this.alt = options.alt ?? '';
+            this.status = options.status ?? '';
+            this.downloadUrl = options.downloadUrl ?? '';
+            this.open = true;
+        },
+
+        close() {
+            this.open = false;
+        },
+    });
+
+    Alpine.magic('customerViewer', () => (options = {}) => {
+        Alpine.store('customerViewer').show(options);
+    });
 });
 
 
