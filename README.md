@@ -259,3 +259,7 @@ Dengan ada nya skema baru ini, sesuaikan untuk migrasi database, controller, vie
 - **Relasi** `Invoice::payments()` → `hasManyThrough(Payment::class, Order::class, 'invoice_id', 'order_id')`.
 - **Payment route**: web & API pindah ke `{payment}` (per‑order), upload proof via `POST payment/{payment}/proof`.
 - **Seeder**: `STR-DEMO1` dengan `bank_name='BCA'`, `account_number`, `account_name`.
+
+
+Session   Sesuaikan tampilan customer dengan template HTML
+  Continue  opencode -s ses_fe0c3c321ffenA5oI139xgBQf5

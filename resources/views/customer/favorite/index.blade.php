@@ -14,7 +14,10 @@
             </div>
             <p class="text-sm font-semibold text-gray-800">Belum ada produk favorit</p>
             <p class="text-xs text-gray-500 mt-1.5">Produk yang kamu simpan akan muncul di sini</p>
-            <a href="{{ route('storefront.index') }}" class="mt-4 text-xs font-semibold text-white bg-emerald-700 rounded-lg px-5 py-2.5">Jelajahi Produk</a>
+            <a href="{{ route('storefront.index') }}" class="mt-4 text-xs font-semibold text-white bg-emerald-700 rounded-lg px-5 py-2.5 flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Jelajahi Produk
+                </a>
         </div>
     @else
         <div class="grid grid-cols-2 gap-3 mt-4">

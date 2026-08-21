@@ -8,7 +8,6 @@ use App\Models\Product;
 use App\Models\Store;
 use App\Services\Customer\StorefrontService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class StorefrontController extends Controller
@@ -66,49 +65,31 @@ class StorefrontController extends Controller
         ]);
     }
 
-    public function home()
+    public function home(Request $request)
     {
-        $now = now();
-        $discount = Product::query()
-            ->where('status', 'active')
-            ->whereHas('promotions', fn ($q) => $q->where('status', 'active')
-                ->where(fn ($w) => $w->whereNull('ends_at')->orWhere('ends_at', '>', $now)))
-            ->with($this->eager())
-            ->latest()
-            ->limit(10)
-            ->get();
-
-        $bestIds = DB::table('product_variants')
-            ->join('order_items', 'order_items.variant_id', '=', 'product_variants.id')
-            ->selectRaw('product_variants.product_id, SUM(order_items.qty) as sold')
-            ->groupBy('product_variants.product_id')
-            ->orderByDesc('sold')
-            ->limit(10)
-            ->pluck('product_id')
-            ->all();
-
-        $bestSeller = empty($bestIds)
-            ? collect()
-            : Product::query()
-                ->whereIn('id', $bestIds)
-                ->with($this->eager())
-                ->get()
-                ->sortBy(fn (Product $p) => array_search($p->id, $bestIds))
-                ->values();
-
-        $stores = Store::query()
-            ->where('status', 'active')
-            ->withCount('products')
-            ->with('locationNode')
-            ->orderByDesc('products_count')
-            ->limit(10)
-            ->get();
+        $customer = $request->user('api-customer');
+        $data = $this->service->home($customer, (int) $request->input('per_page', 12));
 
         return response()->json([
             'data' => [
-                'discount_products' => $discount->map(fn (Product $p) => $this->productPayload($p))->values(),
-                'best_seller_products' => $bestSeller->map(fn (Product $p) => $this->productPayload($p))->values(),
-                'stores' => $stores->map(fn ($store) => $this->storeItemPayload($store))->values(),
+                'categories' => $data['categories'],
+                'nearby_stores' => $data['nearby_stores']->map(fn ($store) => array_merge(
+                    $this->storeItemPayload($store),
+                    [
+                        'distance_km' => $store->distance_km,
+                        'cost_estimate' => $store->cost_estimate,
+                        'open_status' => $store->open_status,
+                    ]
+                ))->values(),
+                'discount_products' => $data['discount_products']->map(fn (Product $p) => $this->productPayload($p))->values(),
+                'top_products' => $data['top_products']->map(fn (Product $p) => $this->productPayload($p))->values(),
+                'new_stores' => $data['new_stores']->map(fn ($store) => $this->storeItemPayload($store))->values(),
+                'explore_products' => [
+                    'items' => $data['explore_products']->map(fn (Product $p) => $this->productPayload($p))->values(),
+                    'pagination' => $this->pagination($data['explore_products']),
+                ],
+                // backward-compatible keys
+                'stores' => $data['nearby_stores']->map(fn ($store) => $this->storeItemPayload($store))->values(),
             ],
         ]);
     }
@@ -194,17 +175,6 @@ class StorefrontController extends Controller
         return response()->json([
             'data' => $payload,
         ]);
-    }
-
-    protected function eager(): array
-    {
-        return [
-            'category',
-            'store',
-            'promotions',
-            'images',
-            'variants' => fn ($q) => $q->where('status', 'active')->with('attributeValues.attribute'),
-        ];
     }
 
     protected function storeItemPayload($store): array
@@ -318,9 +288,9 @@ class StorefrontController extends Controller
 
         $customer = $request->user('api-customer');
 
-        if (!empty($filters['radius']) && $customer) {
-            $filters['store_ids'] = $this->filterStoresByRadius((float) $filters['radius'], $customer);
-        }
+        // Match web behavior: always compute store_ids via filterStoresByRadius
+        // If no destination (guest or no address) → empty array = no filter
+        $filters['store_ids'] = $this->filterStoresByRadius((float) ($filters['radius'] ?? 0), $customer);
 
         $products = $this->service->search($filters, $customer);
 
@@ -334,6 +304,10 @@ class StorefrontController extends Controller
 
     protected function filterStoresByRadius(float $radius, $customer): array
     {
+        if ($radius <= 0 || !$customer) {
+            return [];
+        }
+
         $destination = $customer->addresses()
             ->with('locationNode')
             ->orderByDesc('is_default')

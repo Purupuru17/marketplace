@@ -25,7 +25,10 @@
                 </div>
                 <p class="text-sm font-semibold text-gray-800">Keranjangmu masih kosong</p>
                 <p class="text-xs text-gray-500 mt-1.5">Yuk mulai belanja dari toko-toko sekitarmu</p>
-                <a href="{{ route('storefront.index') }}" class="mt-4 text-xs font-semibold text-white bg-emerald-700 rounded-lg px-5 py-2.5">Mulai Belanja</a>
+                <a href="{{ route('storefront.index') }}" class="mt-4 text-xs font-semibold text-white bg-emerald-700 rounded-lg px-5 py-2.5 flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    Mulai Belanja
+                </a>
             </div>
         @else
             @foreach($by_store as $group)
@@ -117,7 +120,10 @@
                 <p class="text-lg font-extrabold text-gray-900">Rp {{ number_format($total, 0, ',', '.') }}</p>
             </div>
             <a href="{{ route('customer.checkout.index') }}"
-               class="text-sm font-semibold text-white bg-emerald-700 rounded-lg px-6 py-3">Lanjut ke Checkout</a>
+                   class="text-sm font-semibold text-white bg-emerald-700 rounded-lg px-6 py-3 flex items-center gap-2">
+                    <span>Lanjut ke Checkout</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
         </div>
     </div>
     @endunless

@@ -54,6 +54,11 @@ class Customer extends Authenticatable
         return $this->hasMany(Invoice::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function pointTransactions(): HasMany
     {
         return $this->hasMany(PointTransaction::class);

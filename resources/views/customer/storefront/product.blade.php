@@ -40,7 +40,7 @@
     $premiumStore = str_contains(strtolower($store->level?->name ?? ''), 'premium');
 @endphp
 
-<div class="pb-28" x-data="productPage($el)">
+<div class="pb-40" x-data="productPage($el)">
 
     <script type="application/json" data-role="variant-data">@json($variantData->all())</script>
     <script type="application/json" data-role="group-data">@json($groups->map->all()->all())</script>
@@ -256,7 +256,7 @@
     </main>
 
 
-    <div class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-3 py-2.5 flex items-center gap-2 z-40">
+    <div class="fixed bottom-14 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-3 py-2.5 flex items-center gap-2 z-40">
         @auth('customer')
             <form method="POST" action="{{ route('customer.favorite.toggle') }}">
                 @csrf
@@ -278,7 +278,10 @@
                 <input type="hidden" name="variant_id" :value="selected ? selected.id : ''">
                 <input type="hidden" name="qty" :value="qty">
                 <button type="submit" x-bind:disabled="!selected || selected.stock === 0"
-                        class="flex-1 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-3 disabled:opacity-40">Tambah ke Keranjang</button>
+                        class="flex-1 min-w-0 px-1 text-[11px] font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-3 flex items-center justify-center gap-1 whitespace-nowrap disabled:opacity-40">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        Tambah ke Keranjang
+                    </button>
             </form>
             <form method="POST" action="{{ route('customer.cart.store') }}" class="flex-1 flex" @submit="if (!selected || selected.stock === 0) { $event.preventDefault(); }">
                 @csrf
@@ -286,7 +289,10 @@
                 <input type="hidden" name="qty" :value="qty">
                 <input type="hidden" name="checkout" value="1">
                 <button type="submit" x-bind:disabled="!selected || selected.stock === 0"
-                        class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3 disabled:opacity-40">Beli Sekarang</button>
+                        class="flex-1 min-w-0 px-1 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-3 flex items-center justify-center gap-1 whitespace-nowrap disabled:opacity-40">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Beli Sekarang
+                    </button>
             </form>
         @else
             <a href="{{ route('customer.auth.login') }}" class="flex-1 block text-center text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3">Masuk untuk membeli</a>

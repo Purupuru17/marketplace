@@ -52,6 +52,8 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
 
     Route::get('account', [AccountController::class, 'index'])->name('account');
+    Route::get('account/edit', [AccountController::class, 'edit'])->name('account.edit');
+    Route::put('account', [AccountController::class, 'update'])->name('account.update');
 
     Route::get('cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('cart', [CartController::class, 'store'])->middleware('throttle:action')->name('cart.store');
@@ -67,11 +69,12 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
 
     Route::get('orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('order.show');
+    Route::get('orders/{order}/review', [OrderController::class, 'review'])->name('order.review');
+    Route::post('orders/{order}/review', [OrderController::class, 'submitReview'])->middleware('throttle:action')->name('order.review.store');
 
     Route::get('payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('payment/{payment}/proof', [PaymentController::class, 'upload'])->middleware('throttle:action')->name('payment.proof');
 
-    Route::post('ratings', [RatingController::class, 'store'])->middleware('throttle:action')->name('rating.store');
     Route::delete('ratings/{rating}', [RatingController::class, 'destroy'])->name('rating.destroy');
 
     Route::get('favorites', [FavoriteController::class, 'index'])->name('favorite.index');

@@ -8,29 +8,49 @@
     $premium = $store && str_contains(strtolower($store->level?->name ?? ''), 'premium');
 @endphp
 
-<div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-    <a href="{{ $href }}" class="relative block aspect-square bg-gray-100 overflow-hidden">
-        @if($product->primary_image)
-            <img src="{{ asset('storage/' . $product->primary_image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
-        @endif
-        @if($product->discount_percent > 0)
-            <span class="absolute top-1.5 left-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">-{{ $product->discount_percent }}%</span>
-        @endif
+<div class="relative bg-white rounded-xl border border-gray-100 overflow-hidden flex flex-col">
+    <div class="relative aspect-square bg-gray-100 overflow-hidden shrink-0">
+        <a href="{{ $href }}" class="absolute inset-0">
+            @if($product->primary_image)
+                <img src="{{ asset('storage/' . $product->primary_image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+            @endif
+            @if($product->discount_percent > 0)
+                <span class="absolute top-1.5 left-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">-{{ $product->discount_percent }}%</span>
+            @endif
+        </a>
         @auth('customer')
-            <form method="POST" action="{{ route('customer.favorite.toggle') }}" class="absolute top-1.5 right-1.5">
+            <form method="POST" action="{{ route('customer.favorite.toggle') }}" class="absolute top-1.5 right-1.5 z-10"
+                  data-favform="{{ $product->id }}"
+                  x-data="{
+                    isFav: {{ $isFavorite ? 'true' : 'false' }},
+                    toggle() {
+                        if (this.isFav) {
+                            $customerConfirm({
+                                title: 'Hapus dari Favorit?',
+                                message: 'Produk akan dihapus dari daftar favoritmu.',
+                                confirmText: 'Ya, Hapus',
+                                variant: 'danger'
+                            }).then(ok => ok && this.$refs.favForm.submit());
+                        } else {
+                            this.$refs.favForm.submit();
+                        }
+                    }
+                }" x-ref="favForm">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <button type="submit" title="{{ $isFavorite ? 'Hapus dari favorit' : 'Tambah ke favorit' }}">
-                    <svg class="w-5 h-5 {{ $isFavorite ? 'text-red-500 fill-red-500' : 'text-white drop-shadow fill-white/30' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                <button type="button" @click="toggle()" title="{{ $isFavorite ? 'Hapus dari favorit' : 'Tambah ke favorit' }}"
+                        class="w-8 h-8 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center">
+                    <svg class="w-4 h-4 {{ $isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-700 fill-white/30' }}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                 </button>
             </form>
         @else
-            <span class="absolute top-1.5 right-1.5">
-                <svg class="w-5 h-5 text-white drop-shadow fill-white/30" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            <span class="absolute top-1.5 right-1.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center">
+                <svg class="w-4 h-4 text-gray-700 fill-white/30" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </span>
         @endauth
-    </a>
-    <div class="p-2.5">
+    </div>
+
+    <div class="p-2.5 flex-1 flex flex-col">
         <a href="{{ $href }}">
             <p class="text-[13px] leading-tight line-clamp-2 text-gray-900">{{ $product->name }}</p>
         </a>

@@ -27,7 +27,7 @@
         : 0;
 @endphp
 
-@if(! request()->routeIs('customer.auth.*', 'storefront.product'))
+@if(! request()->routeIs('customer.auth.*'))
 <nav class="fixed bottom-0 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 flex z-40">
     <a href="{{ route('storefront.index') }}"
        class="flex-1 flex flex-col items-center gap-0.5 py-2.5 {{ request()->routeIs('storefront.index') ? 'text-emerald-700' : 'text-gray-400' }}">

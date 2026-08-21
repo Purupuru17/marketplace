@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — Login/Register (Design Standard)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  body{font-family:'Plus Jakarta Sans',sans-serif}
+</style>
+</head>
+<body class="bg-gray-200">
+
+<!-- ======================= STATE A: LANDING AUTH ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gradient-to-b from-emerald-700 to-emerald-800 shadow-2xl relative mb-6 flex flex-col">
+  <div class="flex-1 flex flex-col items-center justify-center px-8 text-center">
+    <div class="w-20 h-20 rounded-2xl bg-white/15 flex items-center justify-center mb-5">
+      <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+    </div>
+    <h1 class="text-xl font-extrabold text-white">Belanja Dekat Rumah,<br>Langsung dari Tetangga</h1>
+    <p class="text-sm text-emerald-100 mt-2.5 leading-relaxed">Temukan toko dan warung di sekitarmu, pesan, dan ambil sendiri atau diantar.</p>
+  </div>
+
+  <div class="px-6 pb-8 space-y-3">
+    <button class="w-full text-sm font-semibold text-emerald-800 bg-white rounded-lg py-3.5">Masuk / Daftar</button>
+  </div>
+</div>
+
+<!-- ======================= STATE B: LOGIN ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative mb-6">
+  <p class="text-center text-xs text-gray-400 pt-4 pb-2 font-medium">— Masuk —</p>
+
+  <header class="px-4 py-3">
+    <button class="w-8 h-8 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </header>
+
+  <main class="px-6 pt-2">
+    <h1 class="text-xl font-extrabold text-gray-900">Selamat Datang Kembali</h1>
+    <p class="text-sm text-gray-500 mt-1.5">Masuk untuk lanjut belanja di toko sekitarmu.</p>
+
+    <!-- Google OAuth -->
+    <button class="w-full mt-6 flex items-center justify-center gap-2.5 text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg py-3">
+      <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Lanjutkan dengan Google
+    </button>
+
+    <div class="flex items-center gap-3 my-5">
+      <div class="flex-1 h-px bg-gray-200"></div>
+      <span class="text-[11px] text-gray-400 font-medium">atau masuk dengan email</span>
+      <div class="flex-1 h-px bg-gray-200"></div>
+    </div>
+
+    <div class="space-y-3.5">
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Email</label>
+        <input value="puru@example.com" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5">
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Kata Sandi</label>
+        <div class="relative mt-1">
+          <input type="password" value="••••••••" class="w-full text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 pr-10">
+          <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="text-right">
+        <button class="text-xs font-semibold text-emerald-700">Lupa kata sandi?</button>
+      </div>
+    </div>
+
+    <button class="w-full mt-5 text-sm font-semibold text-white bg-emerald-700 rounded-lg py-3.5">Masuk</button>
+
+    <p class="text-xs text-gray-500 text-center mt-5">Belum punya akun? <button class="text-emerald-700 font-semibold">Daftar</button></p>
+  </main>
+</div>
+
+<!-- ======================= STATE C: REGISTER ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative mb-6">
+  <p class="text-center text-xs text-gray-400 pt-4 pb-2 font-medium">— Daftar —</p>
+
+  <header class="px-4 py-3">
+    <button class="w-8 h-8 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </header>
+
+  <main class="px-6 pt-2">
+    <h1 class="text-xl font-extrabold text-gray-900">Buat Akun Baru</h1>
+    <p class="text-sm text-gray-500 mt-1.5">Gratis, dan bisa langsung belanja dari toko terdekat.</p>
+
+    <button class="w-full mt-6 flex items-center justify-center gap-2.5 text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg py-3">
+      <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Daftar dengan Google
+    </button>
+
+    <div class="flex items-center gap-3 my-5">
+      <div class="flex-1 h-px bg-gray-200"></div>
+      <span class="text-[11px] text-gray-400 font-medium">atau daftar dengan email</span>
+      <div class="flex-1 h-px bg-gray-200"></div>
+    </div>
+
+    <div class="space-y-3.5">
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Nama Lengkap</label>
+        <input placeholder="Masukkan nama lengkapmu" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 placeholder:text-gray-400">
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Email</label>
+        <input placeholder="nama@email.com" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 placeholder:text-gray-400">
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Kata Sandi</label>
+        <input type="password" placeholder="Minimal 8 karakter" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 placeholder:text-gray-400">
+        <div class="flex gap-1 mt-2">
+          <div class="h-1 flex-1 rounded-full bg-emerald-600"></div>
+          <div class="h-1 flex-1 rounded-full bg-emerald-600"></div>
+          <div class="h-1 flex-1 rounded-full bg-gray-200"></div>
+        </div>
+        <p class="text-[10px] text-gray-400 mt-1">Kekuatan kata sandi: Sedang</p>
+      </div>
+      <div>
+        <label class="text-[11px] font-medium text-gray-500">Konfirmasi Kata Sandi</label>
+        <input type="password" placeholder="Ulangi kata sandi" class="w-full mt-1 text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2.5 placeholder:text-gray-400">
+      </div>
+    </div>
+
+    <label class="flex items-start gap-2 mt-4">
+      <input type="checkbox" checked class="w-4 h-4 mt-0.5 rounded border-gray-300 text-emerald-700 focus:ring-emerald-600">
+      <span class="text-[11px] text-gray-500 leading-relaxed">Saya menyetujui <span class="text-emerald-700 font-medium">Syarat & Ketentuan</span> dan <span class="text-emerald-700 font-medium">Kebijakan Privasi</span></span>
+    </label>
+
+    <button class="w-full mt-5 text-sm font-semibold text-white bg-emerald-700 rounded-lg py-3.5">Buat Akun</button>
+
+    <p class="text-xs text-gray-500 text-center mt-5">Sudah punya akun? <button class="text-emerald-700 font-semibold">Masuk</button></p>
+  </main>
+</div>
+
+<!-- ======================= STATE D: VERIFIKASI EMAIL (pending) ======================= -->
+<div class="max-w-[420px] mx-auto min-h-screen bg-gray-50 shadow-2xl relative mb-6 flex flex-col">
+  <p class="text-center text-xs text-gray-400 pt-4 pb-2 font-medium">— Setelah Daftar: Verifikasi Email —</p>
+
+  <div class="flex-1 flex flex-col items-center justify-center px-8 text-center">
+    <div class="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-5">
+      <svg class="w-9 h-9 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+    </div>
+    <h1 class="text-xl font-extrabold text-gray-900">Periksa Email Kamu</h1>
+    <p class="text-sm text-gray-500 mt-2.5 leading-relaxed">
+      Kami sudah mengirim link verifikasi ke<br>
+      <span class="font-semibold text-gray-800">puru@example.com</span>.<br>
+      Klik link tersebut untuk mengaktifkan akunmu.
+    </p>
+
+    <button class="mt-6 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg px-4 py-2.5">Kirim Ulang Email</button>
+    <p class="text-[11px] text-gray-400 mt-3">Salah alamat email? <button class="text-emerald-700 font-semibold">Ubah email</button></p>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -86,7 +86,20 @@
                                         <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[9px] shrink-0">{{ $initials($order->store->store_name) }}</div>
                                         <p class="text-xs font-semibold text-gray-900">{{ $order->store->store_name }}</p>
                                     </div>
-                                    <span class="text-[10px] font-semibold rounded-full px-2 py-1 {{ $statusColors[$order->status] ?? 'bg-gray-100 text-gray-600' }}">{{ $statusLabels[$order->status] ?? ucfirst($order->status) }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        @if($order->fulfillment_type === 'pickup')
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-[9px] font-semibold text-blue-700">
+                                                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                                Ambil Sendiri
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-1 text-[9px] font-semibold text-orange-700">
+                                                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 19a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4zM2 5h12v10H2zM14 9h4l3 3v3h-7z"/></svg>
+                                                Antar/Kirim
+                                            </span>
+                                        @endif
+                                        <span class="text-[10px] font-semibold rounded-full px-2 py-1 {{ $statusColors[$order->status] ?? 'bg-gray-100 text-gray-600' }}">{{ $statusLabels[$order->status] ?? ucfirst($order->status) }}</span>
+                                    </div>
                                 </div>
 
                                 <a href="{{ route('customer.order.show', $order) }}" class="flex gap-3">
@@ -111,27 +124,42 @@
                                 <div class="flex gap-2 mt-3">
                                     @if($order->status === 'pending')
                                         <a href="{{ route('customer.order.show', $order) }}"
-                                           class="flex-1 text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg py-2 text-center">Lihat Detail</a>
+                                           class="flex-1 text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg py-2 flex items-center justify-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                            Lihat Detail
+                                        </a>
                                         @if($payment && $payment->status !== 'paid')
                                             <a href="{{ route('customer.payment.show', $payment) }}"
-                                               class="flex-1 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-2 text-center">Bayar Sekarang</a>
+                                               class="flex-1 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-2 flex items-center justify-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                                Bayar Sekarang
+                                            </a>
                                         @endif
                                     @elseif($order->status === 'completed')
-                                        <a href="{{ route('storefront.store', $order->store) }}"
-                                           class="flex-1 text-[11px] font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-2 text-center">Beli Lagi</a>
+                                        <a href="{{ route('storefront.store', $order->store->slug) }}"
+                                           class="flex-1 text-[11px] font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-2 flex items-center justify-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v8h4a1 1 0 001-1V7a1 1 0 00-1-1H4zm12 2a4 4 0 11-8 0v9a2 2 0 002 2h4a2 2 0 002-2v-1h4V6a2 2 0 00-2-2h-2zm4 7v6m-15 0v-3H4"/></svg>
+                                            Beli Lagi
+                                        </a>
                                         @if($order->hasBeenReviewed())
-                                            <a href="{{ route('customer.order.show', $order) }}#ulasan"
+                                            <a href="{{ route('customer.order.review', $order) }}"
                                                class="flex-1 text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg py-2 flex items-center justify-center gap-1">
                                                 <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                                 Lihat Ulasan
                                             </a>
                                         @else
-                                            <a href="{{ route('customer.order.show', $order) }}#ulasan"
-                                               class="flex-1 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-2 text-center">Beri Ulasan</a>
+                                            <a href="{{ route('customer.order.review', $order) }}"
+                                               class="flex-1 text-[11px] font-semibold text-white bg-emerald-700 rounded-lg py-2 flex items-center justify-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                                Beri Ulasan
+                                            </a>
                                         @endif
                                     @else
                                         <a href="{{ route('customer.order.show', $order) }}"
-                                           class="w-full text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg py-2 text-center">Lihat Detail</a>
+                                           class="w-full text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg py-2 flex items-center justify-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                            Lihat Detail
+                                        </a>
                                     @endif
                                 </div>
                             </div>

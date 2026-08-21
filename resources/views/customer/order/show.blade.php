@@ -193,54 +193,94 @@
                                 Upload Bukti Transfer
                             </a>
                         @endif
-                    @else
-                        <p class="mt-2.5 flex items-center gap-1 text-[11px] font-medium text-green-600">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Lunas pada {{ $paidAt?->format('d M Y, H.i') }}
-                        </p>
                     @endif
                 @else
-                    <p class="text-[11px] text-gray-500 mt-1">Pembayaran {{ $methods[$payment->payment_method] ?? $payment->payment_method }} sedang diproses toko.</p>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs font-semibold text-gray-900">Cash</p>
+                        <p class="mt-1.5 text-[11px] text-gray-500 leading-relaxed">Siapkan uang tunai sejumlah total tagihan. Pembayaran dikonfirmasi toko setelah pesanan selesai.</p>
+                    </div>
+                    @if($payment->status !== 'paid')
+                        <p class="mt-2.5 flex items-center gap-1 text-[11px] text-gray-500">
+                            <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            Menunggu konfirmasi pembayaran dari toko.
+                        </p>
+                    @endif
+                @endif
+
+                @if($payment->status === 'paid')
+                    <div class="mt-3 rounded-xl bg-emerald-600 text-white p-3.5 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold">Pembayaran Lunas</p>
+                            <p class="text-[11px] text-emerald-100 mt-0.5">Dibayar pada {{ $paidAt?->format('d M Y, H.i') }}</p>
+                        </div>
+                        <span class="shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-semibold">LUNAS</span>
+                    </div>
                 @endif
             </section>
         @endif
 
-        <section class="mt-3 bg-white rounded-xl border border-gray-100 p-3.5">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">{{ $initials }}</div>
-                <p class="text-xs font-semibold text-gray-900 flex items-center gap-1">
-                    {{ $order->store->store_name }}
-                    @if($order->store->level && $order->store->level->name !== 'Free')
-                        <span class="text-amber-500 text-[10px]">👑</span>
-                    @endif
-                </p>
-            </div>
-            <div class="mt-3 flex items-start gap-2">
-                <svg class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <div>
-                    <p class="text-xs font-semibold text-gray-800">{{ $isPickup ? 'Diambil Sendiri' : 'Dikirim / Antar' }}</p>
-                    @if($isPickup)
-                        <p class="text-[11px] text-gray-500 mt-0.5">
-                            {{ $order->store->locationNode?->name }}
-                            @if($order->store->phone) · {{ $order->store->phone }} @endif
-                        </p>
-                    @else
-                        <p class="text-[11px] text-gray-500 mt-0.5">
-                            {{ $addressLines[0] ?? 'Alamat pelanggan' }}
-                            @if(isset($addressLines[1]) && $addressLines[1])<br>{{ $addressLines[1] }}@endif
-                            @if($order->distance_km_snapshot !== null) · {{ (float) $order->distance_km_snapshot }} km @endif
-                        </p>
-                    @endif
+        <section class="mt-3 rounded-xl p-3.5 flex items-start gap-3 {{ $isPickup ? 'bg-primary-500 text-white' : 'bg-warning-500 text-white' }}">
+            @if($isPickup)
+                <div class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
                 </div>
+            @else
+                <div class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 19a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4zM2 5h12v10H2zM14 9h4l3 3v3h-7z"/></svg>
+                </div>
+            @endif
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold {{ $isPickup ? 'text-white' : 'text-white' }}">{{ $isPickup ? 'Ambil Sendiri' : 'Diantar' }}</p>
+                @if($isPickup)
+                    <p class="text-[11px] mt-1 opacity-90">Ambil di <span class="font-semibold">{{ $order->store->locationNode?->name ?? 'toko' }}</span>
+                        @if($order->store->phone) · {{ $order->store->phone }} @endif
+                    </p>
+                    <p class="text-[11px] mt-1 opacity-90">Tanpa ongkos kirim</p>
+                @else
+                    <p class="text-[11px] mt-1 opacity-90 leading-relaxed">{{ $addressLines[0] ?? 'Alamat pelanggan' }}</p>
+                    @if(isset($addressLines[1]) && $addressLines[1])
+                        <p class="text-[11px] mt-0.5 opacity-90">{{ $addressLines[1] }}</p>
+                    @endif
+                    @if($order->distance_km_snapshot !== null)
+                        <p class="text-[11px] mt-1 opacity-90">{{ (float) $order->distance_km_snapshot }} km dari toko</p>
+                    @endif
+                @endif
             </div>
         </section>
 
-        <section id="ulasan" class="mt-3 bg-white rounded-xl border border-gray-100 p-3.5">
-            <p class="text-[13px] font-semibold text-gray-800 mb-3">Item Pesanan</p>
+        <section class="mt-3 bg-white rounded-xl border border-gray-100 overflow-hidden">
+            <a href="{{ route('storefront.store', $order->store->slug) }}"
+               class="flex items-center gap-2.5 px-3.5 py-3 border-b border-gray-100">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">{{ $initials }}</div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs font-semibold text-gray-900 flex items-center gap-1">
+                        {{ $order->store->store_name }}
+                        @if($order->store->level && $order->store->level->name !== 'Free')
+                            <span class="text-amber-500 text-[10px]">👑</span>
+                        @endif
+                    </p>
+                    @if($order->store->locationNode)
+                        <p class="text-[11px] text-gray-500 mt-0.5 flex items-center gap-1">
+                            <svg class="w-3 h-3 text-emerald-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            {{ $order->store->locationNode->name }}
+                        </p>
+                    @endif
+                </div>
+                <span class="shrink-0">
+                    <svg class="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </span>
+            </a>
+
             <div class="divide-y divide-gray-50">
                 @foreach($order->items as $item)
-                    @php $img = $item->product?->images->first()?->path ? asset('storage/' . $item->product->images->first()->path) : null; @endphp
-                    <div class="py-3 first:pt-0 last:pb-0">
+                    @php
+                        $img = $item->product?->images->first()?->path ? asset('storage/' . $item->product->images->first()->path) : null;
+                        $itemHref = $item->product ? route('storefront.product', [$order->store->slug, $item->product->slug]) : null;
+                    @endphp
+                    <div class="py-3 px-3.5 {{ $itemHref ? 'cursor-pointer' : '' }}" @if($itemHref) @click="window.location.href = @js($itemHref)" @endif>
                         <div class="flex gap-3">
                             @if($img)
                                 <div class="w-14 h-14 rounded-lg bg-gray-100 shrink-0 overflow-hidden">
@@ -252,52 +292,36 @@
                             <div class="flex-1 min-w-0">
                                 <p class="text-[13px] font-medium text-gray-900 leading-snug">{{ $item->name_snapshot }}</p>
                                 <p class="text-[11px] text-gray-500 mt-0.5">{{ $item->variant_snapshot ? 'Kemasan: ' . $item->variant_snapshot . ' · x' . $item->qty : 'Tanpa varian · x' . $item->qty }}</p>
-                                @if($order->status === 'completed' && $item->rating)
-                                    <div class="mt-1.5 flex items-center gap-2">
-                                        <span class="text-amber-500 text-xs">
-                                            @for($i = 1; $i <= 5; $i++){{ $i <= $item->rating->rating ? '★' : '☆' }}@endfor
-                                        </span>
-                                        @if($item->rating->review)
-                                            <p class="text-[11px] text-gray-600">{{ $item->rating->review }}</p>
-                                        @endif
-                                        <form method="POST" action="{{ route('customer.rating.destroy', $item->rating->id) }}">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-[10px] font-medium text-red-500">Hapus</button>
-                                        </form>
-                                    </div>
+                                @if($order->status === 'completed')
+                                    @if($item->rating)
+                                        <div class="mt-1.5 flex items-center gap-2 flex-wrap">
+                                            <span class="text-amber-500 text-xs">
+                                                @for($i = 1; $i <= 5; $i++){{ $i <= $item->rating->rating ? '★' : '☆' }}@endfor
+                                            </span>
+                                            @if($item->rating->review)
+                                                <p class="text-[11px] text-gray-600">{{ $item->rating->review }}</p>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <p class="text-[11px] text-gray-400 mt-1.5">Belum dinilai</p>
+                                    @endif
                                 @endif
                             </div>
                             <span class="text-xs font-semibold text-gray-900 shrink-0">Rp {{ number_format((float) $item->subtotal_snapshot, 0, ',', '.') }}</span>
                         </div>
-
-                        @if($order->status === 'completed' && ! $item->rating)
-                            <div class="mt-2.5 rounded-xl border border-gray-100 bg-gray-50/50 p-3">
-                                <form method="POST" action="{{ route('customer.rating.store') }}" class="space-y-2">
-                                    @csrf
-                                    <input type="hidden" name="order_item_id" value="{{ $item->id }}">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-[11px] font-medium text-gray-700">Nilai:</span>
-                                        <div class="flex items-center gap-1">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                <label class="cursor-pointer">
-                                                    <input type="radio" name="rating" value="{{ $i }}" class="peer sr-only" @checked($i === 5)>
-                                                    <span class="text-gray-300 transition peer-checked:text-amber-500">@svg('heroicon-s-star', 'h-5 w-5')</span>
-                                                </label>
-                                            @endfor
-                                        </div>
-                                    </div>
-                                    <textarea name="review" rows="2" placeholder="Tulis ulasan (opsional)..."
-                                              class="w-full text-[11px] border border-gray-200 rounded-lg bg-white px-2.5 py-2 text-gray-700 focus:ring-0"></textarea>
-                                    <button type="submit" class="text-[11px] font-semibold text-white bg-emerald-700 rounded-lg px-3 py-1.5">Kirim Penilaian</button>
-                                    @error('order_item_id')
-                                        <p class="text-[11px] text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </form>
-                            </div>
-                        @endif
                     </div>
                 @endforeach
             </div>
+
+            @if($order->status === 'completed' && ! $order->hasBeenReviewed())
+                <div class="px-3.5 py-3 border-t border-gray-100 flex justify-end">
+                    <a href="{{ route('customer.order.review', $order) }}"
+                       class="text-[11px] font-semibold text-white bg-emerald-700 rounded-lg px-3 py-1.5 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Beri Ulasan
+                    </a>
+                </div>
+            @endif
         </section>
 
         <section class="mt-3 bg-white rounded-xl border border-gray-100 p-3.5">
@@ -331,18 +355,33 @@
         <div class="fixed bottom-14 inset-x-0 max-w-[420px] mx-auto bg-white border-t border-gray-100 px-4 py-3 flex items-center gap-2.5 z-40">
             @if($order->status === 'pending')
                 <button type="button" @click="$store.toast.warning('Fitur pembatalan belum tersedia')"
-                        class="flex-1 text-xs font-semibold text-red-600 border border-red-200 rounded-lg py-3">Batalkan Pesanan</button>
+                        class="flex-1 text-xs font-semibold text-red-600 border border-red-200 rounded-lg py-3 flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        Batalkan Pesanan
+                    </button>
                 <button type="button" @click="$store.toast.warning('Fitur chat belum tersedia')"
-                        class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3">Chat Toko</button>
+                        class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3 flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        Chat Toko
+                    </button>
             @else
-                <a href="{{ route('storefront.store', $order->store) }}"
-                   class="flex-1 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-3 text-center">Beli Lagi</a>
+                <a href="{{ route('storefront.store', $order->store->slug) }}"
+                   class="flex-1 text-xs font-semibold text-emerald-700 border border-emerald-700 rounded-lg py-3 flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v8h4a1 1 0 001-1V7a1 1 0 00-1-1H4zm12 2a4 4 0 11-8 0v9a2 2 0 002 2h4a2 2 0 002-2v-1h4V6a2 2 0 00-2-2h-2zm4 7v6m-15 0v-3H4"/></svg>
+                    Beli Lagi
+                </a>
                 @if($order->hasBeenReviewed())
-                    <a href="#ulasan"
-                       class="flex-1 text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg py-3 text-center">Lihat Ulasan</a>
+                    <a href="{{ route('customer.order.review', $order) }}"
+                       class="flex-1 text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg py-3 flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Lihat Ulasan
+                    </a>
                 @else
-                    <a href="#ulasan"
-                       class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3 text-center">Beri Ulasan</a>
+                    <a href="{{ route('customer.order.review', $order) }}"
+                       class="flex-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg py-3 flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Beri Ulasan
+                    </a>
                 @endif
             @endif
         </div>

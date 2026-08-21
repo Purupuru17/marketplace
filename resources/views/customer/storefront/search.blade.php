@@ -11,8 +11,8 @@
     $queryParams = collect($filters)->except(['store_ids'])->all();
 @endphp
 
-<div x-data="{ filterOpen: false, view: 'grid', radius: {{ $radius ?: 10 }} }">
-<form method="GET" action="{{ route('storefront.search') }}">
+<div x-data="{ filterOpen: false, view: 'grid', radius: {{ $radius ?: 10 }}, radiusTouched: {{ $radius ? 'true' : 'false' }} }">
+<form method="GET" action="{{ route('storefront.search') }}" id="search-form">
 <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3">
     <div class="flex items-center gap-2">
         <a href="{{ url()->previous() && ! request()->routeIs('storefront.search') ? url()->previous() : route('storefront.index') }}" class="w-8 h-8 flex items-center justify-center shrink-0">
@@ -20,7 +20,7 @@
         </a>
         <div class="flex-1 relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 10-10.6 0 7.5 7.5 0 0010.6 0z"/></svg>
-            <input name="q" value="{{ $q }}" placeholder="Cari produk atau toko..." autocomplete="off"
+            <input name="q" value="{{ $q }}" placeholder="Cari produk..." autocomplete="off"
                    class="w-full bg-gray-100 border-0 rounded-full pl-9 pr-3 py-2 text-sm text-gray-800 focus:ring-0">
         </div>
         <button type="button" @click="filterOpen = true" class="relative w-9 h-9 flex items-center justify-center rounded-full {{ $activeFilterCount > 0 ? 'bg-emerald-700 text-white' : 'bg-gray-100 text-gray-600' }} shrink-0">
@@ -171,6 +171,7 @@
                     <span class="text-xs font-semibold text-emerald-700" x-text="radius + ' km'">10 km</span>
                 </div>
                 <input type="range" name="radius" min="1" max="10" step="1" x-model="radius"
+                       :disabled="!radiusTouched" @input="radiusTouched = true"
                        class="w-full accent-emerald-700">
             </div>
 

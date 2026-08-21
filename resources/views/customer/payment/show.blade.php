@@ -31,13 +31,23 @@
         <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">{{ $initials }}</div>
             <div class="min-w-0 flex-1">
-                <p class="text-xs font-semibold text-gray-900 flex items-center gap-1">
-                    {{ $order->store->store_name }}
-                    @if($order->store->level && $order->store->level->name !== 'Free')
-                        <span class="text-amber-500 text-[10px]">👑</span>
-                    @endif
-                </p>
-                <p class="text-[11px] text-gray-500 mt-0.5">{{ $isPickup ? 'Diambil Sendiri' : 'Dikirim / Antar' }}</p>
+                <p class="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
+                        {{ $order->store->store_name }}
+                        @if($order->store->level && $order->store->level->name !== 'Free')
+                            <span class="text-amber-500 text-[10px]">👑</span>
+                        @endif
+                        @if($isPickup)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+                                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                Ambil Sendiri
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">
+                                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 19a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4zM2 5h12v10H2zM14 9h4l3 3v3h-7z"/></svg>
+                                Diantar
+                            </span>
+                        @endif
+                    </p>
             </div>
             <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">Menunggu Bayar</span>
         </div>
