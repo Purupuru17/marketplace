@@ -55,6 +55,18 @@ class CheckoutController extends Controller
                             'id' => $group['store']->id,
                             'name' => $group['store']->store_name,
                         ],
+                        'bank' => [
+                            'bank_name' => $group['store']->bank_name,
+                            'account_number' => $group['store']->account_number,
+                            'account_name' => $group['store']->account_name,
+                        ],
+                        'items' => collect($group['items'])->map(fn ($item) => [
+                            'id' => $item->id,
+                            'name' => $item->variant?->product?->name,
+                            'sku' => $item->variant?->sku,
+                            'qty' => $item->qty,
+                            'unit_price' => (float) ($item->unit_price ?? $item->variant?->price),
+                        ])->values(),
                         'fulfillment_type' => $group['fulfillment_type'],
                         'payment_method' => $group['payment_method'],
                         'subtotal' => (float) $group['subtotal'],

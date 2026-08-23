@@ -69,7 +69,7 @@
         <section class="mt-6">
             <div class="flex items-center justify-between mb-2.5">
                 <h2 class="font-bold text-[15px] text-gray-900">Toko Terdekat</h2>
-                <a href="{{ route('storefront.search') }}" class="text-xs font-semibold text-emerald-700">Lihat semua</a>
+                <a href="{{ route('storefront.stores') }}" class="text-xs font-semibold text-emerald-700">Lihat semua</a>
             </div>
             <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
                 @foreach($nearby_stores as $s)

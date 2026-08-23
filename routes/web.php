@@ -39,6 +39,8 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('storefront', [StorefrontController::class, 'index'])->name('storefront.index');
     Route::get('storefront/search', [StorefrontController::class, 'search'])->name('storefront.search');
+    Route::get('storefront/categories', [StorefrontController::class, 'categories'])->name('storefront.categories');
+    Route::get('storefront/stores', [StorefrontController::class, 'stores'])->name('storefront.stores');
     Route::get('storefront/store/{store}', [StorefrontController::class, 'show'])->name('storefront.store');
     Route::get('storefront/store/{store}/product/{product}', [StorefrontController::class, 'product'])->name('storefront.product');
 

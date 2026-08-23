@@ -49,7 +49,7 @@ class StorefrontService
             ->limit(6)
             ->get();
 
-        $explore = $this->decorateProducts($this->products([], $perPage));
+        $explore = $this->products([], $perPage);
 
         return [
             'categories' => $this->categories(),
@@ -117,18 +117,22 @@ class StorefrontService
 
     public function stores(array $filters = [], int $perPage = 12)
     {
-        return Store::query()
+        $stores = Store::query()
             ->where('status', 'active')
             ->withCount('products')
-            ->with('locationNode')
+            ->with(['locationNode', 'level', 'operatingHours'])
             ->when($filters['search'] ?? null, fn ($q, $search) => $q->where('store_name', 'like', "%{$search}%"))
             ->orderBy('store_name')
             ->paginate($perPage);
+
+        $stores->getCollection()->each(fn (Store $store) => $store->open_status = $this->openStatus($store->operatingHours));
+
+        return $stores;
     }
 
     public function products(array $filters = [], int $perPage = 12)
     {
-        return Product::query()
+        $query = Product::query()
             ->where('status', 'active')
             ->with([
                 'category',
@@ -142,6 +146,8 @@ class StorefrontService
             ->when($filters['store_id'] ?? null, fn ($q, $id) => $q->where('store_id', $id))
             ->orderByDesc('created_at')
             ->paginate($perPage);
+
+        return $this->decorateProducts($query);
     }
 
     public function categories()
@@ -276,7 +282,40 @@ class StorefrontService
         ];
     }
 
-    protected function destinationNode(?Customer $customer)
+    public function storeRatingsMap(array $storeIds): \Illuminate\Support\Collection
+    {
+        if (empty($storeIds)) {
+            return collect();
+        }
+
+        $rows = ProductRating::query()
+            ->where('product_ratings.status', 'active')
+            ->join('products', 'products.id', '=', 'product_ratings.product_id')
+            ->whereIn('products.store_id', $storeIds)
+            ->where('products.status', 'active')
+            ->selectRaw('products.store_id, AVG(product_ratings.rating) as avg_rating, COUNT(*) as rating_count')
+            ->groupBy('products.store_id')
+            ->get()
+            ->keyBy('store_id');
+
+        $counts = Product::query()
+            ->whereIn('store_id', $storeIds)
+            ->where('status', 'active')
+            ->selectRaw('store_id, COUNT(*) as cnt')
+            ->groupBy('store_id')
+            ->pluck('cnt', 'store_id');
+
+        return collect($storeIds)->mapWithKeys(function ($sid) use ($rows, $counts) {
+            $row = $rows->get($sid);
+            return [$sid => [
+                'avg_rating' => $row ? round((float) $row->avg_rating, 1) : null,
+                'rating_count' => $row ? (int) $row->rating_count : 0,
+                'product_count' => (int) ($counts[$sid] ?? 0),
+            ]];
+        });
+    }
+
+    public function destinationNode(?Customer $customer)
     {
         if (! $customer) {
             return null;
@@ -315,7 +354,7 @@ class StorefrontService
             ->orderByDesc('created_at');
     }
 
-    protected function decorateStores(Collection $stores, $destination): Collection
+    public function decorateStores(Collection $stores, $destination): Collection
     {
         return $stores->map(function (Store $store) use ($destination) {
             $estimate = $this->shippingService->estimate($store, $destination);

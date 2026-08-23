@@ -39,7 +39,15 @@ class StorefrontController extends Controller
             'sort' => ['nullable', 'in:default,price_asc,price_desc,latest,sold'],
         ]);
 
-        $filters['store_ids'] = $this->filterStoresByRadius((float) ($filters['radius'] ?? 0));
+        $storeIds = $this->filterStoresByRadius((float) ($filters['radius'] ?? 0));
+        if (! empty($storeIds)) {
+            $filters['store_ids'] = $storeIds;
+        } else {
+            unset($filters['store_ids']);
+            if (empty($filters['radius'])) {
+                unset($filters['radius']);
+            }
+        }
 
         $products = $this->service->search($filters, $this->customer());
 
@@ -47,6 +55,57 @@ class StorefrontController extends Controller
             'products' => $products,
             'categories' => $this->service->categories(),
             'filters' => $filters,
+        ]);
+    }
+
+    public function categories()
+    {
+        $categories = $this->service->categories();
+        $featured = $categories->take(4);
+
+        return view('customer.storefront.categories', [
+            'categories' => $categories,
+            'featured' => $featured,
+        ]);
+    }
+
+    public function stores(Request $request)
+    {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', 'in:all,open,premium'],
+            'sort' => ['nullable', 'in:default,nearest'],
+        ]);
+
+        $customer = $this->customer();
+        $destination = $this->service->destinationNode($customer);
+
+        $storesData = $this->service->stores(array_merge($filters, ['search' => $filters['q'] ?? null]), 12);
+        $decorated = $this->service->decorateStores($storesData->getCollection(), $destination);
+        $storesData->setCollection($decorated);
+
+        if (($filters['sort'] ?? 'default') === 'nearest' && $destination) {
+            $sorted = $decorated->sortBy(fn ($s) => $s->distance_km ?? 9999)->values();
+            $storesData->setCollection($sorted);
+        }
+
+        $collection = $storesData->getCollection();
+        if (($filters['status'] ?? 'all') === 'open') {
+            $collection = $collection->filter(fn ($s) => $s->open_status['open'] ?? false)->values();
+        } elseif (($filters['status'] ?? 'all') === 'premium') {
+            $collection = $collection->filter(function ($s) {
+                return $s->level && str_contains(strtolower($s->level->name), 'premium');
+            })->values();
+        }
+        $storesData->setCollection($collection);
+
+        $ratingMap = $this->service->storeRatingsMap($storesData->getCollection()->pluck('id')->all());
+
+        return view('customer.storefront.stores', [
+            'stores' => $storesData,
+            'filters' => $filters,
+            'destination' => $destination,
+            'ratingMap' => $ratingMap,
         ]);
     }
 

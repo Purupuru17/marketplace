@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Storage;
 
 class StorefrontController extends Controller
 {
+    protected ?array $favoriteProductIds = null;
+
     public function __construct(protected StorefrontService $service) {}
 
     public function stores(Request $request)
@@ -116,6 +118,7 @@ class StorefrontController extends Controller
                 'status' => $model->status,
                 'level' => $model->level?->name,
                 'location_node' => $model->locationNode?->name,
+                'open_status' => $model->open_status ?? ['open' => false, 'label' => null],
                 'logo_url' => $this->mediaUrl($model->logo),
                 'banner_url' => $this->mediaUrl($model->banner),
                 'bank' => [
@@ -184,12 +187,14 @@ class StorefrontController extends Controller
             'name' => $store->store_name,
             'slug' => $store->slug,
             'code' => $store->store_code,
+            'level' => $store->level?->name,
             'rate_per_km' => (float) $store->rate_per_km,
             'min_free_distance_km' => (float) $store->min_free_distance_km,
             'products_count' => (int) $store->products_count,
             'location_node' => $store->locationNode?->name,
             'logo_url' => $this->mediaUrl($store->logo),
             'banner_url' => $this->mediaUrl($store->banner),
+            'open_status' => $store->open_status ?? null,
         ];
     }
 
@@ -231,7 +236,28 @@ class StorefrontController extends Controller
                 'starts_at' => $promo->starts_at?->toIso8601String(),
                 'ends_at' => $promo->ends_at?->toIso8601String(),
             ])->values(),
+            // field hasil decorateProducts (tersedia setelah StorefrontService::decorateProducts)
+            'min_price' => isset($product->min_price) ? (float) $product->min_price : null,
+            'min_original_price' => isset($product->min_original_price) ? (float) $product->min_original_price : null,
+            'discount_percent' => isset($product->discount_percent) ? (int) $product->discount_percent : 0,
+            'has_promo' => $product->has_promo ?? false,
+            'primary_image' => isset($product->primary_image) ? $this->mediaUrl($product->primary_image) : null,
+            'avg_rating' => isset($product->avg_rating) ? (float) $product->avg_rating : null,
+            'rating_count' => isset($product->rating_count) ? (int) $product->rating_count : 0,
+            'sold_count' => isset($product->sold_count) ? (int) $product->sold_count : 0,
+            'is_favorite' => in_array($product->id, $this->favoriteProductIds(), true),
         ];
+    }
+
+    protected function favoriteProductIds(): array
+    {
+        if ($this->favoriteProductIds !== null) {
+            return $this->favoriteProductIds;
+        }
+
+        return $this->favoriteProductIds = auth('api-customer')->check()
+            ? auth('api-customer')->user()->favoriteProducts()->pluck('products.id')->all()
+            : [];
     }
 
     protected function productDetailPayload(Product $product): array

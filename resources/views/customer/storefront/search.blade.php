@@ -11,18 +11,17 @@
     $queryParams = collect($filters)->except(['store_ids'])->all();
 @endphp
 
-<div x-data="{ filterOpen: false, view: 'grid', radius: {{ $radius ?: 10 }}, radiusTouched: {{ $radius ? 'true' : 'false' }} }">
-<form method="GET" action="{{ route('storefront.search') }}" id="search-form">
+<div x-data="{ filterOpen: false, view: 'grid', radius: {{ $radius ?: 10 }}, radiusTouched: {{ ($radius !== '' && $radius !== null) ? 'true' : 'false' }} }">
 <header class="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3">
     <div class="flex items-center gap-2">
         <a href="{{ url()->previous() && ! request()->routeIs('storefront.search') ? url()->previous() : route('storefront.index') }}" class="w-8 h-8 flex items-center justify-center shrink-0">
             <svg class="w-5 h-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         </a>
-        <div class="flex-1 relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 10-10.6 0 7.5 7.5 0 0010.6 0z"/></svg>
+        <form method="GET" action="{{ route('storefront.search') }}" class="flex-1 relative">
             <input name="q" value="{{ $q }}" placeholder="Cari produk..." autocomplete="off"
                    class="w-full bg-gray-100 border-0 rounded-full pl-9 pr-3 py-2 text-sm text-gray-800 focus:ring-0">
-        </div>
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 10-10.6 0 7.5 7.5 0 0010.6 0z"/></svg>
+        </form>
         <button type="button" @click="filterOpen = true" class="relative w-9 h-9 flex items-center justify-center rounded-full {{ $activeFilterCount > 0 ? 'bg-emerald-700 text-white' : 'bg-gray-100 text-gray-600' }} shrink-0">
             <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
             @if($activeFilterCount > 0)
@@ -124,11 +123,13 @@
 </main>
 
 <!-- Bottom Sheet Filter -->
+<form method="GET" action="{{ route('storefront.search') }}" id="filter-form">
+    <input type="hidden" name="q" value="{{ $q }}">
 <div x-show="filterOpen" x-cloak class="fixed inset-0 z-50" @keydown.escape.window="filterOpen = false">
     <div class="absolute inset-0 bg-black/40" @click="filterOpen = false"></div>
     <div class="absolute inset-x-0 bottom-0 max-w-[420px] mx-auto bg-white rounded-t-2xl max-h-[85%] flex flex-col">
         <div class="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100 shrink-0">
-            <button type="submit" form="search-form" @click="filterOpen = false" class="text-xs font-medium text-gray-500">Tutup</button>
+            <button type="button" @click="filterOpen = false" class="text-xs font-medium text-gray-500">Tutup</button>
             <h2 class="font-bold text-[15px] text-gray-900">Filter</h2>
             <button type="button" @click="filterOpen = false" class="w-7 h-7 flex items-center justify-center">
                 <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -189,7 +190,7 @@
         </div>
 
         <div class="px-4 py-3 border-t border-gray-100 shrink-0">
-            <button type="submit" @click="filterOpen = false"
+            <button type="submit" form="filter-form"
                     class="w-full text-sm font-semibold text-white bg-emerald-700 rounded-lg py-3">Terapkan Filter</button>
         </div>
     </div>

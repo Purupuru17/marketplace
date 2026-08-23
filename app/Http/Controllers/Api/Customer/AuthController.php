@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\Order;
 use App\Services\Customer\CustomerService;
 use App\Services\Customer\LoyaltyService;
 use Illuminate\Http\Request;
@@ -120,6 +121,13 @@ class AuthController extends Controller
 
     protected function payload(Customer $customer): array
     {
+        $orderCounts = Order::query()
+            ->where('customer_id', $customer->id)
+            ->selectRaw('status, COUNT(*) as total')
+            ->whereIn('status', ['pending', 'processing', 'shipped', 'completed'])
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
         return [
             'id' => $customer->id,
             'name' => $customer->name,
@@ -127,6 +135,12 @@ class AuthController extends Controller
             'phone' => $customer->phone,
             'points' => $this->loyaltyService->availablePoints($customer),
             'level' => $customer->level?->name,
+            'order_counts' => [
+                'pending' => (int) ($orderCounts['pending'] ?? 0),
+                'processing' => (int) ($orderCounts['processing'] ?? 0),
+                'shipped' => (int) ($orderCounts['shipped'] ?? 0),
+                'completed' => (int) ($orderCounts['completed'] ?? 0),
+            ],
         ];
     }
 }

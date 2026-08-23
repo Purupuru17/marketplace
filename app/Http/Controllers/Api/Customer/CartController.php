@@ -7,6 +7,7 @@ use App\Models\CartItem;
 use App\Models\ProductVariant;
 use App\Services\Customer\CartService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CartController extends Controller
 {
@@ -112,6 +113,9 @@ class CartController extends Controller
                 'id' => $variant?->product?->id,
                 'name' => $variant?->product?->name,
                 'slug' => $variant?->product?->slug,
+                'image_url' => ($imgPath = $variant?->product?->images?->first()?->path)
+                    ? url(Storage::disk('public')->url($imgPath))
+                    : null,
             ],
             'store' => [
                 'id' => $variant?->product?->store?->id,
