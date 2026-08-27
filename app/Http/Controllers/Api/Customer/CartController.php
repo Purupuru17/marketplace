@@ -93,6 +93,8 @@ class CartController extends Controller
     protected function itemPayload(CartItem $item): array
     {
         $variant = $item->variant;
+        $promo = $variant?->product?->promotions
+            ->first(fn ($p) => (! $p->starts_at || $p->starts_at->isPast()) && (! $p->ends_at || $p->ends_at->isFuture()));
 
         return [
             'id' => $item->id,
@@ -100,6 +102,7 @@ class CartController extends Controller
             'unit_price' => (float) ($item->unit_price ?? $variant?->price),
             'unit_original_price' => (float) ($item->unit_original_price ?? $variant?->price),
             'unit_discount' => (float) ($item->unit_discount ?? 0),
+            'promotion_name' => $promo?->name,
             'variant' => [
                 'id' => $variant?->id,
                 'sku' => $variant?->sku,

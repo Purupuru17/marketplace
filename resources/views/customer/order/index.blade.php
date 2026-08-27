@@ -6,7 +6,7 @@
         '' => 'Semua',
         'pending' => 'Menunggu Bayar',
         'processing' => 'Diproses',
-        'shipped' => 'Dikirim',
+        'ready' => 'Siap Diserahkan',
         'completed' => 'Selesai',
         'cancelled' => 'Dibatalkan',
     ];
@@ -14,7 +14,7 @@
     $statusLabels = [
         'pending' => 'Menunggu Bayar',
         'processing' => 'Diproses Toko',
-        'shipped' => 'Dikirim',
+        'ready' => 'Siap Diserahkan',
         'completed' => 'Selesai',
         'cancelled' => 'Dibatalkan',
     ];
@@ -22,7 +22,7 @@
     $statusColors = [
         'pending' => 'bg-amber-50 text-amber-700',
         'processing' => 'bg-blue-50 text-blue-700',
-        'shipped' => 'bg-indigo-50 text-indigo-700',
+        'ready' => 'bg-indigo-50 text-indigo-700',
         'completed' => 'bg-emerald-50 text-emerald-700',
         'cancelled' => 'bg-red-50 text-red-600',
     ];

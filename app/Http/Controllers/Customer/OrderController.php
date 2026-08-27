@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Services\Customer\CustomerOrderService;
 use App\Services\Customer\RatingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,20 @@ class OrderController extends Controller
         $order->load(['items.product.images', 'items.rating', 'store.level', 'store.locationNode', 'payments', 'statusHistories', 'invoice.orders.store', 'invoice.orders.items']);
 
         return view('customer.order.show', compact('order'));
+    }
+
+    public function confirmReceived(Order $order, CustomerOrderService $service)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        try {
+            $service->confirmReceived($customer, $order);
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors());
+        }
+
+        return redirect()->route('customer.order.show', $order)
+            ->with('success', 'Pesanan telah dikonfirmasi diterima. Terima kasih!');
     }
 
     public function review(Order $order)

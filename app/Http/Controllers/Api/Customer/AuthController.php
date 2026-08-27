@@ -124,7 +124,7 @@ class AuthController extends Controller
         $orderCounts = Order::query()
             ->where('customer_id', $customer->id)
             ->selectRaw('status, COUNT(*) as total')
-            ->whereIn('status', ['pending', 'processing', 'shipped', 'completed'])
+            ->whereIn('status', ['pending', 'processing', 'ready', 'completed'])
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -138,7 +138,7 @@ class AuthController extends Controller
             'order_counts' => [
                 'pending' => (int) ($orderCounts['pending'] ?? 0),
                 'processing' => (int) ($orderCounts['processing'] ?? 0),
-                'shipped' => (int) ($orderCounts['shipped'] ?? 0),
+                'ready' => (int) ($orderCounts['ready'] ?? 0),
                 'completed' => (int) ($orderCounts['completed'] ?? 0),
             ],
         ];

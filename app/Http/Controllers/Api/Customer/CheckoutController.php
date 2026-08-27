@@ -143,6 +143,10 @@ class CheckoutController extends Controller
                 'fulfillment_type' => $order->fulfillment_type,
                 'total' => (float) $order->total,
                 'status' => $order->status,
+                'items_count' => $order->items->count(),
+                'payment_method' => $order->payments->first()?->payment_method,
+                'payment_id' => $order->payments->firstWhere('status', 'pending')?->id,
+                'payment_proof_path' => $order->payments->firstWhere('status', 'pending')?->payment_proof_path,
             ])->values(),
         ];
     }

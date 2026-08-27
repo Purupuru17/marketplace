@@ -13,7 +13,7 @@
     $statusBanner = [
         'pending' => ['Menunggu Pembayaran', 'amber', 'clock'],
         'processing' => ['Diproses Toko', 'blue', 'package'],
-        'shipped' => ['Pesanan Dikirim', 'indigo', 'truck'],
+        'ready' => [$isPickup ? 'Siap Diambil' : 'Sedang Diantar', 'indigo', $isPickup ? 'shopping-bag' : 'truck'],
         'completed' => ['Pesanan Selesai', 'emerald', 'check'],
         'cancelled' => ['Pesanan Dibatalkan', 'red', 'x'],
     ];
@@ -22,11 +22,13 @@
     $hist = $order->statusHistories->pluck('created_at', 'status_to');
     $paidAt = $payment?->paid_at;
 
+    $readyDone = in_array($order->status, ['ready', 'completed']);
+
     $steps = [
         ['key' => 'created', 'label' => 'Pesanan Dibuat', 'done' => true, 'active' => false, 'time' => $order->created_at, 'note' => null],
-        ['key' => 'payment', 'label' => 'Menunggu Pembayaran', 'done' => in_array($order->status, ['processing', 'shipped', 'completed']), 'active' => $order->status === 'pending', 'time' => $paidAt ?? ($hist['processing'] ?? null), 'note' => 'Sedang berlangsung'],
-        ['key' => 'processing', 'label' => 'Diproses Toko', 'done' => in_array($order->status, ['shipped', 'completed']), 'active' => $order->status === 'processing', 'time' => $hist['processing'] ?? ($hist['shipped'] ?? $hist['completed'] ?? null), 'note' => 'Sedang berlangsung'],
-        ['key' => 'shipping', 'label' => 'Dikirim', 'done' => $order->status === 'completed', 'active' => $order->status === 'shipped', 'time' => $hist['shipped'] ?? $hist['completed'] ?? null, 'note' => 'Sedang berlangsung', 'hidden' => $isPickup],
+        ['key' => 'payment', 'label' => 'Menunggu Pembayaran', 'done' => in_array($order->status, ['processing', 'ready', 'completed']), 'active' => $order->status === 'pending', 'time' => $paidAt ?? ($hist['processing'] ?? null), 'note' => 'Sedang berlangsung'],
+        ['key' => 'processing', 'label' => 'Diproses Toko', 'done' => in_array($order->status, ['ready', 'completed']), 'active' => $order->status === 'processing', 'time' => $hist['processing'] ?? ($hist['ready'] ?? $hist['completed'] ?? null), 'note' => 'Sedang berlangsung'],
+        ['key' => 'shipping', 'label' => $isPickup ? 'Siap Diambil' : 'Sedang Diantar', 'done' => $order->status === 'completed', 'active' => $order->status === 'ready', 'time' => $hist['ready'] ?? $hist['completed'] ?? null, 'note' => 'Sedang berlangsung'],
         ['key' => 'completed', 'label' => 'Selesai', 'done' => $order->status === 'completed', 'active' => $order->status === 'completed', 'time' => $hist['completed'] ?? null, 'note' => null],
     ];
     $steps = collect($steps)->filter(fn ($s) => empty($s['hidden']))->values();
@@ -104,6 +106,30 @@
                 @endif
             </div>
         </section>
+
+        @php
+            $canConfirmReceived = $order->status === 'ready'
+                && $order->payments->isNotEmpty()
+                && $order->payments->every(fn ($p) => $p->status === 'paid');
+            $confirmMessage = $isPickup
+                ? 'Pastikan barang sudah Anda terima sebelum konfirmasi.'
+                : 'Pastikan barang sudah diterima dan pembayaran lunas sebelum konfirmasi.';
+        @endphp
+        @if($canConfirmReceived)
+            <form method="POST" action="{{ route('customer.order.confirm-received', $order) }}" class="mt-3">
+                @csrf
+                <button type="button" x-data
+                        @click.prevent="$customerConfirm({
+                            title: 'Konfirmasi Penerimaan?',
+                            message: '{{ $confirmMessage }}',
+                            confirmText: 'Ya, Terima',
+                            variant: 'success'
+                        }).then(ok => { if (ok) $el.closest('form').submit(); })"
+                        class="w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-sm active:bg-emerald-700">
+                    Konfirmasi Pesanan Diterima
+                </button>
+            </form>
+        @endif
 
         <section class="mt-4 bg-white rounded-xl border border-gray-100 p-4">
             @foreach($steps as $idx => $step)
@@ -418,8 +444,8 @@
                                 <p class="text-[11px] text-gray-500 mt-0.5">{{ $sibling->items->count() }} produk · Rp {{ number_format((float) $sibling->total, 0, ',', '.') }} · sedang dilihat</p>
                             </div>
                             <span class="text-[10px] font-semibold rounded-full px-2 py-1 shrink-0
-                                {{ $sibling->status === 'pending' ? 'bg-amber-50 text-amber-700' : ($sibling->status === 'processing' ? 'bg-blue-50 text-blue-700' : ($sibling->status === 'shipped' ? 'bg-indigo-50 text-indigo-700' : ($sibling->status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'))) }}">
-                                {{ $sibling->status === 'pending' ? 'Menunggu Bayar' : ($sibling->status === 'processing' ? 'Diproses Toko' : ($sibling->status === 'shipped' ? 'Dikirim' : ($sibling->status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
+                                {{ $sibling->status === 'pending' ? 'bg-amber-50 text-amber-700' : ($sibling->status === 'processing' ? 'bg-blue-50 text-blue-700' : ($sibling->status === 'ready' ? 'bg-indigo-50 text-indigo-700' : ($sibling->status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'))) }}">
+                                {{ $sibling->status === 'pending' ? 'Menunggu Bayar' : ($sibling->status === 'processing' ? 'Diproses Toko' : ($sibling->status === 'ready' ? 'Siap' : ($sibling->status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
                             </span>
                         </div>
                     @else
@@ -433,8 +459,8 @@
                                 <p class="text-[11px] text-gray-500 mt-0.5">{{ $sibling->items->count() }} produk · Rp {{ number_format((float) $sibling->total, 0, ',', '.') }}</p>
                             </div>
                             <span class="text-[10px] font-semibold rounded-full px-2 py-1 shrink-0
-                                {{ $sibling->status === 'pending' ? 'bg-amber-50 text-amber-700' : ($sibling->status === 'processing' ? 'bg-blue-50 text-blue-700' : ($sibling->status === 'shipped' ? 'bg-indigo-50 text-indigo-700' : ($sibling->status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'))) }}">
-                                {{ $sibling->status === 'pending' ? 'Menunggu Bayar' : ($sibling->status === 'processing' ? 'Diproses Toko' : ($sibling->status === 'shipped' ? 'Dikirim' : ($sibling->status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
+                                {{ $sibling->status === 'pending' ? 'bg-amber-50 text-amber-700' : ($sibling->status === 'processing' ? 'bg-blue-50 text-blue-700' : ($sibling->status === 'ready' ? 'bg-indigo-50 text-indigo-700' : ($sibling->status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'))) }}">
+                                {{ $sibling->status === 'pending' ? 'Menunggu Bayar' : ($sibling->status === 'processing' ? 'Diproses Toko' : ($sibling->status === 'ready' ? 'Siap' : ($sibling->status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
                             </span>
                         </a>
                     @endif

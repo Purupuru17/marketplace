@@ -96,10 +96,10 @@ class StoreWalletSmokeTest extends TestCase
             ->post(route('toko.order.update', $order->id), ['status' => 'processing']);
 
         $this->actingAs($this->owner(), 'web')
-            ->post(route('toko.order.update', $order->id), ['status' => 'shipped']);
+            ->post(route('toko.order.update', $order->id), ['status' => 'ready']);
 
-        $this->actingAs($this->owner(), 'web')
-            ->post(route('toko.order.update', $order->id), ['status' => 'completed']);
+        $this->actingAs($this->customer(), 'customer')
+            ->post(route('customer.order.confirm-received', $order->id));
     }
 
     public function test_online_payment_holds_funds_to_store_wallet(): void

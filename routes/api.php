@@ -49,6 +49,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('customer/orders', [OrderController::class, 'index']);
         Route::get('customer/orders/{order}', [OrderController::class, 'show']);
+        Route::post('customer/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])->middleware('throttle:action');
 
         Route::get('customer/payments/{payment}', [PaymentController::class, 'show']);
         Route::post('customer/payments/{payment}/proof', [PaymentController::class, 'upload'])->middleware('throttle:action');

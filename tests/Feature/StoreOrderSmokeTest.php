@@ -170,7 +170,7 @@ class StoreOrderSmokeTest extends TestCase
         ]);
     }
 
-    public function test_owner_marks_cash_paid_and_completes_order(): void
+    public function test_owner_marks_cash_paid_and_readies_order_but_cannot_complete(): void
     {
         $order = $this->placeOrder('cash');
         $payment = $order->payments()->firstOrFail();
@@ -184,14 +184,15 @@ class StoreOrderSmokeTest extends TestCase
         $this->assertSame('processing', $order->refresh()->status);
 
         $this->actingAs($this->owner(), 'web')
-            ->post(route('toko.order.update', $order->id), ['status' => 'shipped']);
+            ->post(route('toko.order.update', $order->id), ['status' => 'ready']);
 
-        $this->assertSame('shipped', $order->refresh()->status);
+        $this->assertSame('ready', $order->refresh()->status);
 
         $this->actingAs($this->owner(), 'web')
-            ->post(route('toko.order.update', $order->id), ['status' => 'completed']);
+            ->post(route('toko.order.update', $order->id), ['status' => 'completed'])
+            ->assertSessionHasErrors('status');
 
-        $this->assertSame('completed', $order->refresh()->status);
+        $this->assertSame('ready', $order->refresh()->status);
         $this->assertSame('paid', $payment->refresh()->status);
         $this->assertSame('paid', $order->invoice->refresh()->status);
     }
@@ -224,7 +225,7 @@ class StoreOrderSmokeTest extends TestCase
         $order = $this->placeOrder('cash');
 
         $this->actingAs($this->owner(), 'web')
-            ->post(route('toko.order.update', $order->id), ['status' => 'shipped'])
+            ->post(route('toko.order.update', $order->id), ['status' => 'ready'])
             ->assertSessionHasErrors('status');
 
         $this->assertSame('pending', $order->refresh()->status);

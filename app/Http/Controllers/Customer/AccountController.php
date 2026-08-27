@@ -16,7 +16,7 @@ class AccountController extends Controller
         $orderCounts = [
             'pending' => $customer->orders()->where('status', 'pending')->count(),
             'processing' => $customer->orders()->where('status', 'processing')->count(),
-            'shipped' => $customer->orders()->where('status', 'shipped')->count(),
+            'ready' => $customer->orders()->where('status', 'ready')->count(),
             'completed' => $customer->orders()->where('status', 'completed')->count(),
         ];
 

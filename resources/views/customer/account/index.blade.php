@@ -35,7 +35,7 @@
                 $orderStatusTabs = [
                     'pending' => ['label' => 'Bayar', 'icon' => 'M3 6l3 1m0 0l2.5 10.5A2 2 0 0010.44 19h6.12a2 2 0 001.94-1.5L21 8H6'],
                     'processing' => ['label' => 'Diproses', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
-                    'shipped' => ['label' => 'Dikirim', 'icon' => 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 17H7V4H3m4 13V7h11l3 6h-3m-4 4h4m-4-4v4'],
+                    'ready' => ['label' => 'Siap', 'icon' => 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 17H7V4H3m4 13V7h11l3 6h-3m-4 4h4m-4-4v4'],
                     'completed' => ['label' => 'Selesai', 'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
                 ];
             @endphp

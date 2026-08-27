@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Store;
 
 use App\Models\Order;
-use App\Services\Customer\PaymentService;
 use App\Services\Store\StoreOrderService;
 use IdCore\CoreStarter\Http\Controllers\Base\BaseCoreController;
 use IdCore\CoreStarter\Services\DataTableService;
@@ -129,9 +128,17 @@ class OrdersController extends BaseCoreController
         $badgeStyles = [
             'pending' => 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
             'processing' => 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400',
-            'shipped' => 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400',
+            'ready' => 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400',
             'completed' => 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400',
             'cancelled' => 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
+        ];
+        $paymentLabels = [
+            'cash' => 'Cash',
+            'bank_transfer' => 'Transfer',
+        ];
+        $fulfillLabels = [
+            'pickup' => 'Ambil Sendiri',
+            'delivery' => 'Antar/Kirim',
         ];
 
         return DataTableService::process(
@@ -146,17 +153,23 @@ class OrdersController extends BaseCoreController
                     $query->where('orders.store_id', $request->input('store_id'));
                 }
             },
-            function (Order $order) use ($statusLabels, $badgeStyles) {
-                $method = $order->payments->first()?->payment_method;
+            function (Order $order) use ($statusLabels, $badgeStyles, $paymentLabels, $fulfillLabels) {
+                $payment = $order->payments->first();
+                $method = $payment?->payment_method;
+                $payLabel = $paymentLabels[$method] ?? '-';
+                $paid = $payment?->status === 'paid';
 
                 return [
                     'id' => $order->id,
-                    'order_no' => '<p class="font-semibold text-gray-900 dark:text-white">'.e($order->order_no).'</p><p class="text-xs text-gray-500 dark:text-gray-400">'.e($order->store->store_name ?? '-').'</p>',
+                    'order_no' => '<p class="font-semibold text-gray-900 dark:text-white">'.e($order->order_no).'</p><p class="text-xs text-gray-500 dark:text-gray-400">'.e($order->store->store_name ?? '-').'</p>'
+                        .'<span class="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold '.($order->fulfillment_type === 'pickup' ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400').'">'
+                        .($fulfillLabels[$order->fulfillment_type] ?? ucfirst(str_replace('_', ' ', $order->fulfillment_type))).'</span>',
                     'name_plain' => $order->order_no,
                     'customer' => '<p class="text-gray-700 dark:text-gray-300">'.e($order->customer?->name ?? '-').'</p><p class="text-xs text-gray-500 dark:text-gray-400">'.e($order->customer?->phone ?? '').'</p>',
                     'items' => $order->items->count(),
                     'total' => '<span class="font-semibold text-gray-900 dark:text-white">Rp '.number_format((float) $order->total, 0, ',', '.').'</span>',
-                    'payment' => PaymentService::METHODS[$method] ?? '-',
+                    'payment' => '<div class="inline-flex flex-col items-center gap-1"><span class="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">'.e($payLabel).'</span>'
+                        .($payment ? '<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold '.($paid ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400').'">'.($paid ? 'LUNAS' : 'Menunggu').'</span>' : '').'</div>',
                     'status' => '<span class="rounded-full px-2.5 py-0.5 text-xs font-semibold '.($badgeStyles[$order->status] ?? 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300').'">'.($statusLabels[$order->status] ?? ucfirst($order->status)).'</span>',
                     'created_at' => $order->created_at->format('d M Y H:i'),
                     'detail_url' => auth()->user()->can($this->resourceName().'.detail') ? route($this->module.'.show', $order->id) : null,

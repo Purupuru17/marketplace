@@ -23,18 +23,18 @@ class StoreOrderService
 
     public const TRANSITIONS = [
         'pending' => ['processing', 'cancelled'],
-        'processing' => ['shipped', 'cancelled'],
-        'shipped' => ['completed'],
+        'processing' => ['ready', 'cancelled'],
+        'ready' => ['cancelled'],
         'completed' => [],
         'cancelled' => [],
     ];
 
     public const STATUS_LABELS = [
-        'pending' => 'Pending',
-        'processing' => 'Processing',
-        'shipped' => 'Shipped',
-        'completed' => 'Completed',
-        'cancelled' => 'Cancelled',
+        'pending' => 'Menunggu Diproses',
+        'processing' => 'Sedang Disiapkan',
+        'ready' => 'Siap Diserahkan',
+        'completed' => 'Selesai',
+        'cancelled' => 'Dibatalkan',
     ];
 
     public function query(User $user)
@@ -83,11 +83,6 @@ class StoreOrderService
             if ($to === 'cancelled') {
                 $this->restoreStock($order);
                 $this->walletService->reverseHold($order);
-            }
-
-            if ($to === 'completed') {
-                $this->walletService->settle($order);
-                $this->loyaltyService->creditEarn($order);
             }
 
             $order->update(['status' => $to]);
@@ -163,7 +158,7 @@ class StoreOrderService
         $invoice = $order->invoice;
 
         $hasActive = $invoice->orders()
-            ->whereIn('status', ['pending', 'processing', 'shipped', 'completed'])
+            ->whereIn('status', ['pending', 'processing', 'ready', 'completed'])
             ->exists();
 
         if (! $hasActive && $invoice->status !== 'cancelled') {

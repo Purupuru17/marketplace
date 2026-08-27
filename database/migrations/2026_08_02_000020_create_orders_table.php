@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignUuid('invoice_id')->constrained('invoices')->cascadeOnDelete();
             $table->foreignUuid('store_id')->constrained('stores')->cascadeOnDelete();
             $table->foreignUuid('customer_id')->constrained('customers')->cascadeOnDelete();
-            $table->enum('status', ['pending', 'processing', 'shipped', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'processing', 'ready', 'completed', 'cancelled'])->default('pending');
             $table->enum('fulfillment_type', ['pickup', 'delivery'])->default('delivery');
             $table->decimal('subtotal', 15, 2)->default(0);
             $table->decimal('discount', 15, 2)->default(0);

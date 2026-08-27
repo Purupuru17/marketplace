@@ -71,6 +71,7 @@ Route::middleware(['web', 'auth:customer', 'active:customer'])->prefix('customer
 
     Route::get('orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('order.show');
+    Route::post('orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])->middleware('throttle:action')->name('order.confirm-received');
     Route::get('orders/{order}/review', [OrderController::class, 'review'])->name('order.review');
     Route::post('orders/{order}/review', [OrderController::class, 'submitReview'])->middleware('throttle:action')->name('order.review.store');
 

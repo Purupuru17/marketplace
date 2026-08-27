@@ -81,10 +81,16 @@ class LoyaltyRatingFavoriteSmokeTest extends TestCase
 
     protected function completeOrder(Order $order): void
     {
-        foreach (['processing', 'shipped', 'completed'] as $status) {
+        $this->actingAs($this->owner(), 'web')
+            ->post(route('toko.order.paid', $order->id));
+
+        foreach (['processing', 'ready'] as $status) {
             $this->actingAs($this->owner(), 'web')
                 ->post(route('toko.order.update', $order->id), ['status' => $status]);
         }
+
+        $this->actingAs($this->customer(), 'customer')
+            ->post(route('customer.order.confirm-received', $order->id));
     }
 
     public function test_points_are_earned_when_order_completed(): void

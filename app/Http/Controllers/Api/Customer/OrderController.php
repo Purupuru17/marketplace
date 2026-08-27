@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Api\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Services\Customer\CustomerOrderService;
+use App\Services\Store\StoreOrderService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    public function __construct(protected CustomerOrderService $customerOrderService) {}
+
     public function index(Request $request)
     {
         $status = $request->query('status');
@@ -54,14 +58,41 @@ class OrderController extends Controller
         ]);
     }
 
+    public function confirmReceived(Request $request, Order $order)
+    {
+        $order = $this->customerOrderService->confirmReceived($request->user('api-customer'), $order);
+
+        return response()->json(['data' => $this->orderPayload($order)]);
+    }
+
+    protected function statusLabel(Order $order): string
+    {
+        return match ($order->status) {
+            'ready' => $order->fulfillment_type === 'pickup' ? 'Siap Diambil' : 'Sedang Diantar',
+            default => StoreOrderService::STATUS_LABELS[$order->status] ?? $order->status,
+        };
+    }
+
     protected function orderPayload(Order $order): array
     {
+        $pendingPayment = $order->payments->first(fn ($p) => $p->status === 'pending');
+
         return [
             'id' => $order->id,
             'order_no' => $order->order_no,
             'status' => $order->status,
+            'status_label' => $this->statusLabel($order),
             'fulfillment_type' => $order->fulfillment_type,
+            'can_confirm_received' => $order->status === 'ready'
+                && $order->payments->isNotEmpty()
+                && $order->payments->every(fn ($p) => $p->status === 'paid'),
             'total' => (float) $order->total,
+            'subtotal' => (float) $order->subtotal,
+            'discount' => (float) $order->discount,
+            'shipping_cost' => (float) $order->shipping_cost,
+            'distance_km' => $order->distance_km_snapshot !== null ? (float) $order->distance_km_snapshot : null,
+            'address_snapshot' => is_array($order->address_snapshot) ? $order->address_snapshot : null,
+            'expired_at' => $pendingPayment?->expired_at?->toIso8601String(),
             'store' => [
                 'id' => $order->store?->id,
                 'name' => $order->store?->store_name,
@@ -72,6 +103,7 @@ class OrderController extends Controller
                 'id' => $item->id,
                 'name' => $item->name_snapshot,
                 'sku' => $item->sku_snapshot,
+                'variant' => $item->variant_snapshot,
                 'qty' => $item->qty,
                 'final_price' => (float) ($item->final_price_snapshot ?? $item->subtotal_snapshot),
                 'image_url' => $item->product?->images?->sortBy('position')->first()
@@ -89,6 +121,11 @@ class OrderController extends Controller
                 'payment_method' => $payment->payment_method,
                 'amount' => (float) $payment->amount,
                 'status' => $payment->status,
+                'paid_at' => $payment->paid_at?->toIso8601String(),
+                'bank_snapshot' => $payment->bank_snapshot,
+                'payment_proof_url' => $payment->payment_proof_path
+                    ? url(\Illuminate\Support\Facades\Storage::disk('public')->url($payment->payment_proof_path))
+                    : null,
             ])->values(),
             'status_history' => $order->statusHistories->sortBy('created_at')->map(fn ($history) => [
                 'status_to' => $history->status_to,
@@ -127,6 +164,8 @@ class OrderController extends Controller
                     'name' => $order->store?->store_name,
                 ],
                 'status' => $order->status,
+                'status_label' => $this->statusLabel($order),
+                'fulfillment_type' => $order->fulfillment_type,
                 'total' => (float) $order->total,
                 'items' => $order->items->map(fn ($item) => [
                     'id' => $item->id,
