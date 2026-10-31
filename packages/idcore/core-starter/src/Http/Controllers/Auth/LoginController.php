@@ -7,6 +7,7 @@ use IdCore\CoreStarter\Support\ActiveRole;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Role;
 
 class LoginController extends Controller
@@ -26,33 +27,34 @@ class LoginController extends Controller
             return redirect()->route('login');
         }
 
-        $roles = Role::withCount('users')->orderBy('name')->limit(50)->get();
-
-        $roleRows = $roles->map(fn ($role) => [
-            'name' => $role->name,
-            'guard_name' => $role->guard_name,
-            'users_count' => $role->users_count,
-            'created_at' => $role->created_at?->format('d M Y') ?? '-',
-        ])->all();
+        $user = Auth::user();
+        $activeRole = ActiveRole::get($user);
 
         return view('idcore::auth.dashboard', [
-            'roleColumns' => [
-                ['key' => 'name', 'label' => 'Role', 'sortable' => true, 'align' => 'left'],
-                ['key' => 'guard_name', 'label' => 'Guard', 'sortable' => true, 'align' => 'left'],
-                ['key' => 'users_count', 'label' => 'Jumlah User', 'sortable' => true, 'align' => 'center'],
-                ['key' => 'created_at', 'label' => 'Dibuat', 'sortable' => true, 'align' => 'left'],
-            ],
-            'roleRows' => $roleRows,
-            'roleJsonUrl' => route('dashboard.roles-json'),
+            'user' => $user,
+            'activeRole' => $activeRole
         ]);
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $rules = [
             'email' => 'required|email',
             'password' => 'required|string',
-        ]);
+        ];
+
+        if ($this->recaptchaEnabled()) {
+            $rules['g-recaptcha-response'] = 'required|string';
+        }
+
+        $request->validate($rules);
+
+        if ($this->recaptchaEnabled() && ! $this->verifyRecaptcha($request->input('g-recaptcha-response'), $request->ip())) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.']);
+        }
+
+        $credentials = $request->only(['email', 'password']);
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withInput($request->only('email'))
@@ -94,5 +96,25 @@ class LoginController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', "Berhasil beralih ke role \"{$validated['role']}\".");
+    }
+
+    private function recaptchaEnabled(): bool
+    {
+        return filled(config('idcore.recaptcha.site_key')) && filled(config('idcore.recaptcha.secret_key'));
+    }
+
+    private function verifyRecaptcha(?string $response, ?string $ip): bool
+    {
+        if (blank($response)) {
+            return false;
+        }
+
+        $result = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => config('idcore.recaptcha.secret_key'),
+            'response' => $response,
+            'remoteip' => $ip,
+        ]);
+
+        return $result->successful() && $result->json('success') === true;
     }
 }

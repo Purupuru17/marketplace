@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Middleware\EnsureAccountIsActive;
-use App\Http\Middleware\SecurityHeaders;
 use IdCore\CoreStarter\Http\Middleware\AuditActivity;
 use IdCore\CoreStarter\Http\Middleware\CheckCorePermission;
+use IdCore\CoreStarter\Http\Middleware\EnsureAccountIsActive;
+use IdCore\CoreStarter\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'core_permission' => CheckCorePermission::class,
-            'active' => EnsureAccountIsActive::class,
+            'active' => EnsureAccountIsActive::class
         ]);
 
         $middleware->appendToGroup('web', SecurityHeaders::class);

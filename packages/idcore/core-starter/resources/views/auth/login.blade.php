@@ -33,8 +33,8 @@
                         @csrf
                         <div class="space-y-5">
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Email <span class="text-error-500">*</span></label>
-                                <input type="email" name="email" value="{{ old('email') }}" required autofocus
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Username/Email <span class="text-error-500">*</span></label>
+                                <input type="email" name="email" value="{{ old('email') }}" required placeholder="Enter your username" autofocus
                                        class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
                             </div>
                             <div x-data="{ showPassword: false }">
@@ -61,6 +61,15 @@
                                 </label>
                                 <a href="#" class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">Forgot password?</a>
                             </div>
+
+                            @if(config('idcore.recaptcha.site_key'))
+                                <div class="flex justify-center">
+                                    <div class="g-recaptcha" data-sitekey="{{ config('idcore.recaptcha.site_key') }}"></div>
+                                </div>
+                                @error('g-recaptcha-response')
+                                    <p class="text-sm text-error-600">{{ $message }}</p>
+                                @enderror
+                            @endif
 
                             <button type="submit" class="flex w-full items-center justify-center rounded-lg bg-brand-500 px-4 py-3 text-sm font-medium text-white shadow-theme-xs transition hover:bg-brand-600">
                                 Sign In
@@ -95,5 +104,8 @@
             </div>
         </div>
     </div>
+    @if(config('idcore.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 </body>
 </html>
